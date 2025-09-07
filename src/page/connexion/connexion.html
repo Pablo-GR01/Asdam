@@ -1,175 +1,99 @@
-<div class="relative h-screen overflow-hidden">
-    <!-- Image de fond -->
-    <img src="assets/bg-connexion.png" alt="fond" class="absolute top-0 left-0 w-full h-full object-cover z-0">
+<app-icon></app-icon>
 
-    <!-- Contenu centré -->
-    <div class="relative z-10 flex flex-col items-center justify-center h-full space-y-8">
+<!-- Conteneur principal avec image de fond -->
+<div class="min-h-screen flex items-center justify-center px-4
+            bg-[url('/assets/ImageFond.jpg')] bg-cover bg-center relative">
 
-        <!-- Logo -->
-      <img src="assets/LOGO.png" alt="logo" class="absolute -mt-150 w-50 max-w-xs opacity-50 drop-shadow-xl">
+  <!-- Overlay sombre semi-transparent + flou -->
+  <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
 
-       <!-- Formulaire -->
-        <form class="bg-black bg-opacity-95 mt-30 p-6 rounded-xl shadow-2xl w-80 space-y-4" (ngSubmit)="onSubmit()">
+  <!-- Conteneur formulaire centré -->
+  <div class="w-full max-w-md relative z-10">
 
-            <!-- Titre -->
-            <h2 class="text-xl text-center font-black text-red-600">Connexion</h2>
-
-            <!-- Boutons de rôle -->
-            <div class="flex justify-between gap-2">
-
-                <button type="button"
-                    class="w-1/3 py-2 rounded-md font-semibold  transition"
-                    [ngClass]="{
-                    'bg-red-600 text-white': selectedRole === 'Joueur',
-                    'bg-gray-200 hover:text-white hover:bg-red-900': selectedRole !== 'Joueur'
-                    }"
-                    (click)="selectRole('Joueur')">Joueur
-                </button>
-
-                <button type="button"
-                    class="w-1/3 py-2 rounded-md font-semibold transition"
-                    [ngClass]="{
-                        'bg-red-600 text-white': selectedRole === 'Coach',
-                        'bg-gray-200 hover:text-white hover:bg-red-900': selectedRole !== 'Coach'
-                    }"
-                    (click)="selectRole('Coach')">Coach
-                </button>
-
-                <button type="button"
-                    class="w-1/3 py-2 rounded-md font-semibold  transition"
-                    [ngClass]="{
-                        'bg-red-600 text-white': selectedRole === 'Admin',
-                        'bg-gray-200 hover:text-white hover:bg-red-900': selectedRole !== 'Admin'
-                    }"
-                    (click)="selectRole('Admin')">Admin
-                </button>
-
-            </div>
-
-            <!-- Adresse mail -->
-            <div>
-            <label class="block text-white font-semibold mb-1">Mail</label>
-            <input type="email" [(ngModel)]="form.email" name="email" required
-                    placeholder="Votre Mail"
-                    class="w-full px-3 py-2  text-white border border-red-600 rounded-md focus:outline-none focus:ring focus:ring-red-800">
-            </div>
-            <!-- Mot de passe -->
-            <div>
-            <label class="block text-white font-semibold mb-1">Password</label>
-            <input type="password" [(ngModel)]="form.password" name="password" required
-                    placeholder="Votre password"
-                    class="w-full px-3 py-2 text-white border border-red-600 rounded-md focus:outline-none focus:ring focus:ring-red-800">
-            </div>
-
-            <!-- Code secret (visible pour Coach/Admin uniquement) -->
-        <div *ngIf="selectedRole === 'Coach' || selectedRole === 'Admin'">
-          <label class="block text-white font-semibold mb-1">Code Club</label>
-          <input type="text" [(ngModel)]="form.code" name="code"
-                 placeholder="Code"
-                 class="w-full px-3 py-2 text-white border border-red-600 rounded-md focus:outline-none focus:ring focus:ring-red-800">
-        </div>
-
-        <!-- Bouton de connexion -->
-        <button type="submit"
-                class="w-full bg-red-600 text-white py-2 rounded-md font-semibold hover:bg-red-900 transition duration-200">
-          Valider
-        </button>
-
-        <!-- Lien vers l'inscription -->
-        <p class="text-center text-sm text-white mt-2">
-          Tu n'as pas encore de compte ?  
-          <a routerLink="/inscription" class="text-red-600 hover:underline font-medium cursor-pointer">S'inscrire</a>
-        </p>
-
-        </form>
+    <!-- Message de bienvenue -->
+    <div *ngIf="message"
+         class="relative border-2 border-[var(--Violet)] rounded-3xl shadow-2xl text-center font-semibold
+                text-lg md:text-xl 2xl:text-2xl px-6 py-4 mb-6
+                bg-gradient-to-r from-[var(--Bleu-Foncé)] to-[var(--Bleu)] 
+                text-[var(--Blanc)] animate-fade-in
+                ring-1 ring-[var(--Violet)] ring-opacity-30
+                backdrop-blur-sm">
+      {{ message }}
     </div>
-</div>
 
+    <!-- Formulaire -->
+    <div class="bg-[var(--Blanc)] bg-opacity-80 backdrop-blur-md rounded-3xl p-8 shadow-2xl
+                border-2 border-[var(--Rouge-Clair)] relative">
 
+      <!-- Titre -->
+      <h2 class="text-center font-extrabold text-[var(--Black)] mb-6
+                 2xl:text-4xl xl:text-3xl md:text-3xl sm:text-2xl text-xl">
+        <i class="fas fa-sign-in-alt mr-2 text-[var(--Violet)]"></i>Connexion
+      </h2>
 
+      <form (ngSubmit)="valider()" #connexionForm="ngForm" class="space-y-5">
 
-
-
-
-<!-- <div class="relative h-screen overflow-hidden">
-    <!-- Image de fond --
-    <img src="assets/bg-connexion.png" alt="fond" class="absolute top-0 left-0 w-full h-full object-cover z-0">
-  
-    <!-- Contenu centré --
-    <div class="relative z-10 flex flex-col items-center justify-center h-full space-y-8">
-  
-      <!-- Logo --
-      <img src="assets/LOGO.png" alt="logo" class="max-w-xs opacity-90 drop-shadow-xl">
-  
-      <!-- Formulaire --
-      <form class="bg-white bg-opacity-95 p-6 rounded-xl shadow-2xl w-80 space-y-4" (ngSubmit)="onSubmit()">
-        
-        <!-- Titre --
-        <h2 class="text-xl text-center font-bold text-gray-800">Connexion à l'espace ASDAM</h2>
-  
-        <!-- Boutons de rôle --
-        <div class="flex justify-between gap-2">
-          <button type="button"
-                  class="w-1/3 py-2 rounded-md font-semibold border transition"
-                  [ngClass]="{
-                    'bg-green-600 text-white': selectedRole === 'Joueur',
-                    'bg-gray-200 text-black': selectedRole !== 'Joueur'
-                  }"
-                  (click)="selectRole('Joueur')">Joueur</button>
-  
-          <button type="button"
-                  class="w-1/3 py-2 rounded-md font-semibold border transition"
-                  [ngClass]="{
-                    'bg-yellow-500 text-white': selectedRole === 'Coach',
-                    'bg-gray-200 text-black': selectedRole !== 'Coach'
-                  }"
-                  (click)="selectRole('Coach')">Coach</button>
-  
-          <button type="button"
-                  class="w-1/3 py-2 rounded-md font-semibold border transition"
-                  [ngClass]="{
-                    'bg-red-600 text-white': selectedRole === 'Admin',
-                    'bg-gray-200 text-black': selectedRole !== 'Admin'
-                  }"
-                  (click)="selectRole('Admin')">Admin</button>
-        </div>
-  
-        <!-- Adresse mail --
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">Adresse e-mail</label>
-          <input type="email" [(ngModel)]="form.email" name="email" required
-                 placeholder="email@asdam.fr"
-                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
-        </div>
-  
-        <!-- Mot de passe --
-        <div>
-          <label class="block text-gray-700 font-semibold mb-1">Mot de passe</label>
-          <input type="password" [(ngModel)]="form.password" name="password" required
-                 placeholder="********"
-                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
+        <!-- Email -->
+        <div class="flex flex-col">
+          <label for="email" class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+            <i class="fas fa-envelope text-[var(--Rouge-Clair)]"></i> Adresse mail
+          </label>
+          <input type="email" id="email" name="email" placeholder="Votre Mail" required
+                 class="w-full text-[var(--Black)]
+                 relative flex items-center border-2 border-[var(--Rouge-Clair)] rounded-lg px-3 py-2
+                      focus-within:border-[var(--Bleu)] focus-within:ring-2 focus-within:ring-[var(--Bleu)]
+                      transition-all outline-none"
+                 [(ngModel)]="connexionData.email" #email="ngModel" />
+          <p *ngIf="formSubmitted && email.invalid" class="text-[var(--Rouge)] text-xs mt-1 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle"></i> Veuillez entrer un email valide
+          </p>
         </div>
 
-        <!-- Code secret (visible pour Coach/Admin uniquement) --
-        <div *ngIf="selectedRole === 'Coach' || selectedRole === 'Admin'">
-          <label class="block text-gray-700 font-semibold mb-1">Code Club</label>
-          <input type="text" [(ngModel)]="form.code" name="code"
-                 placeholder="Code donné par le club"
-                 class="w-full px-3 py-2 border border-red-400 rounded-md focus:outline-none focus:ring focus:ring-red-300">
+        <!-- Mot de passe -->
+        <div class="flex flex-col">
+          <label for="password" class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+            <i class="fas fa-lock text-[var(--Rouge-Clair)]"></i> Mot de passe
+          </label>
+          <div class="relative flex items-center border-2 border-[var(--Rouge-Clair)] rounded-lg px-3 py-2
+                      focus-within:border-[var(--Bleu)] focus-within:ring-2 focus-within:ring-[var(--Bleu)]
+                      transition-all">
+            <input [type]="passwordVisible ? 'text' : 'password'" id="password" name="password"
+                   placeholder="Votre mot de passe" required minlength="6"
+                   class="bg-transparent outline-none w-full text-[var(--Black)]"
+                   [(ngModel)]="connexionData.password" #password="ngModel" />
+            <button type="button" class="absolute right-3 text-[var(--Rouge-Clair)]"
+                    (click)="togglePasswordVisibility()" aria-label="Afficher / masquer mot de passe" tabindex="-1">
+              <i class="fa" [ngClass]="passwordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+          <p *ngIf="formSubmitted && password.invalid" class="text-[var(--Rouge)] text-xs mt-1 flex items-center gap-1">
+            <i class="fas fa-exclamation-circle"></i> Mot de passe min. 6 caractères
+          </p>
         </div>
-  
-        <!-- Bouton de connexion --
-        <button type="submit"
-                class="w-full bg-blue-600 text-white py-2 rounded-md font-semibold hover:bg-blue-700 transition duration-200">
-          Entrer dans mon espace
-        </button>
-  
-        <!-- Lien vers l'inscription --
-        <p class="text-center text-sm text-gray-600 mt-2">
-          Tu n'as pas encore de compte ?  
-          <a routerLink="/inscription" class="text-blue-600 hover:underline font-medium">S'inscrire</a>
+
+        <!-- Message serveur -->
+        <p *ngIf="errorMessage" class="text-[var(--Rouge)] text-sm mt-2 text-center flex items-center justify-center gap-1">
+          <i class="fas fa-times-circle"></i> {{ errorMessage }}
         </p>
+
+        <!-- Bouton valider amélioré -->
+        <button type="submit" [disabled]="!formulaireValide() || isLoading"
+        class="flex items-center justify-center gap-2 w-full py-3 font-bold text-[var(--Blanc)]
+            rounded-xl bg-gradient-to-r from-[var(--Rouge)] to-[var(--Bleu-Foncé)]
+            hover:from-[var(--Rouge)] hover:to-[var(--Rouge)]
+            transition-all duration-300 ease-in-out">
+        <i class="fas fa-check"></i> {{ isLoading ? 'Connexion...' : 'Valider' }}
+        </button>
       </form>
+
+      <!-- Lien inscription -->
+      <p class="-ml-1 -mr-3 text-sm font-bold text-[var(--Black)] mt-6">
+        <i class="fas fa-user-plus text-[var(--Rouge-Clair)] mr-1"></i>
+        Vous n'avez pas encore de compte ?
+        <a routerLink="/inscription" class="text-[var(--Rouge-Clair)] font-bold hover:underline transition duration-200">
+          Créer un compte
+        </a>
+      </p>
     </div>
-  </div> -->
-  
+  </div>
+</div>

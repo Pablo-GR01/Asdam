@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+:root {
+    /* Palette principale */
+    --Blanc:#FFFF;
+    --Black:#000;
+
+
+    --Bleu-Foncé: #040142;
+    --Bleu: #06027e;
+    --Bleu-Clair: #0a03ce;
+
+    -Rouge-Foncé:#520000;
+    --Rouge: #8d0202;
+    --Rouge-Clair: #ca0303;
+  }
+  
