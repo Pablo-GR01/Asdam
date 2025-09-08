@@ -1,0 +1,159 @@
+<app-icon></app-icon>
+
+<!-- ================= HEADER ================= -->
+<header class="bg-[var(--Blanc)] border-b-4 border-[var(--Rouge-Clair)] shadow-md relative">
+    <div class="max-w-7xl mx-auto flex justify-between items-center px-6 py-3 relative">
+  
+      <!-- LOGO + Nom -->
+      <div class="relative -ml-82 flex items-center gap-3">
+        <img src="assets/LOGO.png" alt="LOGO ASDAM" class="w-12 h-12 object-contain">
+        <h1 class="text-2xl font-extrabold text-[var(--Rouge-Clair)] tracking-wide">TeamAsdam</h1>
+      </div>
+  
+      <!-- NAVIGATION DESKTOP -->
+      <nav class="absolute ml-275 hidden md:flex gap-6 font-semibold text-[var(--Black)]">
+  
+        <!-- ACTUALITÉ -->
+        <div class="relative">
+          <button (click)="toggleDropdown('actusMenu', $event)" 
+                  class="flex items-center gap-1 hover:text-[var(--Rouge-Clair)] transition">
+            <i class="fas fa-newspaper"></i> Actualité
+            <span class="transition-transform duration-300">▼</span>
+          </button>
+          <div id="actusMenu" class="-ml-10 hidden absolute left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 w-44 z-50">
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-bullhorn"></i> Dernières news
+            </a>
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-file-alt"></i> Communiqués
+            </a>
+          </div>
+        </div>
+  
+        <!-- MATCH -->
+        <div class="relative">
+          <button (click)="toggleDropdown('matchMenu', $event)" 
+                  class="flex items-center gap-1 hover:text-[var(--Rouge-Clair)] transition">
+            <i class="fas fa-futbol"></i> Match
+            <span class="transition-transform duration-300">▼</span>
+          </button>
+          <div id="matchMenu" class="-ml-10 hidden absolute left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 w-44 z-50">
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-users"></i> Convocations
+            </a>
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-trophy"></i> Résultats
+            </a>
+          </div>
+        </div>
+  
+        <!-- PLANNING -->
+        <div class="relative">
+          <button (click)="toggleDropdown('planningMenu', $event)" 
+                  class="flex items-center gap-1 hover:text-[var(--Rouge-Clair)] transition">
+            <i class="fas fa-calendar-alt"></i> Planning
+            <span class="transition-transform duration-300">▼</span>
+          </button>
+          <div id="planningMenu" class="-ml-10 hidden absolute left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 w-44 z-50">
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-dumbbell"></i> Entraînements
+            </a>
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-calendar-check"></i> Événements
+            </a>
+          </div>
+        </div>
+  
+        <!-- NOTIF -->
+        <div class="relative">
+          <button (click)="toggleDropdown('notifMenu', $event)" 
+                  class="flex items-center gap-1 hover:text-[var(--Rouge-Clair)] transition relative">
+            <i class="fas fa-bell"></i> Notif
+            <span *ngIf="notifCount > 0" 
+                  class="absolute -top-1 -right-3 bg-[var(--Rouge-Clair)] text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+              {{ notifCount }}
+            </span>
+            <span class="transition-transform duration-300">▼</span>
+          </button>
+          <div id="notifMenu" class="-ml-20 hidden absolute left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-200 w-44 z-50">
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-envelope"></i> Messages
+              <span *ngIf="messageCount > 0" 
+                    class="ml-1 bg-[var(--Rouge-Clair)] text-white text-xs px-1 rounded-full">
+                {{ messageCount }}
+              </span>
+            </a>
+            <a href="#" class="block px-4 py-2 hover:bg-[var(--Rouge-Clair)] hover:text-white">
+              <i class="fas fa-exclamation-circle"></i> Alertes
+            </a>
+          </div>
+        </div>
+  
+      </nav>
+  
+      <!-- MENU BURGER MOBILE -->
+      <div class="md:hidden">
+        <button (click)="toggleMobileMenu()" class="text-[var(--Rouge-Clair)] text-3xl">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  
+    <!-- MENU MOBILE -->
+    <div [class.hidden]="!mobileMenuOpen" class="md:hidden bg-white border-t border-gray-200">
+      <nav class="flex flex-col p-4 gap-3 font-semibold text-gray-700">
+        <details>
+          <summary class="cursor-pointer hover:text-[var(--Rouge-Clair)]">
+            <i class="fas fa-newspaper"></i> Actualité
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Dernières news</a>
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Communiqués</a>
+          </div>
+        </details>
+  
+        <details>
+          <summary class="cursor-pointer hover:text-[var(--Rouge-Clair)]">
+            <i class="fas fa-futbol"></i> Match
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Convocations</a>
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Résultats</a>
+          </div>
+        </details>
+  
+        <details>
+          <summary class="cursor-pointer hover:text-[var(--Rouge-Clair)]">
+            <i class="fas fa-calendar-alt"></i> Planning
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Entraînements</a>
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">Événements</a>
+          </div>
+        </details>
+  
+        <details>
+          <summary class="cursor-pointer hover:text-[var(--Rouge-Clair)]">
+            <i class="fas fa-bell"></i> Notif
+            <span *ngIf="notifCount > 0" 
+                  class="ml-1 bg-[var(--Rouge-Clair)] text-white text-xs px-1 rounded-full">
+              {{ notifCount }}
+            </span>
+          </summary>
+          <div class="pl-4 flex flex-col gap-2">
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">
+              <i class="fas fa-envelope"></i> Messages
+              <span *ngIf="messageCount > 0" 
+                    class="ml-1 bg-[var(--Rouge-Clair)] text-white text-xs px-1 rounded-full">
+                {{ messageCount }}
+              </span>
+            </a>
+            <a href="#" class="hover:text-[var(--Rouge-Clair)]">
+              <i class="fas fa-exclamation-circle"></i> Alertes
+            </a>
+          </div>
+        </details>
+      </nav>
+    </div>
+  </header>
+  

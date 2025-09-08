@@ -1,0 +1,27 @@
+[
+    {
+      "id": 1,
+      "nom": "ASDAM",
+      "abbreviation": "ASD",
+      "image": "asdam.png"
+    },
+    {
+      "id": 2,
+      "nom": "Paris Saint-Germain",
+      "abbreviation": "PSG",
+      "image": "psg.png"
+    },
+    {
+      "id": 3,
+      "nom": "Olympique de Marseille",
+      "abbreviation": "OM",
+      "image": "om.png"
+    },
+    {
+      "id": 4,
+      "nom": "FC Barcelone",
+      "abbreviation": "FCB",
+      "image": "barca.png"
+    }
+  ]
+  
