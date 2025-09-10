@@ -41,7 +41,7 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 .catch(err => console.error('❌ Erreur MongoDB :', err));
 
 // Routes
-app.use('/api/unidys', authRoutes);
+app.use('/api/asdam', authRoutes);
 app.use('/api', userRoutes);
 // app.use('/api/user', utilisateurRoutes);
 // app.use('/api/unidys', newsletterRoutes);
