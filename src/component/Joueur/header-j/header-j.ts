@@ -11,7 +11,7 @@ import { Icon } from '../../icon/icon';
 })
 export class HeaderJ {
   mobileMenuOpen = false;
-  notifCount = 5;
+  notifCount = 1;
   messageCount = 2;
   activeDropdown: string | null = null;  // ← variable Angular propre
 
