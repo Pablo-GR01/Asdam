@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface EventItem {
@@ -16,19 +16,21 @@ export interface EventItem {
   providedIn: 'root'
 })
 export class EventService {
-  private apiUrl = 'http://localhost:3000/api/events'; // Modifie selon ton backend
+  private apiUrl = 'http://localhost:3000/api/events';
 
   constructor(private http: HttpClient) {}
 
-  // Ajouter un événement
-  addEvent(event: EventItem): Observable<EventItem> {
-    // Optionnel : définir les headers si ton backend attend du JSON
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<EventItem>(this.apiUrl, event, { headers });
+  // ⚡ Maintenant on accepte FormData pour upload d'image
+  addEvent(event: FormData): Observable<EventItem> {
+    return this.http.post<EventItem>(this.apiUrl, event);
   }
 
-  // Récupérer tous les événements
   getEvents(): Observable<EventItem[]> {
     return this.http.get<EventItem[]>(this.apiUrl);
   }
+
+  deleteEvent(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
 }

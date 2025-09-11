@@ -16,8 +16,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Fichiers statiques
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // accès aux images
+
 
 // Connexion MongoDB
 mongoose.connect('mongodb://localhost:27017/asdam', {

@@ -1,14 +1,14 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const Event = require('../schema/event');
+const Event = require('../../src/Schema/Event'); // Assure-toi que le chemin est correct
 
 const router = express.Router();
 
 // 📂 Config multer pour upload image
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'uploads/'); // dossier pour les images
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -20,18 +20,12 @@ const upload = multer({ storage });
 router.post('/', upload.single('image'), async (req, res) => {
   try {
     const { title, coach, category, day, hour } = req.body;
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const newEvent = new Event({
-      title,
-      coach,
-      category,
-      day,
-      hour,
-      imageUrl: req.file ? `/uploads/${req.file.filename}` : null
-    });
+    const newEvent = new Event({ title, coach, category, day, hour, imageUrl });
+    const savedEvent = await newEvent.save();
 
-    await newEvent.save();
-    res.status(201).json(newEvent);
+    res.status(201).json(savedEvent);
   } catch (err) {
     res.status(500).json({ message: 'Erreur ajout événement', error: err });
   }

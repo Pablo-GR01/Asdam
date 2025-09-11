@@ -1,97 +1,146 @@
-<!-- Conteneur 100 % largeur -->
-<div class="w-full p-4 md:p-6 bg-white">
-    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 md:mb-8">
-      Planning de la semaine
-    </h2>
-  
-    <!-- Tableau fluide -->
-    <div class="w-full rounded-xl shadow-md overflow-hidden">
-      <div class="grid grid-cols-8 bg-gray-50">
-        <!-- En-tête -->
-        <div class="p-2 md:p-3 bg-gray-100/70 font-semibold text-gray-500 text-xs md:text-sm border-r border-gray-200"></div>
-        <div *ngFor="let day of weekDays"
-             class="p-2 md:p-3 bg-gray-100/70 font-semibold text-gray-700 text-center border-r last:border-r-0 border-gray-200 text-xs md:text-sm">
-          {{ day }}
+<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-8">
+  <div class="max-w-7xl mx-auto">
+
+    <!-- ENTÊTE -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Planning</h1>
+        <p class="text-sm text-gray-600 mt-1">{{ viewMode === 'month' ? monthLabel() : weekLabel() }}</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <!-- Toggle Mois / Semaine -->
+        <div class="bg-white rounded-full p-1 shadow flex gap-1">
+          <button (click)="viewMode = 'month'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngClass]="viewMode === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">Mois</button>
+          <button (click)="viewMode = 'week'"
+                  class="px-3 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngClass]="viewMode === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">Semaine</button>
         </div>
-  
-        <!-- Corps -->
-        <ng-container *ngFor="let hour of hours">
-          <!-- Heure -->
-          <div class="p-2 md:p-3 bg-gray-50 text-gray-600 text-xs md:text-sm font-medium text-right border-r border-gray-200">
-            {{ hour }}
+
+        <!-- Navigation -->
+        <button *ngIf="viewMode === 'month'" (click)="prevMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
+        <button *ngIf="viewMode === 'month'" (click)="nextMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
+        <button *ngIf="viewMode === 'week'" (click)="prevWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
+        <button *ngIf="viewMode === 'week'" (click)="nextWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
+
+        <!-- Bouton Créer -->
+        <button (click)="openPopup()"
+                class="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition transform focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <span class="text-lg">+</span>
+          <span class="hidden sm:inline">Créer</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- GRILLE -->
+    <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-4 md:p-6">
+
+      <!-- VUE MOIS -->
+      <div *ngIf="viewMode === 'month'" class="grid grid-cols-7 gap-3">
+        <div *ngFor="let day of monthDays" class="border rounded-lg p-2 bg-white shadow-sm relative">
+          <div class="font-bold text-gray-700">{{ dayNum(day) }}</div>
+
+          <!-- Événements du jour -->
+          <div class="flex flex-col gap-1 mt-1 max-h-32 overflow-y-auto">
+            <div *ngFor="let evt of getEventsByDay(day)"
+                 class="text-xs rounded px-2 py-1 text-white cursor-pointer truncate"
+                 [ngClass]="{
+                   'bg-blue-500': evt.category.startsWith('U'),
+                   'bg-green-500': evt.category.includes('Senior'),
+                   'bg-purple-500': !evt.category
+                 }"
+                 (click)="openDayPopup(day)">
+              {{ evt.hour }} - {{ evt.title }}
+            </div>
           </div>
-  
-          <!-- Cellules jour -->
-          <div *ngFor="let day of weekDays"
-               class="group relative bg-white border-r last:border-r-0 border-gray-200 p-1 md:p-2
-                      hover:bg-gray-50 transition-colors duration-200 min-h-[72px] md:min-h-[80px]">
-  
-            <!-- Événements -->
-            <ul class="space-y-1">
-              <li *ngFor="let event of getEventsByDayHour(day, hour)"
-                  class="bg-red-50 text-red-700 rounded-md px-2 py-1 text-xs flex items-center justify-between shadow-xs">
-                <div class="flex items-center gap-2">
-                  <img *ngIf="event.imageUrl" [src]="event.imageUrl" alt="event" class="w-6 h-6 rounded object-cover" />
-                  <div>
-                    <span class="font-semibold">{{ event.title }}</span>
-                    <span class="text-gray-500 ml-1 text-[10px]">({{ event.coach }})</span>
-                    <span class="ml-2 text-[10px] italic text-gray-400">{{ event.category }}</span>
-                  </div>
-                </div>
-                <button (click)="deleteEvent(event)"
-                        class="ml-1 text-white bg-red-500 hover:bg-red-600
-                               rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs">
-                  &times;
-                </button>
-              </li>
-            </ul>
-  
-            <!-- Bouton ajout -->
-            <button (click)="openForm(day, hour)"
-                    class="absolute top-1 right-1 opacity-0 group-hover:opacity-100
-                           bg-red-500 hover:bg-red-600 text-white
-                           rounded-full w-5 h-5 flex items-center justify-center
-                           transition-opacity duration-200 shadow-md text-xs">
-              +
-            </button>
+        </div>
+      </div>
+
+      <!-- VUE SEMAINE : liste complète par jour -->
+      <div *ngIf="viewMode === 'week'" class="grid grid-cols-7 gap-3">
+        <div *ngFor="let day of weekDays" class="border rounded-lg p-2 bg-white shadow-sm relative">
+          <div class="font-bold text-gray-700">{{ dayName(day) }} {{ dayNum(day) }}</div>
+
+          <!-- Événements du jour -->
+          <div class="flex flex-col gap-1 mt-1 max-h-96 overflow-y-auto">
+            <div *ngFor="let evt of getEventsByDay(day)"
+                 class="flex items-center justify-between text-xs rounded px-2 py-1 text-white cursor-pointer"
+                 [ngClass]="{
+                   'bg-blue-500': evt.category.startsWith('U'),
+                   'bg-green-500': evt.category.includes('Senior'),
+                   'bg-purple-500': !evt.category
+                 }"
+                 (click)="openDayPopup(day)">
+              <span>{{ evt.hour }} - {{ evt.title }}</span>
+              <span class="italic text-[10px]">{{ evt.category }}</span>
+            </div>
           </div>
-        </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- POPUP (inchangé) -->
+    <div *ngIf="showPopup"
+         class="fixed inset-0 bg-black/40 backdrop-blur flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 animate-fade-in">
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ popupEvents.length === 0 ? 'Nouvel événement' : 'Événements du ' + popupDay }}
+        </h3>
+
+        <div *ngIf="popupEvents.length > 0" class="space-y-2 max-h-64 overflow-y-auto pr-2">
+          <div *ngFor="let evt of popupEvents"
+               class="p-3 bg-gray-50 rounded-lg shadow cursor-pointer hover:bg-gray-100 transition">
+            <div class="font-semibold text-gray-900">{{ evt.title }}</div>
+            <div class="text-xs text-gray-600">
+              {{ evt.coach }} · {{ evt.category }} · {{ evt.hour }} · {{ evt.duration }}h
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="popupEvents.length === 0" class="space-y-3">
+          <input type="text" [(ngModel)]="newEventTitle" placeholder="Titre"
+                 class="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          <input type="text" [(ngModel)]="newEventCoach" placeholder="Coach"
+                 class="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          <select [(ngModel)]="newEventCategory"
+                  class="w-full rounded-lg border p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+          <div class="flex gap-2">
+            <input type="date" [(ngModel)]="newEventDate"
+                   class="rounded-lg border p-3 flex-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            <input type="time" [(ngModel)]="newEventHour"
+                   class="rounded-lg border p-3 w-24 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+            <input type="number" min="1" max="8" [(ngModel)]="newEventDuration"
+                   class="rounded-lg border p-3 w-20 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+          </div>
+          <input type="file" (change)="onFileSelected($event)"
+                 class="w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+        </div>
+
+        <div class="flex justify-end gap-3 mt-4">
+          <button (click)="closePopup()"
+                  class="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition focus:outline-none focus:ring-2 focus:ring-gray-400">
+            Fermer
+          </button>
+          <button *ngIf="popupEvents.length === 0" (click)="addEvent()"
+                  class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition focus:outline-none focus:ring-2 focus:ring-blue-400">
+            Ajouter
+          </button>
+        </div>
       </div>
     </div>
   </div>
-  
-  <!-- POPUP -->
-  <div *ngIf="showPopup" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
-      <h3 class="text-lg font-bold text-gray-800 mb-4">Nouvel Événement</h3>
-  
-      <!-- Form -->
-      <div class="space-y-3">
-        <input type="text" [(ngModel)]="newEventTitle" placeholder="Titre de l'événement"
-               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
-  
-        <input type="text" [(ngModel)]="newEventCoach" placeholder="Nom de l'entraîneur"
-               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
-  
-        <select [(ngModel)]="newEventCategory"
-                class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
-          <option value="">-- Choisir une catégorie --</option>
-          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-        </select>
-  
-        <input type="file" (change)="onFileSelected($event)"
-               class="w-full text-sm text-gray-600" />
-      </div>
-  
-      <!-- Actions -->
-      <div class="flex justify-end gap-2 mt-4">
-        <button (click)="closePopup()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-sm">
-          Annuler
-        </button>
-        <button (click)="addEvent()" class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white text-sm">
-          Ajouter
-        </button>
-      </div>
-    </div>
-  </div>
-  
+</div>
+
+<style>
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+</style>
