@@ -1,0 +1,97 @@
+<!-- Conteneur 100 % largeur -->
+<div class="w-full p-4 md:p-6 bg-white">
+    <h2 class="text-2xl md:text-3xl font-extrabold text-gray-900 mb-6 md:mb-8">
+      Planning de la semaine
+    </h2>
+  
+    <!-- Tableau fluide -->
+    <div class="w-full rounded-xl shadow-md overflow-hidden">
+      <div class="grid grid-cols-8 bg-gray-50">
+        <!-- En-tête -->
+        <div class="p-2 md:p-3 bg-gray-100/70 font-semibold text-gray-500 text-xs md:text-sm border-r border-gray-200"></div>
+        <div *ngFor="let day of weekDays"
+             class="p-2 md:p-3 bg-gray-100/70 font-semibold text-gray-700 text-center border-r last:border-r-0 border-gray-200 text-xs md:text-sm">
+          {{ day }}
+        </div>
+  
+        <!-- Corps -->
+        <ng-container *ngFor="let hour of hours">
+          <!-- Heure -->
+          <div class="p-2 md:p-3 bg-gray-50 text-gray-600 text-xs md:text-sm font-medium text-right border-r border-gray-200">
+            {{ hour }}
+          </div>
+  
+          <!-- Cellules jour -->
+          <div *ngFor="let day of weekDays"
+               class="group relative bg-white border-r last:border-r-0 border-gray-200 p-1 md:p-2
+                      hover:bg-gray-50 transition-colors duration-200 min-h-[72px] md:min-h-[80px]">
+  
+            <!-- Événements -->
+            <ul class="space-y-1">
+              <li *ngFor="let event of getEventsByDayHour(day, hour)"
+                  class="bg-red-50 text-red-700 rounded-md px-2 py-1 text-xs flex items-center justify-between shadow-xs">
+                <div class="flex items-center gap-2">
+                  <img *ngIf="event.imageUrl" [src]="event.imageUrl" alt="event" class="w-6 h-6 rounded object-cover" />
+                  <div>
+                    <span class="font-semibold">{{ event.title }}</span>
+                    <span class="text-gray-500 ml-1 text-[10px]">({{ event.coach }})</span>
+                    <span class="ml-2 text-[10px] italic text-gray-400">{{ event.category }}</span>
+                  </div>
+                </div>
+                <button (click)="deleteEvent(event)"
+                        class="ml-1 text-white bg-red-500 hover:bg-red-600
+                               rounded-full w-4 h-4 md:w-5 md:h-5 flex items-center justify-center text-xs">
+                  &times;
+                </button>
+              </li>
+            </ul>
+  
+            <!-- Bouton ajout -->
+            <button (click)="openForm(day, hour)"
+                    class="absolute top-1 right-1 opacity-0 group-hover:opacity-100
+                           bg-red-500 hover:bg-red-600 text-white
+                           rounded-full w-5 h-5 flex items-center justify-center
+                           transition-opacity duration-200 shadow-md text-xs">
+              +
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  
+  <!-- POPUP -->
+  <div *ngIf="showPopup" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+      <h3 class="text-lg font-bold text-gray-800 mb-4">Nouvel Événement</h3>
+  
+      <!-- Form -->
+      <div class="space-y-3">
+        <input type="text" [(ngModel)]="newEventTitle" placeholder="Titre de l'événement"
+               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+  
+        <input type="text" [(ngModel)]="newEventCoach" placeholder="Nom de l'entraîneur"
+               class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+  
+        <select [(ngModel)]="newEventCategory"
+                class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-red-400">
+          <option value="">-- Choisir une catégorie --</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+  
+        <input type="file" (change)="onFileSelected($event)"
+               class="w-full text-sm text-gray-600" />
+      </div>
+  
+      <!-- Actions -->
+      <div class="flex justify-end gap-2 mt-4">
+        <button (click)="closePopup()" class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-sm">
+          Annuler
+        </button>
+        <button (click)="addEvent()" class="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white text-sm">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+  

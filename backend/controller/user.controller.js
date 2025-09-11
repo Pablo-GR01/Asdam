@@ -125,3 +125,43 @@ exports.changePassword = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la modification du mot de passe' });
   }
 };
+
+// Récupérer le profil de l’utilisateur connecté
+exports.getMe = async (req, res) => {
+  try {
+    // req.user.id doit venir du middleware auth JWT
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Erreur getMe:', err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
+
+// Récupère la carte complète de l'utilisateur par ID
+exports.getUserCard = async (req, res) => {
+  try {
+    const userId = req.params.id;
+
+    // Cherche l'utilisateur par ID et exclut password et cguValide
+    const user = await User.findById(userId).select('-password -cguValide');
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+
+    // Préparer les données à renvoyer
+    const userCard = {
+      nom: user.nom,
+      prenom: user.prenom,
+      equipe: user.equipe,
+      role: user.role,
+      initiale: user.initiale
+    };
+
+    res.json(userCard);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};

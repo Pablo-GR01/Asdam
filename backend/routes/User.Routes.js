@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require('../../src/Schema/user'); // Assure-toi que le chemin est correct
 const userController = require('../controller/user.controller');
 const authController = require('../controller/auth.controller');
+const authMiddleware = require('../../backend/middleware/auth'); // renomme correctement
 
 // ================= ROUTES UTILISATEURS =================
 
@@ -42,7 +43,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // ✅ Récupérer tous les utilisateurs
-router.get('/unidys/users', userController.getAllUsers);
+router.get('/asdam/users', userController.getAllUsers);
 
 // ✅ Ajouter de l’XP à un utilisateur
 router.post('/users/:id/ajouterXP', async (req, res) => {
@@ -66,5 +67,20 @@ router.post('/users/:id/ajouterXP', async (req, res) => {
 
 // ✅ Modifier uniquement le mot de passe d’un utilisateur
 router.put('/users/:id/password', userController.changePassword);
+
+// ✅ Récupérer l’utilisateur connecté (depuis JWT)
+router.get('/me', authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+});
+
+// ✅ Récupérer la carte complète de l’utilisateur par ID
+router.get('/card/:id', authMiddleware, userController.getUserCard);
 
 module.exports = router;

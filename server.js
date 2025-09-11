@@ -4,22 +4,9 @@ const cors = require('cors');
 const path = require('path');
 
 // Routes existantes
-const authRoutes = require('./backend/routes/user.Routes');
-// const newsletterRoutes = require('./backend/routes/newsletter.routes');
-// const avisRoutes = require('./backend/routes/avis.routes');
-// const coursRoutes = require('./backend/routes/cours.routes');
-// const coursHtmlRoute = require('./backend/routes/cours-html.route');
-const userRoutes = require('./backend/routes/user.Routes');
-// const utilisateurRoutes = require('./backend/routes/utilisateur.Routes');
-// // Nouvelle route QCM
-// const qcmRoutes = require('./backend/routes/qcm.routes');
-// const qcmResultsRouter = require('./backend/routes/qcmresults.routes');
-
-// // route élèves
-// const eleveRoutes = require('./backend/routes/eleve.Routes'); // <-- ajouté
-
-// route Admin
-// const createAdminRoute = require('./createAdmin');
+const authRoutes = require('./backend/routes/User.Routes');
+const userRoutes = require('./backend/routes/User.Routes');
+const eventRoutes = require('./backend/routes/Events.Routes'); // ✅ ajouté
 
 const app = express();
 const PORT = 3000;
@@ -43,21 +30,8 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 // Routes
 app.use('/api/asdam', authRoutes);
 app.use('/api', userRoutes);
-// app.use('/api/user', utilisateurRoutes);
-// app.use('/api/unidys', newsletterRoutes);
-// app.use('/api/avis', avisRoutes);
-// app.use('/api/cours', coursRoutes);
-// app.use('/api/cours/html', coursHtmlRoute);
-
-// route élèves
-// app.use('/api', eleveRoutes); // <-- ajouté ici
-// app.use('/api/unidys/cours', coursRoutes);
-// // Routes QCM (gestion des résultats)
-// app.use('/api/qcm', qcmRoutes);
-// app.use('/api/qcm/resultats', qcmResultsRouter);
-
-// routes Admin
-// app.use('/api/setup', createAdminRoute);
+app.use('/api/users', userRoutes);
+app.use('/api/events', eventRoutes); // ✅ nouvelle route pour les entraînements
 
 // Démarrage serveur
 app.listen(PORT, () => {
