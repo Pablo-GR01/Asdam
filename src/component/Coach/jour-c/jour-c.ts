@@ -195,11 +195,12 @@ export class JourC implements OnInit {
     });
   }
 
-    // Après
-    getEventsByDay(day: string | Date) {
-      const dayDate = typeof day === 'string' ? new Date(day) : day;
-      return this.events.filter(evt => new Date(evt.day).toDateString() === dayDate.toDateString());
-    }
+  getEventsByDay(day: string | Date): EventItem[] {
+    // Si day est une string, on la convertit en Date
+    const dayDate = typeof day === 'string' ? new Date(day) : day;
+    return this.events.filter(evt => new Date(evt.day).toDateString() === dayDate.toDateString());
+  }
+  
 
   // NOUVELLE méthode corrigée
   getEventsByHour(day: string, hour: string): EventItem[] {
@@ -237,12 +238,7 @@ export class JourC implements OnInit {
     this.selectedFile = input.files?.[0] ?? null; 
   }
 
-  // NOUVELLE méthode
-  quickAddEvent(day: Date, hour: string): void {
-    this.openPopup();
-    this.newEventDate = this.formatDate(day);
-    this.newEventHour = hour;
-  }
+  
 
   async addEvent(): Promise<void> {
     if (!this.newEventTitle.trim()) return;
@@ -262,6 +258,17 @@ export class JourC implements OnInit {
   async deleteEvent(event: EventItem): Promise<void> { 
     await this.removeEvent(event); 
   }
+
+  // NOUVELLE méthode corrigée
+quickAddEvent(day: string | Date, hour: string): void {
+  this.openPopup();
+  // convertir string en Date si nécessaire
+  const dayDate = typeof day === 'string' ? new Date(day) : day;
+  this.newEventDate = this.formatDate(dayDate);
+  this.newEventHour = hour;
+}
+
+
 
 
 }

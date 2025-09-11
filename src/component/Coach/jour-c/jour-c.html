@@ -1,89 +1,104 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-8">
+<div class="min-h-screen bg-gradient-to-br from-blue-100 via-blue-50 to-indigo-50 p-4 md:p-8">
   <div class="max-w-7xl mx-auto">
 
     <!-- ENTÊTE -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-6">
       <div>
         <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Planning</h1>
         <p class="text-sm text-gray-600 mt-1">{{ viewMode === 'month' ? monthLabel() : weekLabel() }}</p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-4 flex-wrap">
         <!-- Toggle Mois / Semaine -->
         <div class="bg-white rounded-full p-1 shadow flex gap-1">
           <button (click)="viewMode = 'month'"
-                  class="px-3 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  [ngClass]="viewMode === 'month' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">Mois</button>
+                  class="px-4 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngClass]="viewMode === 'month' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'">Mois</button>
           <button (click)="viewMode = 'week'"
-                  class="px-3 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  [ngClass]="viewMode === 'week' ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">Semaine</button>
+                  class="px-4 py-1.5 rounded-full text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  [ngClass]="viewMode === 'week' ? 'bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'">Semaine</button>
         </div>
 
         <!-- Navigation -->
-        <button *ngIf="viewMode === 'month'" (click)="prevMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
-        <button *ngIf="viewMode === 'month'" (click)="nextMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
-        <button *ngIf="viewMode === 'week'" (click)="prevWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
-        <button *ngIf="viewMode === 'week'" (click)="nextWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
+        <div class="flex gap-2">
+          <button *ngIf="viewMode === 'month'" (click)="prevMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
+          <button *ngIf="viewMode === 'month'" (click)="nextMonth()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
+          <button *ngIf="viewMode === 'week'" (click)="prevWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">‹</button>
+          <button *ngIf="viewMode === 'week'" (click)="nextWeek()" class="p-2 rounded-full bg-white shadow hover:shadow-md transition focus:outline-none focus:ring-2 focus:ring-blue-500">›</button>
+        </div>
 
         <!-- Bouton Créer -->
         <button (click)="openPopup()"
-                class="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition transform focus:outline-none focus:ring-2 focus:ring-rose-400">
-          <span class="text-lg">+</span>
+                class="flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-red-500 to-rose-500 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition transform focus:outline-none focus:ring-2 focus:ring-rose-400">
+          <span class="text-lg font-bold">+</span>
           <span class="hidden sm:inline">Créer</span>
         </button>
       </div>
     </header>
 
     <!-- GRILLE -->
-    <div class="bg-white/80 backdrop-blur rounded-2xl shadow-lg p-4 md:p-6">
+    <div class="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg p-4 md:p-6">
 
       <!-- VUE MOIS -->
       <div *ngIf="viewMode === 'month'" class="grid grid-cols-7 gap-3">
-        <div *ngFor="let day of monthDays" class="border rounded-lg p-2 bg-white shadow-sm relative">
-          <div class="font-bold text-gray-700">{{ dayNum(day) }}</div>
+        <div *ngFor="let day of monthDays" class="border rounded-xl p-3 bg-white shadow hover:shadow-lg transition relative">
+          <div class="font-bold text-gray-700 mb-2">{{ dayNum(day) }}</div>
 
           <!-- Événements du jour -->
-          <div class="flex flex-col gap-1 mt-1 max-h-32 overflow-y-auto">
+          <div class="flex flex-col gap-1 max-h-36 overflow-y-auto">
             <div *ngFor="let evt of getEventsByDay(day)"
-                 class="text-xs rounded px-2 py-1 text-white cursor-pointer truncate"
+                 class="text-xs rounded-lg px-2 py-1 text-white cursor-pointer truncate shadow-sm hover:scale-105 transition-transform"
                  [ngClass]="{
-                   'bg-blue-500': evt.category.startsWith('U'),
-                   'bg-green-500': evt.category.includes('Senior'),
-                   'bg-purple-500': !evt.category
+                   'bg-gradient-to-r from-blue-500 to-blue-600': evt.category.startsWith('U'),
+                   'bg-gradient-to-r from-green-500 to-green-600': evt.category.includes('Senior'),
+                   'bg-gradient-to-r from-purple-500 to-purple-600': !evt.category
                  }"
                  (click)="openDayPopup(day)">
-              {{ evt.hour }} - {{ evt.title }}
+              <span class="font-semibold">{{ evt.hour }}</span> - {{ evt.title }}
             </div>
           </div>
         </div>
       </div>
 
-      <!-- VUE SEMAINE : liste complète par jour -->
+      <!-- VUE SEMAINE -->
       <div *ngIf="viewMode === 'week'" class="grid grid-cols-7 gap-3">
-        <div *ngFor="let day of weekDays" class="border rounded-lg p-2 bg-white shadow-sm relative">
-          <div class="font-bold text-gray-700">{{ dayName(day) }} {{ dayNum(day) }}</div>
+        <div *ngFor="let day of weekDays" class="border rounded-xl bg-white shadow hover:shadow-lg transition relative">
+          <div class="font-bold text-gray-700 p-3 border-b bg-gray-50 rounded-t-xl">{{ dayName(day) }} {{ dayNum(day) }}</div>
 
-          <!-- Événements du jour -->
-          <div class="flex flex-col gap-1 mt-1 max-h-96 overflow-y-auto">
-            <div *ngFor="let evt of getEventsByDay(day)"
-                 class="flex items-center justify-between text-xs rounded px-2 py-1 text-white cursor-pointer"
-                 [ngClass]="{
-                   'bg-blue-500': evt.category.startsWith('U'),
-                   'bg-green-500': evt.category.includes('Senior'),
-                   'bg-purple-500': !evt.category
-                 }"
-                 (click)="openDayPopup(day)">
-              <span>{{ evt.hour }} - {{ evt.title }}</span>
-              <span class="italic text-[10px]">{{ evt.category }}</span>
+          <!-- Créneaux horaires -->
+          <div class="flex flex-col">
+            <div *ngFor="let hour of hours"
+                 class="min-h-[60px] border-b last:border-b-0 p-2 hover:bg-gray-50 transition-colors relative group">
+              
+              <div class="text-xs text-gray-400 mb-1">{{ hour }}</div>
+              
+              <!-- Événements à cette heure -->
+              <div *ngFor="let evt of getEventsByHour(day, hour)"
+                   class="text-xs rounded-lg px-2 py-1 text-black cursor-pointer mb-1 hover:scale-105 transition-transform shadow-md"
+                   [ngClass]="{
+                     'bg-gradient-to-r from-blue-500 to-blue-600': evt.category.startsWith('U'),
+                     'bg-gradient-to-r from-green-500 to-green-600': evt.category.includes('Senior'),
+                     'bg-gradient-to-r from-purple-500 to-purple-600': !evt.category
+                   }"
+                   (click)="openDayPopup(day)">
+                <div class="font-medium">{{ evt.title }}</div>
+                <div class="text-[10px] opacity-90">{{ evt.category }} · {{ evt.duration }}h</div>
+              </div>
+
+              <!-- Bouton rapide pour ajouter -->
+              <button (click)="quickAddEvent(day, hour)"
+                      class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity bg-blue-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-blue-600 shadow-md">
+                +
+              </button>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- POPUP (inchangé) -->
+    <!-- POPUP -->
     <div *ngIf="showPopup"
-         class="fixed inset-0 bg-black/40 backdrop-blur flex items-center justify-center z-50 p-4">
+         class="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 animate-fade-in">
         <h3 class="text-xl font-bold text-gray-900">
           {{ popupEvents.length === 0 ? 'Nouvel événement' : 'Événements du ' + popupDay }}
@@ -112,7 +127,7 @@
             <input type="date" [(ngModel)]="newEventDate"
                    class="rounded-lg border p-3 flex-1 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             <input type="time" [(ngModel)]="newEventHour"
-                   class="rounded-lg border p-3 w-24 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                   class="rounded-lg border p-3 w-28 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
             <input type="number" min="1" max="8" [(ngModel)]="newEventDuration"
                    class="rounded-lg border p-3 w-20 focus:ring-2 focus:ring-blue-500 focus:outline-none" />
           </div>
