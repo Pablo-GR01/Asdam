@@ -3,7 +3,7 @@
 const mongoose = require('mongoose');
 
 // Exemple d'énumération des équipes (à adapter selon ton JSON d'équipes)
-const equipesEnum = ["ASDAM", "PSG", "OM", "FCB"];
+const equipesEnum = ["ASDAM"];
 
 const MatchSchema = new mongoose.Schema({
   nom: { type: String, required: true }, // Nom du match (ex: "ASDAM vs PSG")

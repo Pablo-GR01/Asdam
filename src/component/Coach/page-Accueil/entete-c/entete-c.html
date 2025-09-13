@@ -1,34 +1,23 @@
 <!-- ==========================
      Bannière profil utilisateur
 ========================== -->
-<section class="relative w-full isolate">
+<section class="relative w-full">
   <!-- Image de fond -->
-  <img
-    src="assets/i1.jpg"
-    alt="Arrière-plan de la bannière profil"
-    class="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] 2xl:h-[32rem] object-cover"
-  />
+  <img src="assets/i1.jpg" alt="" class="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] 2xl:h-[32rem] object-cover" />
 
-  <!-- Overlay léger -->
-  <div class="absolute inset-0 bg-[var(--Black)]/30" aria-hidden="true"></div>
+  <!-- Overlay léger pour garantir la lisibilité du contenu -->
+  <div class="absolute inset-0 bg-[var(--Black)]/30"></div>
 
   <!-- Carte profil -->
-  <div
-    class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
+  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
            w-11/12 max-w-3xl
-           rounded-2xl bg-[var(--Blanc)]/90 backdrop-blur-md
+           rounded-2xl bg-[var(--Blanc)] backdrop-blur-md
            border-4 border-[var(--Rouge)]
            p-6 sm:p-8
-           shadow-xl
-           transition-all duration-300
-           hover:shadow-[var(--Rouge)]/30
-           dark:bg-gray-900/90 dark:border-red-500 dark:text-gray-100"
-    role="region"
-    aria-label="Profil utilisateur"
-  >
+           shadow-xl">
     <!-- État : chargement -->
     <div *ngIf="loading" class="flex items-center justify-center gap-3">
-      <span class="text-[var(--Black)] dark:text-gray-200">Chargement…</span>
+      <span class="text-[var(--Black)]">Chargement…</span>
     </div>
 
     <!-- État : erreur -->
@@ -39,46 +28,46 @@
     <!-- État : connecté -->
     <div *ngIf="!loading && user" class="flex flex-col sm:flex-row items-center gap-4">
       <!-- Avatar -->
-      <div
-        class="w-16 h-16 sm:w-20 sm:h-20
+      <div class="w-16 h-16 sm:w-20 sm:h-20
                rounded-full bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)]
                text-[var(--Blanc)] grid place-content-center
-               text-2xl sm:text-3xl font-bold tracking-tight select-none
-               shadow-lg"
-        aria-label="Avatar"
-      >
+               text-2xl sm:text-3xl font-bold tracking-tight select-none">
         {{ getInitials() }}
       </div>
 
       <!-- Infos -->
       <div class="text-center sm:text-left space-y-2">
-        <p class="text-xl sm:text-2xl font-semibold text-[var(--Black)] dark:text-white">
+        <!-- Nom complet -->
+        <p class="text-xl sm:text-2xl font-semibold text-[var(--Black)]">
           Bonjour, Coach {{ user.prenom }} {{ user.nom }}
         </p>
 
-        <p class="text-sm sm:text-base text-[var(--Gris)] dark:text-gray-300">
+        <!-- Club -->
+        <p class="text-sm sm:text-base text-[var(--Gris)]">
           Club : {{ clubName }}
         </p>
 
-        <p class="text-sm sm:text-base text-[var(--Gris)] dark:text-gray-300">
+        <!-- Rôle -->
+        <p class="text-sm sm:text-base text-[var(--Gris)]">
           Rôle : {{ user.role }}
         </p>
 
-        <p class="text-sm sm:text-base text-[var(--Gris)] dark:text-gray-300">
+        <!-- Email -->
+        <p class="text-sm sm:text-base text-[var(--Gris)]">
           Email : {{ user.email }}
         </p>
 
-        <!-- Équipe (commentée) -->
-        <!--
-        <p class="text-sm sm:text-base text-[var(--Gris)] dark:text-gray-300">
+        <!-- Équipe 
+        <p class="text-sm sm:text-base text-[var(--Gris)]">
           Équipe : {{ user?.equipe || 'Non définie' }}
-        </p>
-        -->
-
-        <p class="text-sm sm:text-base text-[var(--Gris)] dark:text-gray-300">
+        </p>-->
+        
+        <!-- Membre depuis Quand -->
+        <p class="text-sm sm:text-base text-[var(--Gris)]">
           Membre depuis : {{ user.membreDepuis | date:'longDate':'':'fr-FR' }}
         </p>
       </div>
+
     </div>
   </div>
 </section>

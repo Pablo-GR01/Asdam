@@ -115,37 +115,54 @@
         </div>
 
         <!-- Conteneur unique pour les codes Coach/Joueur -->
-        <div class="relative mt-2 h-20">
+<div class="relative mt-2 h-20">
 
-          <!-- Code Coach -->
-          <div *ngIf="actif === 'coach'" class="absolute inset-0 animate-slide-fade">
-            <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
-              <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code coach
-            </label>
-            <input type="password" [(ngModel)]="inscriptionData.codeCoach" name="codeCoach"
-                   class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
-                   placeholder="Code coach" />
-            <p *ngIf="formSubmitted && inscriptionData.codeCoach !== CODE_COACH"
-               class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
-              <i class="fas fa-exclamation-circle"></i> Code coach incorrect
-            </p>
-          </div>
+  <!-- Code Coach -->
+  <div *ngIf="actif === 'coach'" class="absolute inset-0 animate-slide-fade">
+    <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+      <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code coach
+    </label>
+    <div class="relative">
+      <input [type]="showCoachPassword ? 'text' : 'password'" 
+             [(ngModel)]="inscriptionData.codeCoach" name="codeCoach"
+             class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
+             placeholder="Code coach" />
+      <!-- Bouton œil -->
+      <button type="button" (click)="showCoachPassword = !showCoachPassword"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600">
+        <i class="fas" [ngClass]="showCoachPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+      </button>
+    </div>
+    <p *ngIf="formSubmitted && inscriptionData.codeCoach !== CODE_COACH"
+       class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
+      <i class="fas fa-exclamation-circle"></i> Code coach incorrect
+    </p>
+  </div>
 
-          <!-- Code Joueur -->
-          <div *ngIf="actif === 'joueur'" class="absolute inset-0 animate-slide-fade">
-            <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
-              <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code joueur
-            </label>
-            <input type="password" [(ngModel)]="inscriptionData.codeJoueur" name="codeJoueur"
-                   class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
-                   placeholder="Code joueur" />
-            <p *ngIf="formSubmitted && inscriptionData.codeJoueur !== CODE_JOUEUR"
-               class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
-              <i class="fas fa-exclamation-circle"></i> Code joueur incorrect
-            </p>
-          </div>
+  <!-- Code Joueur -->
+  <div *ngIf="actif === 'joueur'" class="absolute inset-0 animate-slide-fade">
+    <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+      <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code joueur
+    </label>
+    <div class="relative">
+      <input [type]="showJoueurPassword ? 'text' : 'password'" 
+             [(ngModel)]="inscriptionData.codeJoueur" name="codeJoueur"
+             class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
+             placeholder="Code joueur" />
+      <!-- Bouton œil -->
+      <button type="button" (click)="showJoueurPassword = !showJoueurPassword"
+              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600">
+        <i class="fas" [ngClass]="showJoueurPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+      </button>
+    </div>
+    <p *ngIf="formSubmitted && inscriptionData.codeJoueur !== CODE_JOUEUR"
+       class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
+      <i class="fas fa-exclamation-circle"></i> Code joueur incorrect
+    </p>
+  </div>
 
-        </div>
+</div>
+
 
         <!-- Sélection équipe (pour Joueur et Coach uniquement) -->
         <div *ngIf="actif === 'joueur' || actif === 'coach'" class="mt-4">

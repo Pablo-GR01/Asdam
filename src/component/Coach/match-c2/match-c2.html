@@ -1,0 +1,75 @@
+<div class="flex flex-col gap-6 p-4">
+
+    <!-- Boutons -->
+    <button (click)="ouvrirFormMatch()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+      Créer un Match
+    </button>
+  
+    <button (click)="ouvrirFormConvocation()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+      Créer une Convocation
+    </button>
+  
+    <!-- Formulaire Match -->
+    <div *ngIf="showFormMatch" class="mt-4 p-4 border rounded bg-gray-100">
+      <h3 class="font-bold mb-2">Nouvel Match</h3>
+      <input type="text" [(ngModel)]="match.equipePrincipale" class="border p-1 mb-2 w-full bg-gray-200" readonly />
+      <select [(ngModel)]="match.equipeAdverse" class="border p-1 mb-2 w-full">
+        <option value="" disabled selected>Choisir l'équipe adverse</option>
+        <option *ngFor="let eq of equipes" [value]="eq">{{ eq }}</option>
+      </select>
+      <input type="date" [(ngModel)]="match.date" class="border p-1 mb-2 w-full"/>
+      <button (click)="creerMatch()" class="bg-blue-500 text-white px-3 py-1 rounded">Valider</button>
+    </div>
+  
+    <!-- Formulaire Convocation -->
+    <div *ngIf="showFormConvocation" class="mt-4 p-4 border rounded bg-gray-100">
+      <h3 class="font-bold mb-2">Nouvelle Convocation</h3>
+  
+      <!-- Équipe -->
+      <select [(ngModel)]="convocation.equipe" (change)="onEquipeChange()" class="border p-1 mb-2 w-full">
+        <option *ngFor="let eq of equipes" [value]="eq">{{ eq }}</option>
+      </select>
+  
+      <!-- Catégorie -->
+      <select [(ngModel)]="convocation.categorie" (change)="onCategorieChange()" class="border p-1 mb-2 w-full">
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+  
+      <!-- Nom du match -->
+      <input type="text" placeholder="Nom du match" [(ngModel)]="convocation.matchNom" class="border p-1 mb-2 w-full"/>
+  
+      <!-- Bouton ouvrir popup joueurs -->
+      <button (click)="ouvrirPopupJoueurs()" 
+              class="bg-indigo-500 text-white px-3 py-1 rounded mb-2"
+              [disabled]="!convocation.equipe || !convocation.categorie">
+        Choisir les joueurs
+      </button>
+  
+      <!-- Liste des joueurs sélectionnés -->
+      <p *ngIf="joueursSelectionnes.length">Joueurs sélectionnés : {{ convocation.joueursStr }}</p>
+  
+      <input type="date" [(ngModel)]="convocation.date" class="border p-1 mb-2 w-full"/>
+      <textarea placeholder="Description" [(ngModel)]="convocation.description" class="border p-1 mb-2 w-full"></textarea>
+      <button (click)="creerConvocation()" class="bg-green-500 text-white px-3 py-1 rounded">Valider</button>
+    </div>
+  
+    <!-- Popup Joueurs -->
+    <div *ngIf="showPopupJoueurs" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+      <div class="bg-white p-4 rounded shadow-lg w-3/4 max-h-[80vh] overflow-auto">
+        <h3 class="font-bold mb-4">Sélectionner les joueurs</h3>
+  
+        <!-- Grille des joueurs filtrés -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div *ngFor="let joueur of joueursDisponibles" class="border p-2 rounded flex justify-between items-center">
+            <span>{{ joueur.prenom }} {{ joueur.nom }}</span>
+            <button *ngIf="!joueur.selected" (click)="ajouterJoueur(joueur)" class="bg-green-500 text-white px-2 py-1 rounded">Ajouter</button>
+            <button *ngIf="joueur.selected" (click)="retirerJoueur(joueur)" class="bg-red-500 text-white px-2 py-1 rounded">Retirer</button>
+          </div>
+        </div>
+  
+        <button (click)="fermerPopup()" class="mt-4 bg-gray-500 text-white px-3 py-1 rounded">Fermer</button>
+      </div>
+    </div>
+  
+  </div>
+  
