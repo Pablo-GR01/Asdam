@@ -13,6 +13,8 @@ router.post('/users', userController.registerUser);
 // ✅ Connexion
 router.post('/login', authController.login);
 
+router.get('/me', authController.authenticate, authController.getCurrentUser);
+
 // ✅ Récupérer un utilisateur par email
 router.get('/users/:email', userController.getUserByEmail);
 

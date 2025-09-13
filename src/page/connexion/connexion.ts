@@ -60,7 +60,7 @@ export class Connexion {
           localStorage.setItem('nomCoach', nomCoach);
         }
 
-        this.message = 'Bienvenue sur UniDys !';
+        this.message = 'Bienvenue sur TeamAsdam !';
 
         const roleRaw = (user.role || '').toLowerCase();
         let roleKey: string;

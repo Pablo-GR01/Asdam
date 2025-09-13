@@ -13,6 +13,7 @@ interface EventItem {
   category: string;
   imageUrl?: string | null;
   duration: number;
+  color?: string;
 }
 
 type ViewMode = 'month' | 'week';
@@ -28,9 +29,15 @@ export class JourC implements OnInit {
   constructor(private http: HttpClient) {}
 
   hours = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
-  categories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','SeniorA','SeniorB','SeniorC','SeniorD'];
-  events: EventItem[] = [];
 
+  // Catégories âge/équipes
+  ageCategories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','SeniorA','SeniorB','SeniorC','SeniorD'];
+
+  // Types d'événements
+  eventTypes = ['Entraînement','Match','Fête','Réunion','Tournoi'];
+
+  events: EventItem[] = [];
+  newEventType: string = '';
   today = new Date();
   currentYear = this.today.getFullYear();
   currentMonth = this.today.getMonth();
@@ -50,7 +57,6 @@ export class JourC implements OnInit {
   newEventDate = '';
   newEventHour = '';
   newEventDuration = 1;
-  selectedFile: File | null = null;
 
   private apiUrl = 'http://localhost:3000/api/events';
 
@@ -135,7 +141,7 @@ export class JourC implements OnInit {
   }
 
   dayName(day: string): string { 
-    const names = ['Dim','Lun','Mar','Mer','Jeu','Ven','Sam']; 
+    const names = ['Dimanche','Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi']; 
     return names[new Date(day + 'T00:00:00').getDay()]; 
   }
 
@@ -143,7 +149,6 @@ export class JourC implements OnInit {
     return new Date(day + 'T00:00:00').getDate(); 
   }
 
-  // NOUVELLE méthode pour formater la date
   formatDate(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -155,7 +160,6 @@ export class JourC implements OnInit {
     try {
       const data = await lastValueFrom(this.http.get<EventItem[]>(this.apiUrl));
       this.events = data; 
-      console.log('Événements chargés:', this.events);
     } catch (e) {
       console.error('Erreur chargement événements', e);
     }
@@ -180,34 +184,13 @@ export class JourC implements OnInit {
     }
   }
 
-  getEventsByDayHour(day: string, hour: string): EventItem[] {
-    return this.events.filter(e => {
-      const eventDay = this.dateToStr(new Date(e.day));
-      if (eventDay !== day) return false;
-      const normalizeHour = (h: string) => h.slice(0, 5).padStart(5, '0');
-      const eventHour = normalizeHour(e.hour);
-      const currentHour = normalizeHour(hour);
-      const start = this.hours.indexOf(eventHour);
-      if (start === -1) return false;
-      const end = start + e.duration - 1;
-      const curr = this.hours.indexOf(currentHour);
-      return curr >= start && curr <= end;
-    });
-  }
-
   getEventsByDay(day: string | Date): EventItem[] {
-    // Si day est une string, on la convertit en Date
     const dayDate = typeof day === 'string' ? new Date(day) : day;
     return this.events.filter(evt => new Date(evt.day).toDateString() === dayDate.toDateString());
   }
-  
 
-  // NOUVELLE méthode corrigée
   getEventsByHour(day: string, hour: string): EventItem[] {
-    return this.getEventsByDay(day).filter(evt => {
-      const eventHour = evt.hour.slice(0, 5);
-      return eventHour === hour;
-    });
+    return this.getEventsByDay(day).filter(evt => evt.hour.slice(0, 5) === hour);
   }
 
   openPopup(): void {
@@ -218,7 +201,6 @@ export class JourC implements OnInit {
     this.newEventCoach = '';
     this.newEventCategory = '';
     this.newEventDuration = 1;
-    this.selectedFile = null;
     this.showPopup = true;
   }
 
@@ -233,13 +215,6 @@ export class JourC implements OnInit {
     this.popupEvents = [];
   }
 
-  onFileSelected(evt: Event): void { 
-    const input = evt.target as HTMLInputElement; 
-    this.selectedFile = input.files?.[0] ?? null; 
-  }
-
-  
-
   async addEvent(): Promise<void> {
     if (!this.newEventTitle.trim()) return;
     const newEvent: EventItem = {
@@ -249,7 +224,6 @@ export class JourC implements OnInit {
       coach: this.newEventCoach.trim(),
       category: this.newEventCategory,
       duration: this.newEventDuration,
-      imageUrl: this.selectedFile ? URL.createObjectURL(this.selectedFile) : null
     };
     await this.createEvent(newEvent);
     this.closePopup();
@@ -259,16 +233,44 @@ export class JourC implements OnInit {
     await this.removeEvent(event); 
   }
 
-  // NOUVELLE méthode corrigée
-quickAddEvent(day: string | Date, hour: string): void {
-  this.openPopup();
-  // convertir string en Date si nécessaire
-  const dayDate = typeof day === 'string' ? new Date(day) : day;
-  this.newEventDate = this.formatDate(dayDate);
-  this.newEventHour = hour;
-}
+  quickAddEvent(day: string | Date, hour: string): void {
+    this.openPopup();
+    const dayDate = typeof day === 'string' ? new Date(day) : day;
+    this.newEventDate = this.formatDate(dayDate);
+    this.newEventHour = hour;
+  }
 
+  getEventIcon(evt: any): string {
+    switch (evt.category) {
+      case 'Entraînement': return 'fa-solid fa-futbol text-[var(--Blanc)]';
+      case 'Fête': return 'fa-solid fa-champagne-glasses text-[var(--Blanc)]';
+      case 'Réunion': return 'fa-solid fa-bullhorn text-[var(--Blanc)]';
+      case 'Match': return 'fa-solid fa-trophy text-[var(--Blanc)]';
+      case 'Tournoi': return 'fa-solid fa-medal text-[var(--Blanc)]';
+      default: return 'fa-solid fa-circle text-[var(--Blanc)]';
+    }
+  }
 
+  getEventClass(evt: any): string {
+    switch (evt.category) {
+      case 'Entraînement': return 'bg-[var(--Vert)]';
+      case 'Fête': return 'bg-pink-500';
+      case 'Réunion': return 'bg-blue-600';
+      case 'Match': return 'bg-yellow-600';
+      case 'Tournoi': return 'bg-orange-600';
+      default: return 'bg-gray-500';
+    }
+  }
 
-
+  getEventIconClass(type: string): string {
+    switch (type) {
+      case 'Entraînement': return 'fa-solid fa-futbol';   // ⚽
+      case 'Match':        return 'fa-solid fa-trophy';   // 🏆
+      case 'Fête':         return 'fa-solid fa-glass-cheers'; // 🎉
+      case 'Réunion':      return 'fa-solid fa-bullhorn'; // 📢
+      case 'Tournoi':      return 'fa-solid fa-medal';    // 🥇
+      default:             return 'fa-solid fa-circle';   // •
+    }
+  }
+  
 }

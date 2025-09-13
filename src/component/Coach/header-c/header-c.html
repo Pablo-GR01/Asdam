@@ -5,7 +5,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
 
     <!-- LOGO -->
-    <a href="/" class="flex items-center gap-3 group">
+    <a routerLink="/accueilC" class="flex items-center gap-3 group">
       <img src="assets/LOGO.png" alt="TeamAsdam" class="w-10 h-10 sm:w-12 sm:h-12 object-contain group-hover:scale-105 transition">
       <h1 class="text-xl sm:text-2xl font-extrabold text-[#3a0d0e] hover:text-[#b94e4e]">
         Team<span class="text-red-500 tracking-wide hover:text-red-600">Asdam</span>
@@ -86,7 +86,7 @@
         <div id="dashboardMenu" [class.hidden]="activeDropdown!=='dashboardMenu'" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
           <a href="/dashboard/profile" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-user"></i>Mon Profil</a>
           <a href="/dashboard/settings" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-cog"></i>Paramètres</a>
-          <a href="/logout" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
+          <a (click)="deconnecter()"class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-sign-out-alt"></i>Déconnexion</a>
         </div>
       </div>
 

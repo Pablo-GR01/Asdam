@@ -15,7 +15,8 @@ const utilisateurSchema = new mongoose.Schema({
   codeCoach: { type: String }, // optionnel pour coach
   equipe: { type: String, enum: equipesEnum }, // joueur ou coach peuvent choisir leur équipe
   initiale: { type: String },
-  cguValide: { type: Boolean, default: true }
+  cguValide: { type: Boolean, default: true },
+  membreDepuis: { type: Date, default: Date.now } // <-- stocke date + heure automatiquement
 });
 
 // Génération des initiales
