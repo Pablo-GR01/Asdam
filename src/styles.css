@@ -4,7 +4,7 @@
     /* Palette principale */
     --Blanc:#FFFF;
     --Black:#000;
-    --Gris:#3b3b3b;
+    --Gris:#1f1f1f;
 
 
     --Bleu-Foncé: #040142;
@@ -14,7 +14,8 @@
     --Rouge-Foncé:#520000;
     --Rouge: #8d0202;
     --Rouge-Clair: #ca0303;
+    --Rouge-Clair2: #ca6363;
 
     --Vert:#3c8401;
-  }
+}
   

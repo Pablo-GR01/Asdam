@@ -1,0 +1,57 @@
+<!-- =========  SKELETON / ÉTATS  ========= -->
+<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[60vh]">
+    <div class="w-32 h-32 rounded-full bg-gray-200 animate-pulse mb-4"></div>
+    <div class="h-10 w-80 bg-gray-200 animate-pulse rounded mb-2"></div>
+    <div class="h-6 w-64 bg-gray-200 animate-pulse rounded"></div>
+  </div>
+  
+  <div *ngIf="error" class="text-red-500 text-center mt-10">
+    <img src="assets/icons/alert-circle.svg" class="w-10 h-10 mx-auto mb-2" alt="Erreur" />
+    <p>{{ error }}</p>
+  </div>
+  
+  <!-- =========  CARTE PROFIL  ========= -->
+  <div *ngIf="user" class="relative max-w-3xl mx-auto px-4 mt-10">
+    <!-- Image de fond floutée (optionnelle) -->
+    <div
+      *ngIf="user.photoURL"
+      class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-cover bg-center blur-3xl opacity-20"
+      [style.background-image]="'url(' + user.photoURL + ')'"
+    ></div>
+  
+    <!-- Carte -->
+    <div class="relative bg-white/70 backdrop-blur-lg rounded-3xl shadow-lg p-8 md:p-10 transition hover:shadow-xl">
+      <div class="flex flex-col items-center text-center">
+        <!-- Avatar ou initiales -->
+        <div
+          class="relative w-32 h-32 rounded-full bg-[var(--Rouge)] text-white flex items-center justify-center text-4xl font-bold mb-5 ring-4 ring-white/80 shadow-lg"
+        >
+          <ng-container *ngIf="user.photoURL; else showInitiales">
+            <img [src]="user.photoURL" class="w-full h-full object-cover rounded-full" alt="Photo" />
+          </ng-container>
+          <ng-template #showInitiales>
+            {{ user.initiale }}
+          </ng-template>
+        </div>
+  
+        <!-- Nom -->
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800">
+          {{ user.prenom }} <span class="text-[var(--Rouge)]">{{ user.nom }}</span>
+        </h1>
+  
+        <!-- E-mail + bouton modifier -->
+        <div class="flex items-center gap-3 mt-4 text-gray-600">
+          <span>{{ user.email }}</span>
+          <!-- <button
+            class="flex items-center gap-1 text-sm text-[var(--Black)] hover:text-[var(--Rouge)] font-medium transition"
+            (click)="editProfile()"
+            aria-label="Modifier le profil"
+          >
+            <img src="assets/icons/pencil.svg" class="w-4 h-4" alt="" />
+            Modifier
+          </button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  

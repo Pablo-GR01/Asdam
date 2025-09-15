@@ -1,0 +1,139 @@
+<!-- 1. Bouton principal -->
+<div class="flex justify-center mt-10">
+  <button type="button" (click)="openModal()"
+          class="group inline-flex items-center gap-3 px-6 py-3
+                 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Clair)]
+                 text-white rounded-2xl shadow-lg
+                 hover:scale-105 hover:shadow-rose-400/40
+                 focus:outline-none focus-visible:ring-4 focus-visible:ring-rose-300
+                 transition-all duration-300">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         class="h-5 w-5 transition-transform group-hover:rotate-90"
+         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+    </svg>
+    <span class="font-semibold">Créer une convocation</span>
+  </button>
+</div>
+
+<!-- 2. Modal -->
+<div *ngIf="showModal"
+     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+  <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+
+    <!-- Header -->
+    <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+      <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-6 w-6 text-[var(--Rouge)]" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        Créer une convocation
+      </h2>
+      <button (click)="closeModal()" aria-label="Fermer"
+              class="text-gray-400 hover:text-red-500 focus:outline-none
+                     focus-visible:ring-2 focus-visible:ring-red-300
+                     rounded-full p-1 transition">
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+             stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <form (ngSubmit)="creerConvocation()" class="p-6 space-y-5">
+
+      <!-- Match -->
+      <label class="block">
+        <span class="text-gray-700 font-medium">Match</span>
+        <input [(ngModel)]="convocation.match" name="match" required
+               class="mt-2 w-full rounded-lg border border-gray-300 bg-white shadow-sm px-3 py-2
+                      focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50 transition"/>
+      </label>
+
+      <!-- Équipe -->
+      <label class="block">
+        <span class="text-gray-700 font-medium">Équipe</span>
+        <select [(ngModel)]="convocation.equipe" name="equipe"
+                (change)="onEquipeChange()"
+                class="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                       focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50">
+          <option value="">-- Sélectionnez une équipe --</option>
+          <option *ngFor="let eq of equipes" [value]="eq">{{ eq }}</option>
+        </select>
+      </label>
+
+      <!-- Joueurs -->
+      <label class="block">
+        <span class="text-gray-700 font-medium">Joueurs</span>
+        <select [(ngModel)]="convocation.joueurs" name="joueurs" multiple
+                class="mt-2 w-full rounded-lg border border-gray-300 bg-white px-3 py-2
+                       focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50">
+                       <option *ngFor="let joueur of joueursEquipe" [value]="joueur.nom + ' ' + joueur.prenom">
+                        {{ joueur.nom }} {{ joueur.prenom }}
+                      </option>
+                      
+        </select>
+        <span class="text-xs text-gray-500">Sélectionnez un ou plusieurs joueurs</span>
+      </label>
+
+      <!-- Date -->
+      <label class="block">
+        <span class="text-gray-700 font-medium">Date et heure</span>
+        <input [(ngModel)]="convocation.date" name="date" type="datetime-local" required
+               class="mt-2 w-full rounded-lg border border-gray-300 bg-white shadow-sm px-3 py-2
+                      focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50 transition"/>
+      </label>
+
+      <!-- Lieu -->
+      <label class="block">
+        <span class="text-gray-700 font-medium">Lieu</span>
+        <input [(ngModel)]="convocation.lieu" name="lieu" required
+               class="mt-2 w-full rounded-lg border border-gray-300 bg-white shadow-sm px-3 py-2
+                      focus:border-indigo-500 focus:ring focus:ring-indigo-300 focus:ring-opacity-50 transition"/>
+      </label>
+
+      <!-- Actions -->
+      <div class="pt-2 flex items-center justify-between">
+        <p *ngIf="successMsg" class="text-sm text-green-600">{{ successMsg }}</p>
+        <p *ngIf="errorMsg" class="text-sm text-red-600">{{ errorMsg }}</p>
+
+        <div class="flex gap-3 ml-auto">
+          <button type="button" (click)="closeModal()"
+                  class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700
+                         hover:bg-gray-100 transition">
+            Annuler
+          </button>
+
+          <button type="submit" [disabled]="loading"
+                  class="inline-flex items-center gap-2 px-5 py-2.5
+                         bg-indigo-600 text-white rounded-lg shadow
+                         hover:bg-indigo-700 focus:outline-none
+                         focus-visible:ring-2 focus-visible:ring-indigo-400
+                         disabled:opacity-60 disabled:cursor-wait transition">
+            <svg *ngIf="!loading" xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4v16m8-8H4"/>
+            </svg>
+            <svg *ngIf="loading" class="animate-spin h-5 w-5"
+                 xmlns="http://www.w3.org/2000/svg" fill="none"
+                 viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12"
+                      r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            <span>{{ loading ? 'Création...' : 'Créer la convocation' }}</span>
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

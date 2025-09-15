@@ -1,0 +1,97 @@
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 animate-fade-in">
+    <div class="flex flex-col-reverse lg:flex-row items-center gap-12 lg:gap-20">
+  
+      <!-- Texte à gauche -->
+      <div class="lg:w-1/2 space-y-6">
+        <h1 class="text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight tracking-tight">
+          TEAMASDAM
+        </h1>
+        <p class="text-lg text-gray-700 leading-relaxed">
+          Gérez facilement votre club et vos équipes grâce à tous les outils indispensables : convocations, événements, et plus encore.
+        </p>
+        <p class="text-sm text-gray-500">
+          Une solution pensée pour les entraîneurs, les joueurs et les dirigeants.
+        </p>
+        <button (click)="showModal = true"
+                aria-label="Découvrir les fonctionnalités"
+                class="inline-flex items-center justify-center mt-4 px-6 py-3 bg-[var(--Primary)] text-[var(--Black)] font-semibold rounded-xl shadow-lg hover:shadow-xl hover:scale-105 focus:outline-none focus:ring-4 focus:ring-[var(--Primary)]/50 transition-all duration-300 ease-out">
+          Découvrir les fonctionnalités
+        </button>
+      </div>
+  
+      <!-- Image à droite -->
+      <div class="lg:w-1/2 group">
+        <img src="assets/imageAsdam.jpg"
+             alt="Capture d’écran de l’application ASDAM sur mobile"
+             loading="lazy"
+             class="w-full rounded-2xl shadow-2xl group-hover:shadow-3xl group-hover:scale-[1.02] transition-all duration-500 ease-out">
+      </div>
+  
+    </div>
+  </section>
+  
+  <!-- Modal -->
+  <div *ngIf="showModal"
+       class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-fade-in"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="modal-title">
+    <div class="bg-white/90 backdrop-blur-lg rounded-3xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto transform transition-all duration-300 scale-100 animate-scale-in shadow-2xl">
+  
+      <!-- Bouton fermer -->
+      <button (click)="showModal = false"
+              aria-label="Fermer la fenêtre"
+              class="absolute top-5 right-5 text-gray-500 hover:text-gray-900 text-3xl font-bold transition-colors duration-200">
+        &times;
+      </button>
+  
+      <h2 id="modal-title" class="text-3xl font-bold mb-8 text-center text-gray-900">
+        Fonctionnalités ASDAM
+      </h2>
+  
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <article *ngFor="let feature of features"
+                 class="p-6 bg-white/70 rounded-2xl shadow hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer text-center group">
+          <h3 class="font-semibold text-xl mb-2 text-gray-900 group-hover:text-[var(--Primary)] transition-colors">
+            {{ feature.title }}
+          </h3>
+          <p class="text-gray-600 text-sm">
+            {{ feature.description }}
+          </p>
+        </article>
+      </div>
+    </div>
+  </div>
+  
+  <style>
+    /* Animations modernisées */
+    .animate-fade-in {
+      animation: fadeIn 0.8s ease-out forwards;
+    }
+  
+    .animate-scale-in {
+      animation: scaleIn 0.4s ease-out forwards;
+    }
+  
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>

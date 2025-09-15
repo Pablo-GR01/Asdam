@@ -1,13 +1,16 @@
 import { Component } from '@angular/core';
-import { HeaderJ } from "../../../component/Joueur/header-j/header-j";
 import { BarreJ } from '../../../component/Joueur/barre-j/barre-j';
 import { HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Section1 } from "../../../component/Joueur/section1/section1";
+
+import { Sections2 } from "../../../component/Coach/page-Accueil/sections2/sections2";
+import { FooterJ } from '../../../component/footer-j/footer-j';
+import { Sections1 } from '../../../component/Joueur/sections1/sections1';
+
 
 @Component({
   selector: 'app-acceuil-j',
-  imports: [HeaderJ, BarreJ, HttpClientModule, CommonModule, Section1],
+  imports: [BarreJ, HttpClientModule, CommonModule, Sections1, Sections2,FooterJ],
   standalone: true,
   templateUrl: './acceuil-j.html',
   styleUrl: './acceuil-j.css'

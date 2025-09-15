@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { User, UtilisateurService } from '../../../../../services/userService/utilisateur.service';
-import { FormsModule } from '@angular/forms';
 import { CommonModule, registerLocaleData } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import localeFr from '@angular/common/locales/fr';
 
-// ⚡️ Enregistrer la locale française ici, en dehors de la classe
+import { User, UtilisateurService } from '../../../../../services/userService/utilisateur.service';
+
+// ⚡️ Enregistrer la locale française en dehors de la classe
 registerLocaleData(localeFr);
 
 @Component({
@@ -13,19 +14,19 @@ registerLocaleData(localeFr);
   templateUrl: './entete-c.html',
   styleUrls: ['./entete-c.css'],
   standalone: true,
-  imports: [FormsModule, CommonModule, HttpClientModule],
+  imports: [CommonModule, FormsModule, HttpClientModule],
 })
 export class EnteteC implements OnInit {
   user: User | null = null;
-  loading = true;
+  loading: boolean = true;
   error: string | null = null;
-  clubName: string = 'ASDAM'; // tu peux remplacer par une valeur dynamique si besoin
+  clubName: string = 'ASDAM'; // ⚡️ Peut être rendu dynamique plus tard
 
   constructor(private userService: UtilisateurService) {}
 
   ngOnInit(): void {
     this.userService.getCurrentUser().subscribe({
-      next: (data) => {
+      next: (data: User | null) => {
         if (data) {
           this.user = data;
         } else {
@@ -34,14 +35,20 @@ export class EnteteC implements OnInit {
         this.loading = false;
       },
       error: (err) => {
-        console.error("❌ Erreur :", err);
+        console.error('❌ Erreur :', err);
+        this.error = 'Erreur lors du chargement de l’utilisateur';
         this.loading = false;
       }
     });
   }
 
+  // Récupère les initiales
   getInitials(): string {
-    if (!this.user) return '';
-    return this.user.initiale;
+    return this.user?.initiale ?? '';
+  }
+
+  // Récupère le rôle de l'utilisateur
+  getRole(): string {
+    return this.user?.role ?? '';
   }
 }

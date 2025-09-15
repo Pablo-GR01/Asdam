@@ -1,0 +1,57 @@
+<footer class="bg-[var(--Gris)] backdrop-blur-md shadow-t-md w-full pt-16 pb-8 relative">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-start gap-12">
+  
+        <!-- Logo et description -->
+        <div class="flex flex-col gap-4 max-w-xs">
+          <img src="assets/LOGO.png" alt="Logo ASDAM" class="h-12 w-12 object-contain">
+          <p class="text-gray-300 leading-relaxed">
+            Tous les outils nécessaires pour gérer votre club et vos équipes facilement et efficacement.
+          </p>
+        </div>
+  
+        <!-- Menu rapide -->
+        <nav class="flex flex-col sm:flex-row gap-10">
+          <div>
+            <h3 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Navigation</h3>
+            <ul class="space-y-3 text-gray-300">
+              <li><a href="/" class="hover:text-white transition-colors duration-200 focus:outline-none focus:underline">Accueil</a></li>
+              <li><a href="/actualite" class="hover:text-white transition-colors duration-200 focus:outline-none focus:underline">Actualités</a></li>
+              <li><a href="/equipe" class="hover:text-white transition-colors duration-200 focus:outline-none focus:underline">Match</a></li>
+              <li><a href="/contact" class="hover:text-white transition-colors duration-200 focus:outline-none focus:underline">Contact</a></li>
+            </ul>
+          </div>
+  
+          <!-- Réseaux sociaux -->
+          <div>
+            <h3 class="text-white font-semibold mb-4 text-sm uppercase tracking-wider">Suivez-nous</h3>
+            <ul class="flex gap-4 text-gray-300">
+              <li>
+                <a href="#" aria-label="Facebook" class="hover:text-white transition-transform duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white rounded">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95z"/></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#" aria-label="Instagram" class="hover:text-white transition-transform duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white rounded">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6m9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5M12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+                </a>
+              </li>
+              <li>
+                <a href="#" aria-label="Twitter" class="hover:text-white transition-transform duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-white rounded">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98-3.56-.18-6.73-1.89-8.84-4.48-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.22-1.95-.55v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.94.08c.54 1.7 2.1 2.93 3.96 2.96-1.47 1.15-3.32 1.83-5.33 1.83-.34 0-.68-.02-1.02-.06 1.9 1.23 4.15 1.95 6.56 1.95 7.88 0 12.2-6.54 12.2-12.2 0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z"/></svg>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+  
+      <!-- Ligne séparatrice -->
+      <div class="border-t border-gray-600 mt-10"></div>
+  
+      <!-- Copyright -->
+      <div class="mt-6 text-center text-gray-400 text-sm">
+        &copy; <span id="year">{{currentYear}}</span> ASDAM. Tous droits réservés.
+      </div>
+    </div>
+  </footer>

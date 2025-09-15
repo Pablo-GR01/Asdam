@@ -3,88 +3,116 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../../../../services/userService/Profil.Service';
 import { Icon } from '../../icon/icon';
+import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
 
 interface MenuItem {
   title: string;
   link: string;
+  icon: string;
 }
 
 interface MobileMenu {
   title: string;
   icon: string;
+  link?: string;
   items: MenuItem[];
 }
 
 @Component({
   selector: 'app-header-c',
   standalone: true,
-  imports: [CommonModule, RouterLink, Icon],
+  imports: [CommonModule, RouterLink, Icon, EnteteC],
   templateUrl: './header-c.html',
   styleUrls: ['./header-c.css']
 })
 export class HeaderC {
-  mobileMenuOpen = false;
-  notifCount = 1;
-  messageCount = 2;
+  private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
 
-  // Menu mobile dynamique
+  // Menus dynamiques avec icônes pour sous-éléments
   mobileMenus: MobileMenu[] = [
     {
       title: 'Actualité',
       icon: 'fas fa-newspaper',
+      link: '/actualiteC',
       items: [
-        { title: 'Dernières news', link: '/actualite/news' },
-        { title: 'Communiqués', link: '/actualite/communiques' }
+        { title: 'Dernières news', link: '/actualiteC/newsC', icon: 'fas fa-bolt' },
+        { title: 'Communiqués', link: '/actualiteC/communiquesC', icon: 'fas fa-bullhorn' },
+        { title: 'Archives', link: '/actualiteC/archivesC', icon: 'fas fa-archive' }
       ]
     },
     {
       title: 'Match',
       icon: 'fas fa-futbol',
+      link: '/matchC',
       items: [
-        { title: 'Convocations', link: '/match/convocations' },
-        { title: 'Résultats', link: '/match/resultats' },
-        { title: 'Calendrier', link: '/match/calendrier' }
+        { title: 'Convocations', link: '/matchC/convocationsC', icon: 'fas fa-users' },
+        { title: 'Résultats', link: '/matchC/resultatsC', icon: 'fas fa-trophy' },
+        { title: 'Calendrier', link: '/matchC/calendrierC', icon: 'fas fa-calendar-check' }
       ]
     },
     {
       title: 'Planning',
       icon: 'fas fa-calendar-alt',
+      link: '/PlanningC',
       items: [
-        { title: 'Entraînements', link: '/planning/entrainements' },
-        { title: 'Événements', link: '/planning/evenements' }
+        { title: 'Entraînements', link: '/planningC/entrainementsC', icon: 'fas fa-dumbbell' },
+        { title: 'Événements', link: '/planningC/evenementsC', icon: 'fas fa-star' },
+        { title: 'Stages', link: '/planningC/stagesC', icon: 'fas fa-graduation-cap' }
       ]
     },
     {
       title: 'Notifications',
       icon: 'fas fa-bell',
+      link: '/notificationsC',
       items: [
-        { title: 'Messages', link: '/notifications/messages' },
-        { title: 'Alertes', link: '/notifications/alertes' }
+        { title: 'Messages', link: '/notificationsC/messagesC', icon: 'fas fa-envelope' },
+        { title: 'Alertes', link: '/notificationsC/alertesC', icon: 'fas fa-exclamation-triangle' }
+      ]
+    },
+    {
+      title: 'Stats',
+      icon: 'fas fa-chart-line',
+      link: '/statsC',
+      items: [
+        { title: 'Joueurs', link: '/statsC/joueursC', icon: 'fas fa-user-friends' },
+        { title: 'Matchs', link: '/statsC/matchsC', icon: 'fas fa-futbol' },
+        { title: 'Performances', link: '/statsC/performancesC', icon: 'fas fa-bolt' }
       ]
     },
     {
       title: 'Dashboard',
       icon: 'fas fa-tachometer-alt',
+      link: '/dashboardC',
       items: [
-        { title: 'Mon Profil', link: '/dashboard/profile' },
-        { title: 'Paramètres', link: '/dashboard/settings' },
-        { title: 'Déconnexion', link: '/logout' }
+        { title: 'Mon Profil', link: '/dashboardC/profileC', icon: 'fas fa-user' },
+        { title: 'Paramètres', link: '/dashboardC/settingsC', icon: 'fas fa-cog' },
+        { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
-    }
+    },
   ];
 
-  constructor(
-    private router: Router,
-    private userprofile: ProfileService
-  ) {
+  constructor(private router: Router, private userprofile: ProfileService) {
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.updateTheme();
   }
 
+  get mobileMenuOpen(): boolean {
+    return this._mobileMenuOpen;
+  }
+
+  set mobileMenuOpen(value: boolean) {
+    this._mobileMenuOpen = value;
+    document.body.style.overflow = value ? 'hidden' : '';
+  }
+
   toggleMobileMenu(): void {
     this.mobileMenuOpen = !this.mobileMenuOpen;
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
   }
 
   toggleDropdown(id: string, event: Event): void {
@@ -94,6 +122,13 @@ export class HeaderC {
 
   closeDropdown(id: string): void {
     if (this.activeDropdown === id) this.activeDropdown = null;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: Event): void {
+    if (!(event.target as HTMLElement).closest('nav')) {
+      this.activeDropdown = null;
+    }
   }
 
   toggleTheme(): void {
@@ -108,15 +143,8 @@ export class HeaderC {
     else html.classList.remove('dark');
   }
 
-  @HostListener('document:click', ['$event'])
-  onClickOutside(event: Event): void {
-    if (!(event.target as HTMLElement).closest('nav')) {
-      this.activeDropdown = null;
-    }
-  }
-
   deconnecter(): void {
-    localStorage.removeItem('token');
+    localStorage.clear();
     this.userprofile.clearProfile();
     this.router.navigate(['/connexion']);
   }

@@ -43,11 +43,9 @@ export class Inscription implements OnInit, OnDestroy {
     cguValide: false,
   };
 
-  showCoachPassword = false;
-showJoueurPassword = false;
-
-
   passwordVisible = false;
+  codeCoachVisible = false;   // ✅ ajouté
+  codeJoueurVisible = false;  // ✅ ajouté
   formSubmitted = false;
   message: string | null = null;
   cguAccepte = false;
@@ -59,24 +57,21 @@ showJoueurPassword = false;
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
-  ngOnInit(): void {
-    document.body.style.overflow = 'hidden';
-  }
-
-  ngOnDestroy(): void {
-    document.body.style.overflow = 'auto';
-  }
+  ngOnInit(): void { document.body.style.overflow = 'hidden'; }
+  ngOnDestroy(): void { document.body.style.overflow = 'auto'; }
 
   activerJoueur(): void {
     this.actif = 'joueur';
     this.inscriptionData.role = 'joueur';
     this.inscriptionData.codeCoach = '';
+    if (!this.inscriptionData.equipe) this.inscriptionData.equipe = this.equipes[0];
   }
 
   activerCoach(): void {
     this.actif = 'coach';
     this.inscriptionData.role = 'coach';
     this.inscriptionData.codeJoueur = '';
+    if (!this.inscriptionData.equipe) this.inscriptionData.equipe = this.equipes[0];
   }
 
   activerInviter(): void {
@@ -87,9 +82,7 @@ showJoueurPassword = false;
     this.inscriptionData.equipe = '';
   }
 
-  togglePasswordVisibility(): void {
-    this.passwordVisible = !this.passwordVisible;
-  }
+  togglePasswordVisibility(): void { this.passwordVisible = !this.passwordVisible; }
 
   isEmailValid(email: string): boolean {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -98,60 +91,53 @@ showJoueurPassword = false;
 
   formulaireValide(): boolean {
     const { nom, prenom, email, password, role, codeCoach, codeJoueur, equipe } = this.inscriptionData;
-
     if (!nom || !prenom) return false;
     if (!this.isEmailValid(email)) return false;
     if (!password || password.length < 6) return false;
-
     if (role === 'coach' && codeCoach !== this.CODE_COACH) return false;
     if (role === 'joueur' && codeJoueur !== this.CODE_JOUEUR) return false;
-
     if ((role === 'coach' || role === 'joueur') && !equipe) return false;
-
     if (!this.cguAccepte) return false;
-
     return true;
-  }
-
-  onCguChange(event: Event) {
-    const checkbox = event.target as HTMLInputElement;
-    this.cguAccepte = checkbox.checked;
-    this.inscriptionData.cguValide = checkbox.checked;
   }
 
   valider(): void {
     this.formSubmitted = true;
-  
-    if (!this.formulaireValide()) return;
-  
+
+    // Vérifier équipe
+    if ((this.inscriptionData.role === 'joueur' || this.inscriptionData.role === 'coach') && !this.inscriptionData.equipe) {
+      alert('Veuillez sélectionner une équipe !');
+      return;
+    }
+
+    // Générer initiales
     const initiale =
       (this.inscriptionData.prenom[0] ?? '').toUpperCase() +
       (this.inscriptionData.nom[0] ?? '').toUpperCase();
-  
+
     const payload: InscriptionData = {
       ...this.inscriptionData,
       initiale,
       cguValide: this.cguAccepte,
     };
-  
+
+    // Supprimer codes inutiles
     if (payload.role !== 'coach') delete payload.codeCoach;
     if (payload.role !== 'joueur') delete payload.codeJoueur;
-  
-    console.log('Payload envoyé à l’API :', payload);
-  
+
     this.http.post('http://localhost:3000/api/users', payload).subscribe({
       next: (res: any) => {
         this.message = `Bienvenue sur Asdam !`;
         this.authService.setUser(res);
-  
-        // 🔄 Redirection selon le rôle
+
+        // Redirection
         const redirection =
           payload.role === 'coach'   ? '/accueilC' :
           payload.role === 'admin'   ? '/accueilA' :
           payload.role === 'joueur'  ? '/accueilJ' :
           payload.role === 'inviter' ? '/accueilI' :
-          '/'; // fallback par défaut (par ex. page d’accueil)
-  
+          '/';
+
         setTimeout(() => this.router.navigate([redirection]), 1500);
       },
       error: (err) => {
@@ -160,5 +146,4 @@ showJoueurPassword = false;
       }
     });
   }
-  
 }

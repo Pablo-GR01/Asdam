@@ -32,28 +32,44 @@
       </h2>
 
       <!-- Choix profil -->
-      <div class="flex justify-center gap-4 mb-6">
+      <div class="flex flex-wrap justify-center gap-4 mb-6">
+        <!-- Bouton Joueur -->
         <button (click)="activerJoueur()"
-                [ngClass]="actif === 'joueur' ? 'bg-[var(--Rouge-Clair)] scale-105 text-[var(--Blanc)]' : 'bg-transparent hover:bg-[var(--Rouge-Foncé)] hover:shadow-lg'"
-                class="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold border-2 border-[var(--Rouge-Clair)] text-[var(--Black)]
-                       transition-all duration-300 transform cursor-pointer hover:scale-105">
-          <i class="fas fa-futbol transition-transform duration-300 hover:rotate-12"></i> Joueur
+                [ngClass]="actif === 'joueur' 
+                            ? 'bg-[var(--Rouge-Clair)] text-[var(--Blanc)] shadow-lg scale-105' 
+                            : 'bg-transparent text-[var(--Black)] hover:bg-[var(--Rouge-Foncé)] hover:text-[var(--Blanc)]'"
+                class="flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold border-2 border-[var(--Rouge-Clair)] 
+                       transition-all duration-300 transform cursor-pointer focus:outline-none focus:ring-4 
+                       focus:ring-[var(--Rouge-Clair)]/50">
+          <i class="fas fa-futbol transition-transform duration-300 group-hover:rotate-12"></i>
+          Joueur
         </button>
-
+      
+        <!-- Bouton Coach -->
         <button (click)="activerCoach()"
-                [ngClass]="actif === 'coach' ? 'bg-[var(--Rouge-Clair)] scale-105 text-[var(--Blanc)]' : 'bg-transparent hover:bg-[var(--Violet-Foncé)] hover:shadow-lg'"
-                class="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold border-2 border-[var(--Rouge-Clair)] text-[var(--Black)]
-                       transition-all duration-300 transform cursor-pointer hover:scale-105">
-          <i class="fas fa-chalkboard-teacher transition-transform duration-300 hover:rotate-12"></i> Coach
+                [ngClass]="actif === 'coach' 
+                            ? 'bg-[var(--Rouge-Clair)] text-[var(--Blanc)] shadow-lg scale-105' 
+                            : 'bg-transparent text-[var(--Black)] hover:bg-[var(--Rouge-Foncé)] hover:text-[var(--Blanc)]'"
+                class="flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold border-2 border-[var(--Rouge-Clair)] 
+                       transition-all duration-300 transform cursor-pointer focus:outline-none focus:ring-4 
+                       focus:ring-[var(--Rouge-Clair)]/50">
+          <i class="fas fa-chalkboard-teacher transition-transform duration-300 group-hover:rotate-12"></i>
+          Coach
         </button>
-
+      
+        <!-- Bouton Inviter -->
         <button (click)="activerInviter()"
-                [ngClass]="actif === 'inviter' ? 'bg-[var(--Rouge-Clair)] text-[var(--Blanc)] scale-105' : 'bg-transparent hover:bg-[var(--Violet-Foncé)] hover:shadow-lg'"
-                class="flex items-center gap-2 px-5 py-2 rounded-xl font-semibold border-2 border-[var(--Rouge-Clair)] text-[var(--Black)]
-                       transition-all duration-300 transform cursor-pointer hover:scale-105">
-          <i class="fas fa-user-plus transition-transform duration-300 hover:rotate-12"></i> Inviter
+                [ngClass]="actif === 'inviter' 
+                            ? 'bg-[var(--Rouge-Clair)] text-[var(--Blanc)] shadow-lg scale-105' 
+                            : 'bg-transparent text-[var(--Black)] hover:bg-[var(--Rouge-Foncé)] hover:text-[var(--Blanc)]'"
+                class="flex items-center gap-2 px-6 py-3 rounded-2xl font-semibold border-2 border-[var(--Rouge-Clair)] 
+                       transition-all duration-300 transform cursor-pointer focus:outline-none focus:ring-4 
+                       focus:ring-[var(--Rouge-Clair)]/50">
+          <i class="fas fa-user-plus transition-transform duration-300 group-hover:rotate-12"></i>
+          Inviter
         </button>
       </div>
+      
 
       <form (ngSubmit)="valider()" #inscriptionForm="ngForm" class="space-y-4">
 
@@ -115,54 +131,51 @@
         </div>
 
         <!-- Conteneur unique pour les codes Coach/Joueur -->
-<div class="relative mt-2 h-20">
+        <div class="relative mt-2 h-24">
 
-  <!-- Code Coach -->
-  <div *ngIf="actif === 'coach'" class="absolute inset-0 animate-slide-fade">
-    <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
-      <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code coach
-    </label>
-    <div class="relative">
-      <input [type]="showCoachPassword ? 'text' : 'password'" 
-             [(ngModel)]="inscriptionData.codeCoach" name="codeCoach"
-             class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
-             placeholder="Code coach" />
-      <!-- Bouton œil -->
-      <button type="button" (click)="showCoachPassword = !showCoachPassword"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600">
-        <i class="fas" [ngClass]="showCoachPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-      </button>
-    </div>
-    <p *ngIf="formSubmitted && inscriptionData.codeCoach !== CODE_COACH"
-       class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
-      <i class="fas fa-exclamation-circle"></i> Code coach incorrect
-    </p>
-  </div>
+          <!-- Code Coach -->
+          <div *ngIf="actif === 'coach'" class="absolute inset-0 animate-slide-fade">
+            <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+              <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code coach
+            </label>
+            <div class="relative">
+              <input [type]="codeCoachVisible ? 'text' : 'password'"
+                    [(ngModel)]="inscriptionData.codeCoach" name="codeCoach"
+                    class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
+                    placeholder="Code coach" />
+              <button type="button" (click)="codeCoachVisible = !codeCoachVisible"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--Rouge-Clair)] hover:text-[var(--Violet)] transition">
+                <i class="fa" [ngClass]="codeCoachVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            <p *ngIf="formSubmitted && inscriptionData.codeCoach !== CODE_COACH"
+              class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
+              <i class="fas fa-exclamation-circle"></i> Code coach incorrect
+            </p>
+          </div>
 
-  <!-- Code Joueur -->
-  <div *ngIf="actif === 'joueur'" class="absolute inset-0 animate-slide-fade">
-    <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
-      <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code joueur
-    </label>
-    <div class="relative">
-      <input [type]="showJoueurPassword ? 'text' : 'password'" 
-             [(ngModel)]="inscriptionData.codeJoueur" name="codeJoueur"
-             class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
-             placeholder="Code joueur" />
-      <!-- Bouton œil -->
-      <button type="button" (click)="showJoueurPassword = !showJoueurPassword"
-              class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-600">
-        <i class="fas" [ngClass]="showJoueurPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
-      </button>
-    </div>
-    <p *ngIf="formSubmitted && inscriptionData.codeJoueur !== CODE_JOUEUR"
-       class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
-      <i class="fas fa-exclamation-circle"></i> Code joueur incorrect
-    </p>
-  </div>
+          <!-- Code Joueur -->
+          <div *ngIf="actif === 'joueur'" class="absolute inset-0 animate-slide-fade">
+            <label class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+              <i class="fas fa-key text-[var(--Rouge-Clair)]"></i> Code joueur
+            </label>
+            <div class="relative">
+              <input [type]="codeJoueurVisible ? 'text' : 'password'"
+                    [(ngModel)]="inscriptionData.codeJoueur" name="codeJoueur"
+                    class="w-full px-3 py-2 rounded-lg border-2 border-[var(--Rouge-Clair)] outline-none focus:ring-2 focus:ring-[var(--Bleu)] transition-all"
+                    placeholder="Code joueur" />
+              <button type="button" (click)="codeJoueurVisible = !codeJoueurVisible"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--Rouge-Clair)] hover:text-[var(--Violet)] transition">
+                <i class="fa" [ngClass]="codeJoueurVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
+            </div>
+            <p *ngIf="formSubmitted && inscriptionData.codeJoueur !== CODE_JOUEUR"
+              class="text-[var(--Rouge)] text-sm mt-1 flex items-center gap-1">
+              <i class="fas fa-exclamation-circle"></i> Code joueur incorrect
+            </p>
+          </div>
 
-</div>
-
+        </div>
 
         <!-- Sélection équipe (pour Joueur et Coach uniquement) -->
         <div *ngIf="actif === 'joueur' || actif === 'coach'" class="mt-4">

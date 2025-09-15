@@ -1,0 +1,44 @@
+.vertical-scroll-only {
+    overflow-x: hidden; /* pas de scroll horizontal */
+    overflow-y: hidden;   /* scroll vertical uniquement */
+    height: 100vh;      /* occupe toute la hauteur de la fenêtre */
+}
+
+/* Style du scroll pour les navigateurs basés sur WebKit (Chrome, Edge, Safari) */
+.vertical-scroll-only::-webkit-scrollbar {
+    width: 13px; /* largeur de la barre verticale */
+}
+
+.vertical-scroll-only::-webkit-scrollbar-track {
+    background: #f0f0f0; /* couleur du fond de la barre */
+    border-radius: 20px;  /* arrondir le fond */
+}
+
+.vertical-scroll-only::-webkit-scrollbar-thumb {
+    background: #ff4d4d; /* couleur du "curseur" */
+    border-radius: 10px;  /* arrondir le curseur */
+    border: 2px solid #f0f0f0; /* créer un effet d’espace autour du curseur */
+}
+
+.vertical-scroll-only::-webkit-scrollbar-thumb:hover {
+    background: #cc0000; /* couleur au survol */
+}
+
+
+/* Polices */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600&display=swap');
+
+.font-primary { font-family: 'Bebas Neue', sans-serif; }
+.font-secondary { font-family: 'Inter', sans-serif; }
+
+/* Animations */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-fade-in { animation: fade-in .8s ease-out both; }
+.animate-scale-in { animation: scale-in 1s .2s ease-out both; }

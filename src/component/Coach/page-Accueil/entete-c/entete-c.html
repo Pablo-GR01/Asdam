@@ -1,73 +1,39 @@
-<!-- ==========================
-     Bannière profil utilisateur
-========================== -->
-<section class="relative w-full">
-  <!-- Image de fond -->
-  <img src="assets/i1.jpg" alt="" class="w-full h-64 sm:h-72 md:h-80 lg:h-96 xl:h-[28rem] 2xl:h-[32rem] object-cover" />
-
-  <!-- Overlay léger pour garantir la lisibilité du contenu -->
-  <div class="absolute inset-0 bg-[var(--Black)]/30"></div>
-
-  <!-- Carte profil -->
-  <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2
-           w-11/12 max-w-3xl
-           rounded-2xl bg-[var(--Blanc)] backdrop-blur-md
-           border-4 border-[var(--Rouge)]
-           p-6 sm:p-8
-           shadow-xl">
-    <!-- État : chargement -->
-    <div *ngIf="loading" class="flex items-center justify-center gap-3">
-      <span class="text-[var(--Black)]">Chargement…</span>
-    </div>
-
-    <!-- État : erreur -->
-    <div *ngIf="!loading && error" class="text-center">
-      <p class="text-[var(--Rouge)] font-medium">{{ error }}</p>
-    </div>
-
-    <!-- État : connecté -->
-    <div *ngIf="!loading && user" class="flex flex-col sm:flex-row items-center gap-4">
-      <!-- Avatar -->
-      <div class="w-16 h-16 sm:w-20 sm:h-20
-               rounded-full bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)]
-               text-[var(--Blanc)] grid place-content-center
-               text-2xl sm:text-3xl font-bold tracking-tight select-none">
-        {{ getInitials() }}
-      </div>
-
-      <!-- Infos -->
-      <div class="text-center sm:text-left space-y-2">
-        <!-- Nom complet -->
-        <p class="text-xl sm:text-2xl font-semibold text-[var(--Black)]">
-          Bonjour, Coach {{ user.prenom }} {{ user.nom }}
-        </p>
-
-        <!-- Club -->
-        <p class="text-sm sm:text-base text-[var(--Gris)]">
-          Club : {{ clubName }}
-        </p>
-
-        <!-- Rôle -->
-        <p class="text-sm sm:text-base text-[var(--Gris)]">
-          Rôle : {{ user.role }}
-        </p>
-
-        <!-- Email -->
-        <p class="text-sm sm:text-base text-[var(--Gris)]">
-          Email : {{ user.email }}
-        </p>
-
-        <!-- Équipe 
-        <p class="text-sm sm:text-base text-[var(--Gris)]">
-          Équipe : {{ user?.equipe || 'Non définie' }}
-        </p>-->
-        
-        <!-- Membre depuis Quand -->
-        <p class="text-sm sm:text-base text-[var(--Gris)]">
-          Membre depuis : {{ user.membreDepuis | date:'longDate':'':'fr-FR' }}
-        </p>
-      </div>
-
-    </div>
+<!-- ======= Initiales ======= -->
+<section class="relative mx-auto w-full max-w-xs rounded-2xl border-3 border-[var(--Rouge)] p-6 shadow-lg backdrop-blur sm:max-w-sm sm:pt-10 sm:pl-80 sm:-mt-148 sm:-ml-45">
+  <!-- État : chargement -->
+  <div *ngIf="loading" class="flex items-center justify-center gap-3" aria-busy="true">
+    <span class="sr-only">Chargement…</span>
+    <div class="h-8 w-8 animate-spin rounded-full border-4 border-red-600 border-t-transparent"></div>
   </div>
+
+  <!-- État : erreur -->
+  <div *ngIf="!loading && error" role="alert" class="text-center">
+    <p class="font-semibold text-red-600">{{ error }}</p>
+  </div>
+
+  <!-- État : connecté -->
+  <div *ngIf="!loading && user" class="flex flex-col items-center gap-4 sm:flex-row sm:gap-5">
+
+    <!-- Avatar -->
+    <figure class="absolute -ml-78 -mt-4.5 grid h-15 w-15 flex-shrink-0 place-content-center rounded-full border-4 border-[var(--Blanc)] text-[var(--Blanc)] sm:h-13 sm:w-13">
+      <figcaption class="sr-only">Avatar de {{ user.prenom }} {{ user.nom }}</figcaption>
+      <span class="text-1xl font-extrabold tracking-tight sm:text-2xl">
+        {{ getInitials() }}
+      </span>
+    </figure>
+
+    <!-- Infos -->
+    <div class="absolute text-center sm:text-left -mt-4.5">
+      <p class="-ml-62 text-lg font-bold text-[var(--Blanc)] sm:text-xl">Bonjour, {{ user?.role }}</p>
+      <p class="-ml-36 text-lg font-bold text-[var(--Blanc)] sm:text-xl">
+        {{ user.prenom }} {{ user.nom }}
+      </p>
+    </div>
+
+  </div>
+
+
 </section>
+
+
+

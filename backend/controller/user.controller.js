@@ -60,20 +60,6 @@ exports.deleteUserById = async (req, res) => {
   }
 };
 
-// -------------------- AJOUTER XP --------------------
-exports.addXP = async (req, res) => {
-  try {
-    const { xp } = req.body;
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé' });
-
-    user.xp = (user.xp || 0) + xp;
-    await user.save();
-    res.json({ message: 'XP ajouté', updatedXP: user.xp });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
 
 // -------------------- RÉCUPÉRER TOUS LES UTILISATEURS --------------------
 exports.getAllUsers = async (req, res) => {

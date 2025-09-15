@@ -1,22 +1,17 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const categoriesEnum = [
-  'U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18',
-  'SeniorA','SeniorB','U23','SeniorC','SeniorD'
-];
-
 const utilisateurSchema = new mongoose.Schema({
   nom: { type: String, required: true },
   prenom: { type: String, required: true },
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['joueur', 'coach', 'inviter'], default: 'joueur' },
-  codeCoach: { type: String }, // optionnel pour coach
-  categorie: { type: String, enum: categoriesEnum }, // remplacement de 'equipe' par 'categorie'
+  role: { type: String, enum: ['joueur', 'coach', 'inviter', 'admin'], default: 'joueur' },
+  codeCoach: { type: String },
+  codeJoueur: { type: String },
+  equipe: { type: String }, // ✅ simple String, pas d'enum
   initiale: { type: String },
   cguValide: { type: Boolean, default: true },
-  membreDepuis: { type: Date, default: Date.now } // stocke date + heure automatiquement
 });
 
 // Génération des initiales

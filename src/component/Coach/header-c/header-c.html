@@ -1,142 +1,123 @@
 <app-icon></app-icon>
 
-<!-- ================= HEADER ================= -->
-<header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b-2 border-red-400 shadow-sm">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+<!-- ====== ACCESSIBILITY HELPERS ====== -->
+<span id="menu-label" class="sr-only">Navigation principale</span>
 
-    <!-- LOGO -->
-    <a
-  routerLink="/accueilC"
-  class="flex items-center gap-3 group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--Rouge-Clair)] rounded-lg"
-  aria-label="Aller à l'accueil - TeamAsdam"
->
-  <!-- Logo -->
-  <img
-    src="assets/LOGO.png"
-    alt="Logo TeamAsdam"
-    class="w-10 h-10 sm:w-12 sm:h-12 object-contain
-           transition-transform duration-300 ease-out
-           group-hover:scale-110 group-hover:rotate-3"
-  />
+<header class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-lg shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="flex h-20 items-center justify-between">
 
-  <!-- Titre -->
-  <h1 class="text-xl sm:text-2xl font-extrabold
-             text-[var(--Rouge-Clair)] dark:text-red-400
-             group-hover:text-[var(--Rouge-Foncé)] dark:group-hover:text-red-300
-             transition-colors duration-200">
-    Team<span class="text-[var(--Rouge-Foncé)] dark:text-red-500 tracking-wide
-               group-hover:text-[var(--Rouge-Clair)] dark:group-hover:text-red-300
-               transition-colors duration-200">Asdam</span>
-  </h1>
-</a>
+      <!-- BURGER -->
+      <button type="button"
+              class="lg:hidden p-2 rounded-lg text-slate-700 hover:bg-slate-100"
+              aria-label="Ouvrir le menu"
+              aria-expanded="false"
+              (click)="toggleMobileMenu()">
+        <i class="fas fa-bars text-xl"></i>
+      </button>
 
-    <!-- NAVIGATION DESKTOP -->
-    <nav class="hidden md:flex items-center gap-2">
+      <!-- NAV GAUCHE -->
+      <nav class="hidden lg:flex lg:gap-2" aria-labelledby="menu-label">
+        <div *ngFor="let menu of mobileMenus.slice(0,3)"
+             class="relative flex items-center group">
 
-      <!-- MENU DYNAMIQUE (même style que Dashboard) -->
-      <!-- Actualité -->
-      <div class="relative" (clickOutside)="closeDropdown('actusMenu')">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-          <a routerLink="/actualite" class="flex items-center gap-2 flex-1">
-            <i class="fas fa-newspaper"></i><span>Actualité</span>
+          <!-- Lien principal -->
+          <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/PlanningC')"
+             class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-700 hover:text-[var(--Rouge)] transition">
+            <i [class]="menu.icon"></i>
+            <span>{{ menu.title }}</span>
           </a>
-          <button (click)="toggleDropdown('actusMenu', $event)" class="flex items-center px-2 py-1 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-            <i class="fas fa-chevron-down text-xs transition-transform" [class.rotate-180]="activeDropdown==='actusMenu'"></i>
+
+          <!-- Flèche -->
+          <button type="button"
+                  *ngIf="menu.items.length"
+                  (click)="toggleDropdown(menu.title,$event)"
+                  class="ml-1 p-1 rounded text-slate-500 hover:text-[var(--Rouge)]"
+                  [attr.aria-expanded]="activeDropdown===menu.title">
+            <i class="fas fa-chevron-down text-xs transition-transform"
+               [class.-rotate-180]="activeDropdown===menu.title"></i>
           </button>
-        </div>
-        <div id="actusMenu" [class.hidden]="activeDropdown!=='actusMenu'" class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <a routerLink="/actualite/news" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-bullhorn"></i> Dernières news</a>
-          <a routerLink="/actualite/communiques" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-file-alt"></i> Communiqués</a>
-        </div>
-      </div>
 
-      <!-- Match -->
-      <div class="relative" (clickOutside)="closeDropdown('matchMenu')">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-          <a routerLink="/matchC" class="flex items-center gap-2 flex-1">
-            <i class="fas fa-futbol"></i><span>Match</span>
+          <!-- Dropdown -->
+          <div *ngIf="activeDropdown===menu.title"
+               class="absolute left-0 top-full mt-2 w-56 rounded-xl bg-white shadow-lg p-2 animate-fade-in">
+            <a *ngFor="let item of menu.items"
+               [routerLink]="item.link"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-[var(--Rouge)] hover:text-white"
+               (click)="closeDropdown(menu.title)">
+              <i [class]="item.icon"></i>
+              <span>{{ item.title }}</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- LOGO -->
+      <a routerLink="/accueilC"
+         class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] rounded-full">
+        <img src="assets/LOGO.png"
+             alt="Accueil"
+             class="h-12 w-12 sm:h-14 sm:w-14 object-contain transition-transform group-hover:scale-110">
+      </a>
+
+      <!-- NAV DROITE -->
+      <nav class="hidden lg:flex lg:gap-2">
+        <div *ngFor="let menu of mobileMenus.slice(3,6)"
+             class="relative flex items-center group">
+          <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
+             class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-700 hover:text-[var(--Rouge)] transition">
+            <i [class]="menu.icon"></i>
+            <span>{{ menu.title }}</span>
           </a>
-          <button (click)="toggleDropdown('matchMenu', $event)" class="flex items-center px-2 py-1 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-            <i class="fas fa-chevron-down text-xs transition-transform" [class.rotate-180]="activeDropdown==='matchMenu'"></i>
+
+          <button type="button"
+                  *ngIf="menu.items.length"
+                  (click)="toggleDropdown(menu.title,$event)"
+                  class="ml-1 p-1 rounded text-slate-500 hover:text-[var(--Rouge)]"
+                  [attr.aria-expanded]="activeDropdown===menu.title">
+            <i class="fas fa-chevron-down text-xs transition-transform"
+               [class.-rotate-180]="activeDropdown===menu.title"></i>
           </button>
-        </div>
-        <div id="matchMenu" [class.hidden]="activeDropdown!=='matchMenu'" class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <a routerLink="/match/convocations" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-users"></i> Convocations</a>
-          <a routerLink="/match/resultats" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-trophy"></i> Résultats</a>
-          <a routerLink="/match/calendrier" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-calendar-alt"></i> Calendrier</a>
-        </div>
-      </div>
 
-      <!-- Planning -->
-      <div class="relative" (clickOutside)="closeDropdown('planningMenu')">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-          <a routerLink="/planningC" class="flex items-center gap-2 flex-1">
-            <i class="fas fa-calendar-alt"></i><span>Planning</span>
-          </a>
-          <button (click)="toggleDropdown('planningMenu', $event)" class="flex items-center px-2 py-1 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-            <i class="fas fa-chevron-down text-xs transition-transform" [class.rotate-180]="activeDropdown==='planningMenu'"></i>
-          </button>
+          <!-- Dropdown droite -->
+          <div *ngIf="activeDropdown===menu.title"
+               class="absolute right-0 top-full mt-2 w-56 rounded-xl bg-white shadow-lg p-2 animate-fade-in">
+            <a *ngFor="let item of menu.items"
+               [routerLink]="item.link"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-[var(--Rouge)] hover:text-white"
+               (click)="closeDropdown(menu.title)">
+              <i [class]="item.icon"></i>
+              <span>{{ item.title }}</span>
+            </a>
+          </div>
         </div>
-        <div id="planningMenu" [class.hidden]="activeDropdown!=='planningMenu'" class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <a routerLink="/planning/entrainements" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-dumbbell"></i> Entraînements</a>
-          <a routerLink="/planning/evenements" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-calendar-check"></i> Événements</a>
-        </div>
-      </div>
+      </nav>
 
-      <!-- Notifications -->
-      <div class="relative" (clickOutside)="closeDropdown('notifMenu')">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-          <a routerLink="/notifications" class="flex items-center gap-2 flex-1">
-            <i class="fas fa-bell"></i><span>Notif</span>
-            <span *ngIf="notifCount>0" class="ml-1 bg-red-500 text-white text-[10px] px-1.5 rounded-full">{{notifCount}}</span>
-          </a>
-          <button (click)="toggleDropdown('notifMenu', $event)" class="flex items-center px-2 py-1 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-            <i class="fas fa-chevron-down text-xs transition-transform" [class.rotate-180]="activeDropdown==='notifMenu'"></i>
-          </button>
-        </div>
-        <div id="notifMenu" [class.hidden]="activeDropdown!=='notifMenu'" class="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <a routerLink="/notifications/messages" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition">
-            <i class="fas fa-envelope"></i> Messages
-            <span *ngIf="messageCount>0" class="ml-auto bg-red-500 text-white text-[10px] px-1.5 rounded-full">{{messageCount}}</span>
-          </a>
-          <a routerLink="/notifications/alertes" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-exclamation-circle"></i> Alertes</a>
-        </div>
-      </div>
-
-      <!-- Dashboard -->
-      <div class="relative" (clickOutside)="closeDropdown('dashboardMenu')">
-        <div class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-          <a routerLink="/dashboardC" class="flex items-center gap-2 flex-1">
-            <i class="fas fa-tachometer-alt"></i><span>Dashboard</span>
-          </a>
-          <button (click)="toggleDropdown('dashboardMenu', $event)" class="flex items-center px-2 py-1 rounded-lg hover:bg-red-50 text-gray-800 hover:text-red-600 transition">
-            <i class="fas fa-chevron-down text-xs transition-transform" [class.rotate-180]="activeDropdown==='dashboardMenu'"></i>
-          </button>
-        </div>
-        <div id="dashboardMenu" [class.hidden]="activeDropdown!=='dashboardMenu'" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden z-50">
-          <a routerLink="/dashboard/profile" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-user"></i> Mon Profil</a>
-          <a routerLink="/dashboard/settings" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-cog"></i> Paramètres</a>
-          <a (click)="deconnecter()" class="flex items-center gap-3 px-4 py-2 hover:bg-red-500 hover:text-white transition"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
-        </div>
-      </div>
-
-    </nav>
-
-    <!-- BURGER MOBILE -->
-    <button (click)="mobileMenuOpen=!mobileMenuOpen" class="md:hidden text-red-500 hover:text-red-600 text-2xl p-2" aria-label="Menu">
-      <i class="fas fa-bars"></i>
-    </button>
+      <!-- PROFIL MOBILE -->
+      <a routerLink="/dashboardC"
+         class="lg:hidden ml-auto p-2 rounded-full text-slate-700 hover:bg-slate-100"
+         aria-label="Mon compte">
+        <i class="fas fa-user-circle text-xl"></i>
+      </a>
+    </div>
   </div>
 
-  <!-- MENU MOBILE -->
-  <div *ngIf="mobileMenuOpen" class="md:hidden bg-white/90 border-t border-red-200/40 px-4 py-3 space-y-2">
-    <details class="group" *ngFor="let menu of mobileMenus">
-      <summary class="flex items-center gap-3 cursor-pointer hover:text-red-600 p-2 rounded-lg hover:bg-red-50 transition">
-        <i [class]="menu.icon"></i>{{menu.title}}
-      </summary>
-      <div class="pl-8 mt-1 space-y-1">
-        <a *ngFor="let item of menu.items" [routerLink]="item.link" class="block py-1 hover:text-red-600">{{item.title}}</a>
-      </div>
-    </details>
+  <!-- PANNEAU MOBILE -->
+  <div *ngIf="mobileMenuOpen"
+       class="fixed inset-0 z-50 bg-white/95 backdrop-blur-md overflow-auto">
+    <nav class="flex flex-col gap-6 px-6 py-12 h-full justify-center items-center">
+      <a *ngFor="let menu of mobileMenus"
+         [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
+         class="flex items-center gap-3 text-2xl font-semibold text-slate-700 hover:text-[var(--Rouge)] rounded-lg px-4 py-2"
+         (click)="closeMobileMenu()">
+        <i [class]="menu.icon"></i>
+        <span>{{ menu.title }}</span>
+      </a>
+      <button (click)="deconnecter()"
+              class="flex items-center gap-3 text-2xl font-semibold text-slate-700 hover:text-[var(--Rouge)] rounded-lg px-4 py-2">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Déconnexion</span>
+      </button>
+    </nav>
   </div>
 </header>

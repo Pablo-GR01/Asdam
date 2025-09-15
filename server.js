@@ -8,7 +8,10 @@ const authRoutes = require('./backend/routes/User.Routes');
 const userRoutes = require('./backend/routes/User.Routes');
 const eventRoutes = require('./backend/routes/Events.Routes'); // ✅ ajouté
 const utilisateurRoutes = require('./backend/routes/utilisateur.Routes');
-const matchRoutes = require('./backend/routes/MatchetConvoc.Routes'); 
+const matchRoutes = require('./backend/routes/Match.Routes');
+const convocationRoutes = require('./backend/routes/convocation.routes');
+
+
 
 const app = express();
 const PORT = 3000;
@@ -38,8 +41,9 @@ app.use('/api', userRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/events', eventRoutes); // ✅ nouvelle route pour les entraînements
 app.use('/api/users', utilisateurRoutes);
-app.use('/api', matchRoutes);
-app.use('/api/utilisateur', matchRoutes)
+app.use('/api/matches', matchRoutes);
+app.use('/api/convocations', convocationRoutes);
+
 
 // Démarrage serveur
 app.listen(PORT, () => {

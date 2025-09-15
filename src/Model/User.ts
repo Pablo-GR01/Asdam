@@ -4,7 +4,6 @@ export interface User {
     prenom: string;
     email: string;
     equipe: string;
-    categorie: string;
     initials?: string;
 }
   

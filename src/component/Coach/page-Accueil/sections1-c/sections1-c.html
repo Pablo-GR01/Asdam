@@ -1,0 +1,53 @@
+<!-- HERO SECTION ––––––––––––––––––––––––––––––– -->
+<div class="relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center">
+
+    <!-- Image de fond -->
+    <img src="assets/bgacceuil.jpg" alt="Stade de football éclairé de nuit"
+         class="absolute inset-0 -z-20 h-full w-full object-cover object-center">
+  
+    <!-- Overlay sombre -->
+    <div class="absolute inset-0 -z-10 bg-gradient-to-br from-black/50 via-black/70 to-black/40"
+         aria-hidden="true"></div>
+  
+    <!-- HEADER (col-span complet) -->
+    <app-header-c class="absolute top-0 left-0 right-0 z-50"></app-header-c>
+  
+    <!-- COLONNE GAUCHE : textes -->
+    <main class="z-10 px-4 sm:px-6 lg:px-8 text-white text-center lg:text-left">
+      <div class="mx-auto max-w-xl animate-fade-in">
+        <!-- Slogan -->
+        <h1 class="font-extrabold uppercase tracking-tight"
+            style="font-size: clamp(3rem, 10vw, 7rem); line-height: 1.1;">
+          TEAM<br><span class="text-[var(--Rouge)]">ASDAM</span>
+        </h1>
+  
+        <!-- Sous-titre (nouvelle police) -->
+        <p class="mt-6 font-secondary text-lg sm:text-xl leading-relaxed text-gray-200">
+          TeamAsdam, c’est l’actualité, les matchs et le planning de ton équipe préférée.
+        </p>
+  
+        <!-- CTA -->
+        <div class="mt-10">
+          <a routerLink="/about"
+             class="inline-block rounded-full bg-[var(--Rouge)] px-8 py-4 text-lg font-semibold text-white shadow-lg
+                    hover:bg-red-600 focus:outline-none focus:ring-4 focus:ring-red-400/50
+                    transition transform hover:scale-105 active:scale-95">
+            Learn more
+          </a>
+        </div>
+  
+        <!-- Contact -->
+        <address class="mt-12 not-italic text-sm text-gray-300">
+          <span class="block">Sport Avenue, 122</span>
+          <a href="tel:+1234567890" class="hover:text-white">+123 456 7890</a>
+        </address>
+      </div>
+    </main>
+  
+    <!-- COLONNE DROITE : logo géant -->
+    <div class="z-10 flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <img src="assets/LOGO.png"
+           alt="Logo TeamAsdam"
+           class="w-48 sm:w-64 lg:w-80 drop-shadow-2xl animate-scale-in">
+    </div>
+</div>
