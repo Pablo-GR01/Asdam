@@ -2,13 +2,23 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+// Ton modèle User (à adapter si besoin)
+export interface User {
+  _id?: string;
+  nom: string;
+  prenom: string;
+  email?: string;
+  equipe?: string;
+  initiale?: string;
+}
+
 export interface Convocation {
   match: string;
-  joueurs: string[];       // tableau des joueurs
   equipe: string;
-  date: Date | string;     // accepte Date ou string ISO
+  joueurs: User[];   // ⚡ tableau d’objets User
+  date: Date | string;
   lieu: string;
-  joueursString?: string;  // utilisé pour le formulaire
+  initiale?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -18,12 +28,14 @@ export class ConvocationService {
   constructor(private http: HttpClient) {}
 
   creerConvocation(convocation: Convocation): Observable<Convocation> {
-    // Crée une copie pour ne pas muter l'objet original
-    const payload: Convocation = {
+    // Adapter le payload pour l’API : on envoie seulement les ID ou les noms
+    const payload = {
       ...convocation,
-      joueurs: convocation.joueursString
-        ? convocation.joueursString.split(',').map(j => j.trim())
-        : convocation.joueurs,
+      joueurs: convocation.joueurs.map(j => ({
+        _id: j._id,
+        nom: j.nom,
+        prenom: j.prenom
+      })),
       date: convocation.date instanceof Date
         ? convocation.date.toISOString()
         : convocation.date
