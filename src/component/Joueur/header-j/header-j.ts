@@ -1,7 +1,8 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../../../../services/userService/Profil.Service';
+import { ConvocationService } from '../../../../services/convocation.service';
 import { Icon } from '../../icon/icon';
 import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
 
@@ -9,6 +10,7 @@ interface MenuItem {
   title: string;
   link: string;
   icon: string;
+  count?: number; // compteur optionnel
 }
 
 interface MobileMenu {
@@ -25,12 +27,11 @@ interface MobileMenu {
   templateUrl: './header-j.html',
   styleUrls: ['./header-j.css']
 })
-export class HeaderJ {
+export class HeaderJ implements OnInit {
   private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
 
-  // Menus dynamiques avec icônes pour sous-éléments
   mobileMenus: MobileMenu[] = [
     {
       title: 'Actualité',
@@ -47,7 +48,7 @@ export class HeaderJ {
       icon: 'fas fa-futbol',
       link: '/matchC',
       items: [
-        { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users' },
+        { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users', count: 0 },
         { title: 'Résultats', link: '/matchJ/resultatsJ', icon: 'fas fa-trophy' },
         { title: 'Calendrier', link: '/matchJ/calendrierJ', icon: 'fas fa-calendar-check' }
       ]
@@ -55,7 +56,7 @@ export class HeaderJ {
     {
       title: 'Planning',
       icon: 'fas fa-calendar-alt',
-      link: '/PlanningC',
+      link: '/PlanningJ',
       items: [
         { title: 'Entraînements', link: '/planningJ/entrainementsJ', icon: 'fas fa-dumbbell' },
         { title: 'Événements', link: '/planningJ/evenementsJ', icon: 'fas fa-star' },
@@ -65,16 +66,16 @@ export class HeaderJ {
     {
       title: 'Notifications',
       icon: 'fas fa-bell',
-      link: '/notificationsC',
+      link: '/notificationsJ',
       items: [
-        { title: 'Messages', link: '/notificationsJ/messagesC', icon: 'fas fa-envelope' },
-        { title: 'Alertes', link: '/notificationsJ/alertesC', icon: 'fas fa-exclamation-triangle' }
+        { title: 'Messages', link: '/notificationsJ/messagesJ', icon: 'fas fa-envelope' },
+        { title: 'Alertes', link: '/notificationsJ/alertesJ', icon: 'fas fa-exclamation-triangle' }
       ]
     },
     {
       title: 'Stats',
       icon: 'fas fa-chart-line',
-      link: '/stats',
+      link: '/statsJ',
       items: [
         { title: 'Joueurs', link: '/statsJ/joueursJ', icon: 'fas fa-user-friends' },
         { title: 'Matchs', link: '/statsJ/matchsJ', icon: 'fas fa-futbol' },
@@ -84,19 +85,47 @@ export class HeaderJ {
     {
       title: 'Dashboard',
       icon: 'fas fa-tachometer-alt',
-      link: '/dashboardC',
+      link: '/dashboardJ',
       items: [
         { title: 'Mon Profil', link: '/dashboardJ/profileJ', icon: 'fas fa-user' },
         { title: 'Paramètres', link: '/dashboardJ/settingsJ', icon: 'fas fa-cog' },
         { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
-    },
+    }
   ];
 
-  constructor(private router: Router, private userprofile: ProfileService) {
+  constructor(
+    private router: Router,
+    private userprofile: ProfileService,
+    private convService: ConvocationService
+  ) {
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.updateTheme();
   }
+
+  convocationsMenuItem?: MenuItem;
+
+ngOnInit(): void {
+  const username = this.userprofile.getUsername(); // récupère le nom de l'utilisateur connecté
+  if (username) {
+    this.convService.getConvocationsByUser(username).subscribe(convocations => {
+      // Trouver l'item Convocations dans le menu Match
+      const matchMenu = this.mobileMenus.find(menu => menu.title === 'Match');
+      if (matchMenu) {
+        const convItem = matchMenu.items.find(item => item.title === 'Convocations');
+        if (convItem) {
+          // Vérifie si l'utilisateur est dans au moins une convocation
+          const userInConv = convocations.some(conv => 
+            conv.joueurs.some(j => j.nom === username)
+          );
+          convItem.count = userInConv ? 1 : 0;
+          this.convocationsMenuItem = convItem; // ⚡ pour le template
+        }
+      }
+    });
+  }
+}
+
 
   get mobileMenuOpen(): boolean {
     return this._mobileMenuOpen;

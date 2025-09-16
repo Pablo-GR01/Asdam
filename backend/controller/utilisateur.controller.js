@@ -58,3 +58,14 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+// ✅ Récupérer uniquement les joueurs
+exports.getJoueurs = async (req, res) => {
+  try {
+    const joueurs = await User.find({ role: 'joueur' });
+    res.json(joueurs);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

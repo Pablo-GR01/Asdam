@@ -5,7 +5,10 @@ const utilisateurController = require('../controller/utilisateur.controller');
 // Récupérer tous les utilisateurs
 router.get('/', utilisateurController.getUsers);
 
-// ✅ Récupérer l'utilisateur connecté
+// ✅ Récupérer uniquement les joueurs
+router.get('/joueurs', utilisateurController.getJoueurs);
+
+// Récupérer l'utilisateur connecté
 router.get('/me', utilisateurController.getCurrentUser);
 
 // Récupérer un utilisateur par ID

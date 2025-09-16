@@ -63,24 +63,21 @@ export class HeaderC {
       ]
     },
     {
-      title: 'Notifications',
+      title: 'Messages',
       icon: 'fas fa-bell',
       link: '/notificationsC',
       items: [
-        { title: 'Messages', link: '/notificationsC/messagesC', icon: 'fas fa-envelope' },
-        { title: 'Alertes', link: '/notificationsC/alertesC', icon: 'fas fa-exclamation-triangle' }
+        // { title: 'Messages', link: '/notificationsC/messagesC', icon: 'fas fa-envelope' },
+        // { title: 'Alertes', link: '/notificationsC/alertesC', icon: 'fas fa-exclamation-triangle' }
       ]
     },
     {
-      title: 'Stats',
-      icon: 'fas fa-chart-line',
-      link: '/statsC',
-      items: [
-        { title: 'Joueurs', link: '/statsC/joueursC', icon: 'fas fa-user-friends' },
-        { title: 'Matchs', link: '/statsC/matchsC', icon: 'fas fa-futbol' },
-        { title: 'Performances', link: '/statsC/performancesC', icon: 'fas fa-bolt' }
-      ]
+      title: 'Absents',
+      icon: 'fas fa-user-slash',
+      link: '/absentsC',
+      items: [],
     },
+    
     {
       title: 'Dashboard',
       icon: 'fas fa-tachometer-alt',

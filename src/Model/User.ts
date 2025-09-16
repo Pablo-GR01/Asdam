@@ -1,9 +1,9 @@
 export interface User {
-    id: string;
+    _id: string;
     nom: string;
     prenom: string;
-    email: string;
-    equipe: string;
-    initials?: string;
+    role: string;
+    equipe?: string;
+    poste?: string; // <- ajouté
 }
   

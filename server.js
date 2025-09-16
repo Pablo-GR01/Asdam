@@ -3,29 +3,22 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 
-// Routes existantes
-const authRoutes = require('./backend/routes/User.Routes');
-const userRoutes = require('./backend/routes/User.Routes');
-const eventRoutes = require('./backend/routes/Events.Routes'); // ✅ ajouté
-const utilisateurRoutes = require('./backend/routes/utilisateur.Routes');
+// Routes
+const authRoutes = require('./backend/routes/User.Routes'); // pour l'authentification
+const utilisateurRoutes = require('./backend/routes/utilisateur.Routes'); // gestion utilisateurs
+const eventRoutes = require('./backend/routes/Events.Routes'); // entraînements
 const matchRoutes = require('./backend/routes/Match.Routes');
-const convocationRoutes = require('./backend/routes/convocation.routes');
-
-
+const convocationRoutes = require('./backend/routes/convocations.Routes');
+const joueurRoutes = require('./backend/routes/joueurs.Routes');
 
 const app = express();
 const PORT = 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors()); // autoriser Angular (localhost:4200)
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Middleware
-app.use(cors());
-app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // accès aux images
-
 
 // Connexion MongoDB
 mongoose.connect('mongodb://localhost:27017/asdam', {
@@ -36,14 +29,12 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 .catch(err => console.error('❌ Erreur MongoDB :', err));
 
 // Routes
-app.use('/api/asdam', authRoutes);
-app.use('/api', userRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/events', eventRoutes); // ✅ nouvelle route pour les entraînements
-app.use('/api/users', utilisateurRoutes);
-app.use('/api/matches', matchRoutes);
-app.use('/api/convocations', convocationRoutes);
-
+app.use('/api/asdam', authRoutes);          // routes auth
+app.use('/api/users', utilisateurRoutes);   // routes utilisateurs
+app.use('/api/events', eventRoutes);        // entraînements
+app.use('/api/matches', matchRoutes);       // matchs
+app.use('/api/convocations', convocationRoutes); // convocations
+app.use('/api/joueurs', joueurRoutes);      // joueurs
 
 // Démarrage serveur
 app.listen(PORT, () => {

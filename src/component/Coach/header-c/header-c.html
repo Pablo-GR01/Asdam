@@ -3,9 +3,9 @@
 <!-- ====== ACCESSIBILITY HELPERS ====== -->
 <span id="menu-label" class="sr-only">Navigation principale</span>
 
-<header class="sticky top-0 z-50 w-full bg-white/80 backdrop-blur-lg shadow-sm">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="flex h-20 items-center justify-between">
+<header class="sticky top-0 z-50 w-full bg-white backdrop-blur-lg shadow-sm">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-5">
+    <div class="flex h-16 items-center justify-between">
 
       <!-- BURGER -->
       <button type="button"
@@ -23,7 +23,7 @@
 
           <!-- Lien principal -->
           <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/PlanningC')"
-             class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-700 hover:text-[var(--Rouge)] transition">
+             class="flex items-center gap-2 rounded-lg px-3 py-2 text-[var(--Black)] font-blod hover:text-[var(--Rouge)] transition">
             <i [class]="menu.icon"></i>
             <span>{{ menu.title }}</span>
           </a>
@@ -32,7 +32,7 @@
           <button type="button"
                   *ngIf="menu.items.length"
                   (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-1 rounded text-slate-500 hover:text-[var(--Rouge)]"
+                  class="ml-1 p-1 rounded text-[var(--Black)] hover:text-[var(--Rouge)]"
                   [attr.aria-expanded]="activeDropdown===menu.title">
             <i class="fas fa-chevron-down text-xs transition-transform"
                [class.-rotate-180]="activeDropdown===menu.title"></i>
@@ -40,10 +40,10 @@
 
           <!-- Dropdown -->
           <div *ngIf="activeDropdown===menu.title"
-               class="absolute left-0 top-full mt-2 w-56 rounded-xl bg-white shadow-lg p-2 animate-fade-in">
+               class="absolute left-0 top-full mt-2 w-56 rounded-xl bg-[var(--Blanc)] shadow-lg p-2 animate-fade-in border-3 border-[var(--Rouge)]">
             <a *ngFor="let item of menu.items"
                [routerLink]="item.link"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-[var(--Rouge)] hover:text-white"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--Black)] hover:bg-[var(--Rouge)] hover:text-[var(--Blanc)]"
                (click)="closeDropdown(menu.title)">
               <i [class]="item.icon"></i>
               <span>{{ item.title }}</span>
@@ -54,7 +54,7 @@
 
       <!-- LOGO -->
       <a routerLink="/accueilC"
-         class="flex items-center justify-center group focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] rounded-full">
+         class="flex items-center justify-center group rounded-full">
         <img src="assets/LOGO.png"
              alt="Accueil"
              class="h-12 w-12 sm:h-14 sm:w-14 object-contain transition-transform group-hover:scale-110">
@@ -65,7 +65,7 @@
         <div *ngFor="let menu of mobileMenus.slice(3,6)"
              class="relative flex items-center group">
           <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
-             class="flex items-center gap-2 rounded-lg px-3 py-2 text-slate-700 hover:text-[var(--Rouge)] transition">
+             class="flex items-center gap-2 rounded-lg px-3 py-2 text-[var(--Black)] font-blod hover:text-[var(--Rouge)] transition">
             <i [class]="menu.icon"></i>
             <span>{{ menu.title }}</span>
           </a>
@@ -73,7 +73,7 @@
           <button type="button"
                   *ngIf="menu.items.length"
                   (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-1 rounded text-slate-500 hover:text-[var(--Rouge)]"
+                  class="ml-1 p-1 rounded text-[var(--Black)] hover:text-[var(--Rouge)]"
                   [attr.aria-expanded]="activeDropdown===menu.title">
             <i class="fas fa-chevron-down text-xs transition-transform"
                [class.-rotate-180]="activeDropdown===menu.title"></i>
@@ -81,10 +81,10 @@
 
           <!-- Dropdown droite -->
           <div *ngIf="activeDropdown===menu.title"
-               class="absolute right-0 top-full mt-2 w-56 rounded-xl bg-white shadow-lg p-2 animate-fade-in">
+               class="absolute right-0 top-full mt-2 w-56 rounded-xl bg-[var(--Blanc)] shadow-lg p-2 animate-fade-in border-3 border-[var(--Rouge)]">
             <a *ngFor="let item of menu.items"
                [routerLink]="item.link"
-               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-[var(--Rouge)] hover:text-white"
+               class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-[var(--Black)] hover:bg-[var(--Rouge)] hover:text-[var(--Blanc)]"
                (click)="closeDropdown(menu.title)">
               <i [class]="item.icon"></i>
               <span>{{ item.title }}</span>
@@ -95,7 +95,7 @@
 
       <!-- PROFIL MOBILE -->
       <a routerLink="/dashboardC"
-         class="lg:hidden ml-auto p-2 rounded-full text-slate-700 hover:bg-slate-100"
+         class="lg:hidden ml-auto p-2 rounded-full text-[var(--Black)] hover:bg-[var(--Blanc)]"
          aria-label="Mon compte">
         <i class="fas fa-user-circle text-xl"></i>
       </a>
@@ -108,13 +108,13 @@
     <nav class="flex flex-col gap-6 px-6 py-12 h-full justify-center items-center">
       <a *ngFor="let menu of mobileMenus"
          [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
-         class="flex items-center gap-3 text-2xl font-semibold text-slate-700 hover:text-[var(--Rouge)] rounded-lg px-4 py-2"
+         class="flex items-center gap-3 text-2xl font-semibold text-[var(--Black)] hover:text-[var(--Rouge)] rounded-lg px-4 py-2"
          (click)="closeMobileMenu()">
         <i [class]="menu.icon"></i>
         <span>{{ menu.title }}</span>
       </a>
       <button (click)="deconnecter()"
-              class="flex items-center gap-3 text-2xl font-semibold text-slate-700 hover:text-[var(--Rouge)] rounded-lg px-4 py-2">
+              class="flex items-center gap-3 text-2xl font-semibold text-[var(--Black)] hover:text-[var(--Rouge)] rounded-lg px-4 py-2">
         <i class="fas fa-sign-out-alt"></i>
         <span>Déconnexion</span>
       </button>

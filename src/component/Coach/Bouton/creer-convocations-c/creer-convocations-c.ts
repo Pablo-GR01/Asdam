@@ -17,14 +17,14 @@ export class CreerConvocationsC implements OnInit {
   convocation: Convocation = {
     match: '',
     equipe: '',
-    joueurs: [], // ⚡ tableau d'objets User
+    joueurs: [],
     date: new Date(),
-    lieu: ''
+    lieu: '',
   };
 
   allJoueurs: User[] = [];
-  joueursEquipe: User[] = [];
-  composeJoueurs: User[] = [];
+  joueursEquipe: (User & { action?: string })[] = [];
+  composeJoueurs: (User & { action?: string })[] = [];
 
   showModal = false;
   showComposeModal = false;
@@ -37,6 +37,9 @@ export class CreerConvocationsC implements OnInit {
 
   maxJoueurs = 5;
 
+  compositionEnCours = false;
+  compositionFinalisee = false;
+
   constructor(
     private convocationService: ConvocationService,
     private utilisateurService: UtilisateurService
@@ -48,6 +51,7 @@ export class CreerConvocationsC implements OnInit {
     });
   }
 
+  // --- Modal principale ---
   openModal(): void {
     this.showModal = true;
     this.hideMainBtn = true;
@@ -59,11 +63,14 @@ export class CreerConvocationsC implements OnInit {
     this.hideMainBtn = false;
     this.hideComposeBtn = false;
     this.composeJoueurs = [];
+    this.joueursEquipe.forEach(j => j.action = undefined);
   }
 
   onEquipeChange(): void {
     if (this.convocation.equipe) {
-      this.joueursEquipe = this.allJoueurs.filter(u => u.equipe === this.convocation.equipe);
+      this.joueursEquipe = this.allJoueurs
+        .filter(u => u.equipe === this.convocation.equipe)
+        .map(j => ({ ...j, action: undefined }));
       this.composeJoueurs = [];
       this.convocation.joueurs = [];
     } else {
@@ -72,46 +79,59 @@ export class CreerConvocationsC implements OnInit {
     }
   }
 
+  // --- Modal sélection joueurs ---
   openComposeModal(): void {
     this.showComposeModal = true;
     this.hideComposeBtn = true;
     this.composeJoueurs = [...this.convocation.joueurs];
+    // Marque les joueurs déjà sélectionnés
+    this.joueursEquipe.forEach(j => {
+      j.action = this.composeJoueurs.find(u => u._id === j._id) ? 'ajoute' : undefined;
+    });
   }
 
   closeComposeModal(): void {
     this.showComposeModal = false;
     this.hideComposeBtn = false;
+    this.compositionEnCours = false;
+    this.compositionFinalisee = false;
   }
 
-  ajouterJoueur(user: User): void {
+  // --- Gestion joueurs ---
+  ajouterJoueur(user: User & { action?: string }): void {
     if (this.composeJoueurs.find(u => u._id === user._id)) return;
-    if (this.composeJoueurs.length >= this.maxJoueurs) {
-      alert(`Vous ne pouvez sélectionner que ${this.maxJoueurs} joueurs`);
-      return;
-    }
+    if (this.composeJoueurs.length >= this.maxJoueurs) return;
+    user.action = 'ajoute';
     this.composeJoueurs.push(user);
   }
 
-  retirerJoueur(user: User): void {
+  retirerJoueur(user: User & { action?: string }): void {
+    user.action = 'retire';
     this.composeJoueurs = this.composeJoueurs.filter(u => u._id !== user._id);
   }
 
-  validerCompose(): void {
-    if (this.composeJoueurs.length === 0) {
-      alert('Vous devez sélectionner au moins un joueur');
-      return;
-    }
-    if (this.composeJoueurs.length > this.maxJoueurs) {
-      alert(`Vous ne pouvez sélectionner que ${this.maxJoueurs} joueurs`);
-      return;
-    }
-    this.convocation.joueurs = [...this.composeJoueurs]; // ✅ garder les objets User
-    this.closeComposeModal();
+  isJoueurCompose(joueur: User & { action?: string }): boolean {
+    return !!this.composeJoueurs.find(j => j._id === joueur._id);
   }
 
+  // --- Validation composition ---
+  validerCompose(): void {
+    if (this.composeJoueurs.length === 0) return;
+    if (this.composeJoueurs.length > this.maxJoueurs) return;
+
+    this.compositionEnCours = true;
+    setTimeout(() => {
+      this.convocation.joueurs = [...this.composeJoueurs];
+      this.compositionFinalisee = true;
+      this.closeComposeModal();
+    }, 600);
+  }
+
+  // --- Création convocation ---
   creerConvocation(): void {
     if (this.convocation.joueurs.length === 0) {
-      alert('Vous devez convoquer au moins un joueur');
+      this.errorMsg = 'Veuillez sélectionner au moins un joueur';
+      setTimeout(() => this.errorMsg = '', 3000);
       return;
     }
 
@@ -127,12 +147,18 @@ export class CreerConvocationsC implements OnInit {
         this.joueursEquipe = [];
         this.composeJoueurs = [];
         this.closeModal();
+        setTimeout(() => this.successMsg = '', 3000);
       },
-      error: (err) => {
-        console.error(err);
-        this.errorMsg = 'Erreur lors de la création de la convocation';
+      error: () => {
+        this.errorMsg = 'Erreur lors de la création';
         this.loading = false;
+        setTimeout(() => this.errorMsg = '', 3000);
       }
     });
+  }
+
+  // ----- Helpers -----
+  getInitiale(user: User): string {
+    return (user.prenom?.charAt(0) + user.nom?.charAt(0)).toUpperCase();
   }
 }

@@ -43,4 +43,14 @@ export class ConvocationService {
 
     return this.http.post<Convocation>(this.apiUrl, payload);
   }
+
+  // Récupérer toutes les convocations d’un utilisateur
+  getConvocationsByUser(username: string): Observable<Convocation[]> {
+    return this.http.get<Convocation[]>(`${this.apiUrl}/user/${username}`);
+  }
+
+  // Récupérer le nombre de convocations d’un utilisateur
+  getConvocationCountByUser(username: string): Observable<number> {
+    return this.http.get<number>(`${this.apiUrl}/user/${username}/count`);
+  }
 }
