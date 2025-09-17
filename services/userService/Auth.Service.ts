@@ -31,4 +31,11 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!this.utilisateur;
   }
+
+  // Dans AuthService
+getUserRole(): string {
+  // Normalisation : minuscules et suppression des espaces
+  return this.utilisateur?.role?.trim().toLowerCase() || '';
+}
+
 }

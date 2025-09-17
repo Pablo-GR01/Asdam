@@ -12,6 +12,8 @@ import { NotifJ } from '../page/Joueur/notif-j/notif-j';
 import { MessageJ } from '../page/Joueur/message-j/message-j';
 import { MessageC } from '../page/Coach/message-c/message-c';
 import { AbsentsC } from '../page/Coach/absents-c/absents-c';
+import { PlanningJ } from '../page/Joueur/planning-j/planning-j';
+import { ActualiteC } from '../page/Coach/actualite-c/actualite-c';
 
 
 
@@ -24,7 +26,7 @@ export const routes: Routes = [
     {path:'accueilJ', component:AcceuilJ},
     {path:'notificationsJ', component:NotifJ},
     {path:'notificationsJ/messagesJ', component:MessageJ},
-
+    {path:'PlanningJ', component:PlanningJ},
     
     //Coach
     {path:'accueilC', component:AcceuilC},
@@ -35,6 +37,10 @@ export const routes: Routes = [
     {path:'dashboardC/profileC', component:ProfilC},
     {path:'notificationsC/messagesC', component:MessageC},
     {path:'absentsC', component:AbsentsC},
+    {path:'actualiteC', component:ActualiteC},
+
+
+
     
 
 

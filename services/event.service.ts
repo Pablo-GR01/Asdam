@@ -3,13 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface EventItem {
-  id?: string;
+  _id?: string;
   day: string;
-  hour: string;
+  hour: string;      // heure de début
+  endHour: string;   // heure de fin
   title: string;
   coach: string;
   category: string;
-  imageUrl?: string;
+  level: string;
+  duration: number;  // optionnel si on calcule depuis hour → endHour
+  color?: string;
 }
 
 @Injectable({

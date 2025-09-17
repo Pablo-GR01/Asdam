@@ -5,6 +5,7 @@ import { JourC } from '../../../component/Coach/jour-c/jour-c';
 
 @Component({
   selector: 'app-planning-c',
+  standalone:true,
   imports: [HeaderC, JourC],
   templateUrl: './planning-c.html',
   styleUrl: './planning-c.css'

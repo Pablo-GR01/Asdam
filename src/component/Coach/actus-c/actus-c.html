@@ -1,0 +1,167 @@
+<div class="space-y-6 max-w-3xl mx-auto p-4">
+
+    <!-- BOUTON OUVRIR POPUP -->
+    <div class="bg-white rounded-2xl shadow p-6 flex flex-col items-center justify-center border-2 border-dashed border-gray-300 hover:border-[var(--Rouge)] cursor-pointer transition-colors"
+         (click)="openCreatePostModal()">
+      <i class="fas fa-plus-circle text-4xl text-gray-400 mb-3"></i>
+      <p class="text-gray-600 font-medium">Créer un nouveau post</p>
+      <p class="text-sm text-gray-500 mt-1">Partagez vos pensées, photos ou vidéos</p>
+    </div>
+  
+    <!-- POPUP CRÉATION POST -->
+    <div *ngIf="showCreateModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between p-4 border-b">
+          <h2 class="text-xl font-semibold text-gray-900">Créer un post</h2>
+          <button (click)="closeCreatePostModal()" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+            <i class="fas fa-times text-gray-500"></i>
+          </button>
+        </div>
+  
+        <div class="p-4">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-[var(--Rouge)] text-white flex items-center justify-center font-bold">
+              {{ getInitials(currentUser) }}
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ currentUser }}</h3>
+              <p class="text-sm text-gray-500">Public</p>
+            </div>
+          </div>
+  
+          <textarea [(ngModel)]="newPostContent"
+                    placeholder="Quoi de neuf ?"
+                    class="w-full p-4 rounded-lg border border-gray-300 resize-none focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] focus:border-transparent"
+                    rows="4"></textarea>
+  
+          <div *ngIf="newPostMediaPreview" class="relative mt-4 rounded-lg overflow-hidden">
+            <img *ngIf="newPostMedia?.type?.startsWith('image/')" [src]="newPostMediaPreview" class="max-h-60 w-full object-cover">
+            <video *ngIf="newPostMedia?.type?.startsWith('video/')" [src]="newPostMediaPreview" controls class="max-h-60 w-full"></video>
+            <button (click)="removeMedia()" class="absolute top-2 right-2 bg-gray-700 hover:bg-gray-800 text-white px-3 py-1 rounded-full transition-colors">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+  
+          <div class="flex items-center justify-between mt-4 pt-4 border-t">
+            <div class="flex gap-2">
+              <input type="file" (change)="onMediaSelected($event)" class="hidden" #mediaInput>
+              <button type="button" (click)="openMediaSelector()" class="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                <i class="fas fa-image text-green-600"></i> Photo/Vidéo
+              </button>
+            </div>
+  
+            <div class="flex gap-2">
+              <button (click)="closeCreatePostModal()" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium">Annuler</button>
+              <button (click)="createPost()" class="px-6 py-2 bg-[var(--Rouge)] hover:bg-opacity-90 text-white rounded-lg font-medium"
+                      [disabled]="loading || (!newPostContent.trim() && !newPostMedia)">
+                <i *ngIf="!loading" class="fas fa-paper-plane mr-2"></i>
+                <i *ngIf="loading" class="fas fa-spinner fa-spin mr-2"></i>
+                {{ loading ? 'Publication...' : 'Publier' }}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- LISTE DES POSTS -->
+    <div class="space-y-6">
+      <article *ngFor="let post of posts; let i = index"
+               class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow">
+  
+        <!-- Header post -->
+        <div class="flex items-center justify-between p-4">
+          <div class="flex items-center gap-3">
+            <div class="w-12 h-12 rounded-full bg-[var(--Rouge)] text-white flex items-center justify-center font-bold text-lg">
+              {{ getInitials(post.user) }}
+            </div>
+            <div>
+              <h3 class="font-semibold text-gray-900">{{ post.user }}</h3>
+              <p class="text-sm text-gray-500 flex items-center gap-1">
+                <i class="fas fa-clock text-xs"></i>
+                {{ post.createdAt | date:'short' }}
+              </p>
+            </div>
+          </div>
+  
+          <div class="relative">
+            <button (click)="togglePostMenu(i)" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+              <i class="fas fa-ellipsis-h text-gray-500"></i>
+            </button>
+            <div *ngIf="post.showMenu" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border z-10">
+              <button (click)="editPost(post)" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2">
+                <i class="fas fa-edit text-gray-600"></i> Modifier
+              </button>
+              <button (click)="deletePost(post, i)" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2 text-red-600">
+                <i class="fas fa-trash"></i> Supprimer
+              </button>
+              <button (click)="bookmarkPost(post)" class="w-full text-left px-4 py-2 hover:bg-gray-50 flex items-center gap-2">
+                <i class="fas fa-bookmark" [ngClass]="{'text-yellow-500': post.isBookmarked}"></i>
+                {{ post.isBookmarked ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+              </button>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Contenu et média -->
+        <div class="px-4 pb-3">
+          <p class="text-gray-800 leading-relaxed">{{ post.content }}</p>
+        </div>
+        <div *ngIf="post.mediaUrl" class="relative">
+          <img *ngIf="post.mediaType==='image'" [src]="formatMediaUrl(post.mediaUrl)" class="w-full max-h-80 object-cover">
+          <video *ngIf="post.mediaType==='video'" [src]="formatMediaUrl(post.mediaUrl)" controls class="w-full max-h-80"></video>
+        </div>
+  
+        <!-- Actions -->
+        <div class="p-4 flex items-center justify-between text-sm text-gray-500 border-t">
+          <div class="flex items-center gap-4">
+            <span *ngIf="post.likes>0" class="flex items-center gap-1"><i class="fas fa-heart text-red-500 text-xs"></i> {{ post.likes }}</span>
+            <span *ngIf="post.comments.length>0">{{ post.comments.length }} commentaires</span>
+            <span *ngIf="post.shares && post.shares > 0">{{ post.shares }} partages</span>
+          </div>
+        </div>
+  
+        <!-- Actions buttons -->
+        <div class="p-4 flex items-center justify-between">
+          <div class="flex gap-1">
+            <button (click)="toggleLike(post)" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors" [ngClass]="{'text-red-500': post.isLiked}">
+              <i class="fas" [ngClass]="{'fa-heart': post.isLiked, 'fa-regular fa-heart': !post.isLiked}"></i> J'aime
+            </button>
+            <button (click)="focusComment(post)" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <i class="fas fa-comment"></i> Commenter
+            </button>
+            <button (click)="sharePost(post)" class="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <i class="fas fa-share"></i> Partager
+            </button>
+          </div>
+        </div>
+  
+        <!-- Commentaires -->
+        <div class="px-4 pb-4 space-y-3">
+          <div *ngFor="let comment of post.comments" class="flex gap-3 items-start">
+            <div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center font-bold text-sm">{{ getInitials(comment.user) }}</div>
+            <div class="flex-1 bg-gray-50 rounded-lg p-3">
+              <p class="font-semibold text-sm text-gray-900">{{ comment.user }}</p>
+              <p class="text-gray-800 mt-1">{{ comment.text }}</p>
+              <p class="text-xs text-gray-500 mt-2 flex items-center gap-1"><i class="fas fa-clock text-xs"></i> {{ comment.time }}</p>
+            </div>
+          </div>
+  
+          <div class="flex items-center gap-2 mt-3">
+            <div class="w-8 h-8 rounded-full bg-[var(--Rouge)] text-white flex items-center justify-center font-bold text-sm">
+              <i class="fas fa-user"></i>
+            </div>
+            <input [(ngModel)]="post.newComment" placeholder="Écrire un commentaire..." 
+                   class="flex-1 px-4 py-2 border rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] focus:border-transparent"
+                   (keyup.enter)="addComment(post)">
+            <button (click)="addComment(post)" [disabled]="!post.newComment?.trim()"
+                    class="px-4 py-2 bg-[var(--Rouge)] hover:bg-opacity-90 text-white rounded-full text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-paper-plane"></i>
+            </button>
+          </div>
+        </div>
+  
+      </article>
+    </div>
+</div>
+  

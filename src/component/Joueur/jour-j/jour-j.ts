@@ -22,13 +22,13 @@ interface EventItem {
 type ViewMode = 'month' | 'week';
 
 @Component({
-  selector: 'app-jour-c',
-  templateUrl: './jour-c.html',
-  styleUrls: ['./jour-c.css'],
+  selector: 'app-jour-j',
+  templateUrl: './jour-j.html',
+  styleUrls: ['./jour-j.css'],
   standalone: true,
   imports: [CommonModule, FormsModule, HttpClientModule]
 })
-export class JourC implements OnInit {
+export class JourJ implements OnInit {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   // ----- Variables du calendrier -----

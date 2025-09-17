@@ -1,9 +1,11 @@
+// src/app/component/Coach/header-c/header-c.ts
 import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../../../../services/userService/Profil.Service';
 import { Icon } from '../../icon/icon';
 import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
+import { MessageService } from '../../../../services/message.service';
 
 interface MenuItem {
   title: string;
@@ -29,8 +31,8 @@ export class HeaderC {
   private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
+  unreadMessages = 1; // compteur de messages non lus
 
-  // Menus dynamiques avec icônes pour sous-éléments
   mobileMenus: MobileMenu[] = [
     {
       title: 'Actualité',
@@ -64,12 +66,9 @@ export class HeaderC {
     },
     {
       title: 'Messages',
-      icon: 'fas fa-bell',
+      icon: 'fas fa-envelope',
       link: '/notificationsC',
-      items: [
-        // { title: 'Messages', link: '/notificationsC/messagesC', icon: 'fas fa-envelope' },
-        // { title: 'Alertes', link: '/notificationsC/alertesC', icon: 'fas fa-exclamation-triangle' }
-      ]
+      items: []
     },
     {
       title: 'Absents',
@@ -77,7 +76,6 @@ export class HeaderC {
       link: '/absentsC',
       items: [],
     },
-    
     {
       title: 'Dashboard',
       icon: 'fas fa-tachometer-alt',
@@ -87,12 +85,24 @@ export class HeaderC {
         { title: 'Paramètres', link: '/dashboardC/settingsC', icon: 'fas fa-cog' },
         { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
-    },
+    }
   ];
 
-  constructor(private router: Router, private userprofile: ProfileService) {
+  constructor(
+    private router: Router,
+    private userprofile: ProfileService,
+    private messageService: MessageService
+  ) {
+    // Dark mode
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.updateTheme();
+
+    // Initialiser le compteur de messages non lus
+    this.messageService.unreadCount$.subscribe(count => {
+      this.unreadMessages = count;
+    });
+    const userId = localStorage.getItem('userId');
+    if (userId) this.messageService.getUnreadCount(userId);
   }
 
   get mobileMenuOpen(): boolean {

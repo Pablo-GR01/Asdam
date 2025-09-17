@@ -39,6 +39,27 @@ export class Connexion {
     return !!email && !!password && password.length >= 6;
   }
 
+  // Méthode pour normaliser et sauvegarder le rôle utilisateur
+  private saveUser(user: any): void {
+    if (!user.initiale && user.prenom && user.nom) {
+      user.initiale = (user.prenom[0] ?? '').toUpperCase() + (user.nom[0] ?? '').toUpperCase();
+    }
+
+    // Normalisation du rôle : minuscules + suppression des espaces
+    const roleNormalized = (user.role || '').trim().toLowerCase();
+    user.role = roleNormalized;
+
+    // Sauvegarde sécurisée dans localStorage
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+      if (roleNormalized === 'coach') {
+        localStorage.setItem('nomCoach', `${user.prenom} ${user.nom}`);
+      }
+    } catch (e) {
+      console.error('Erreur sauvegarde utilisateur dans localStorage', e);
+    }
+  }
+
   valider(): void {
     this.formSubmitted = true;
 
@@ -49,25 +70,14 @@ export class Connexion {
 
     this.http.post('http://localhost:3000/api/asdam/login', { email, password }).subscribe({
       next: (user: any) => {
-        if (!user.initiale && user.prenom && user.nom) {
-          user.initiale = (user.prenom[0] ?? '').toUpperCase() + (user.nom[0] ?? '').toUpperCase();
-        }
-
-        localStorage.setItem('user', JSON.stringify(user));
-
-        if ((user.role || '').toLowerCase().includes('coach')) {
-          const nomCoach = `${user.prenom} ${user.nom}`;
-          localStorage.setItem('nomCoach', nomCoach);
-        }
+        this.saveUser(user);
 
         this.message = 'Bienvenue sur TeamAsdam !';
 
-        const roleRaw = (user.role || '').toLowerCase();
-        let roleKey: string;
-        if (roleRaw.includes('admin')) roleKey = 'admin';
-        else if (roleRaw.includes('coach')) roleKey = 'coach';
-        else if (roleRaw.includes('inviter')) roleKey = 'inviter';
-        else roleKey = 'joueur';
+        // Détermination de la route de redirection
+        const roleKey = (user.role || 'joueur') === 'admin' ? 'admin' :
+                        (user.role || '') === 'coach' ? 'coach' :
+                        (user.role || '') === 'inviter' ? 'inviter' : 'joueur';
 
         const routeMap: { [key: string]: string } = {
           admin: '/accueilA',
@@ -93,8 +103,12 @@ export class Connexion {
   }
 
   deconnecter(): void {
-    localStorage.removeItem('user');
-    localStorage.removeItem('nomCoach');
+    try {
+      localStorage.removeItem('user');
+      localStorage.removeItem('nomCoach');
+    } catch (e) {
+      console.error('Erreur lors de la suppression du localStorage', e);
+    }
     this.router.navigate(['/connexion']);
   }
 }
