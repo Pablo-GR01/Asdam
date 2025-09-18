@@ -11,10 +11,12 @@ const eventRoutes = require('./backend/routes/Events.Routes');
 const matchRoutes = require('./backend/routes/Match.Routes');
 const convocationRoutes = require('./backend/routes/convocations.Routes');
 const postRoutes = require("./backend/routes/post.Routes");
+const userRoutes = require("./backend/routes/User.Routes");
 
 // Pour upload média
 const multer = require('multer');
 const postController = require('./backend/controller/post.controller'); // <-- ajout
+
 
 const app = express();
 const PORT = 3000;
@@ -48,6 +50,7 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 
 // Routes
 app.use('/api/asdam', authRoutes);
+app.use('/api/users',userRoutes);
 app.use('/api/users', utilisateurRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/matches', matchRoutes);

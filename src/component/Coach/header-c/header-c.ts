@@ -152,7 +152,9 @@ export class HeaderC {
 
   deconnecter(): void {
     localStorage.clear();
+    sessionStorage.clear();
     this.userprofile.clearProfile();
-    this.router.navigate(['/connexion']);
+
   }
+  
 }

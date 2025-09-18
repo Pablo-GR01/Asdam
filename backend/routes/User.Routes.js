@@ -8,7 +8,7 @@ const authMiddleware = require('../../backend/middleware/auth'); // renomme corr
 // ================= ROUTES UTILISATEURS =================
 
 // ✅ Créer un utilisateur
-router.post('/users', userController.registerUser);
+router.post('/', userController.registerUser);
 
 // ✅ Connexion
 router.post('/login', authController.login);

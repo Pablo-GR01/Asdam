@@ -11,31 +11,30 @@ export class AuthService {
     }
   }
 
-  // Sauvegarder l'utilisateur
+  // 🔹 Sauvegarder l'utilisateur connecté
   setUser(user: any) {
     this.utilisateur = user;
     localStorage.setItem('utilisateur', JSON.stringify(user));
   }
 
-  // Supprimer l'utilisateur
+  // 🔹 Supprimer l'utilisateur
   clearUser() {
     this.utilisateur = null;
     localStorage.removeItem('utilisateur');
   }
 
-  // Accès à l'utilisateur complet
+  // 🔹 Accès à l'utilisateur complet
   getUser() {
     return this.utilisateur;
   }
 
+  // 🔹 Vérifier si l'utilisateur est connecté
   isLoggedIn(): boolean {
     return !!this.utilisateur;
   }
 
-  // Dans AuthService
-getUserRole(): string {
-  // Normalisation : minuscules et suppression des espaces
-  return this.utilisateur?.role?.trim().toLowerCase() || '';
-}
-
+  // 🔹 Récupérer le rôle utilisateur
+  getUserRole(): string {
+    return this.utilisateur?.role?.trim().toLowerCase() || '';
+  }
 }

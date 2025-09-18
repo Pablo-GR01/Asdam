@@ -3,6 +3,13 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { ProfileService } from '../../../../services/userService/Profil.Service';
 
+interface User {
+  _id?: string;
+  nom: string;
+  prenom?: string;
+  equipe?: 'U23' | 'SeniorA' | 'SeniorB' | 'SeniorC' | 'SeniorD';
+}
+
 interface Joueur {
   id: string;
   nom: string;
@@ -41,7 +48,7 @@ export class TableauC implements OnInit {
       this.verifierDates();
     } else {
       this.profileService.getAllJoueurs().subscribe({
-        next: (users) => {
+        next: (users: User[]) => {
           this.joueurs = users.map((user) => {
             // Déterminer la catégorie selon l'équipe
             let categorie: Joueur['categorie'] = 'U23';
@@ -51,10 +58,10 @@ export class TableauC implements OnInit {
             else if (user.equipe === 'SeniorD') categorie = 'SeniorD';
 
             return {
-              id: user._id,
-              nom: user.nom,
-              prenom: user.prenom,
-              statut: 'présent', // par défaut
+              id: user._id || '',           // s'assure que id est toujours une string
+              nom: user.nom || '',
+              prenom: user.prenom || '',    // facultatif mais jamais undefined
+              statut: 'présent',            // par défaut
               date: this.getToday(),
               categorie
             };
@@ -71,7 +78,7 @@ export class TableauC implements OnInit {
   }
 
   changerStatut(joueur: Joueur) {
-    // On ne filtre plus selon le jour, on peut changer n'importe quand
+    // On peut changer le statut à n'importe quel moment
     joueur.statut = joueur.statut === 'présent' ? 'absent' : 'présent';
     joueur.date = this.getToday();
     this.sauvegarder();

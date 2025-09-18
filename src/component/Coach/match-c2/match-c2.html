@@ -1,14 +1,47 @@
-<div class="p-6">
-  <h2 class="text-xl font-bold mb-4">Liste des matchs</h2>
+<div class="p-6 max-w-4xl mx-auto">
+  <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center md:text-left">
+    📅 Prochains matchs
+  </h2>
 
-  <div *ngFor="let match of matches" 
-       class="border rounded-lg p-4 mb-3 shadow-sm hover:shadow-md transition">
-    <p class="font-semibold">{{ match.equipe1 }} ⚽ vs ⚽ {{ match.equipe2 }}</p>
-    <p>Date : {{ match.date | date:'dd/MM/yyyy' }}</p>
-    <p>Stade : {{ match.stade }}</p>
+  <div *ngFor="let match of matches"
+       class="bg-white border border-gray-200 rounded-2xl p-5 mb-5 shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col md:flex-row items-center justify-between gap-4">
+
+    <!-- Équipes -->
+    <div class="flex items-center gap-4 flex-1">
+      <img [src]="match.logoA" [alt]="'Logo ' + match.equipeA" class="w-14 h-14 object-contain" loading="lazy">
+      <div class="text-center">
+        <p class="font-semibold text-gray-900">{{ match.equipeA }}</p>
+      </div>
+
+      <span class="text-gray-400 font-bold text-lg mx-2">VS</span>
+
+      <div class="text-center">
+        <p class="font-semibold text-gray-900">{{ match.equipeB }}</p>
+      </div>
+      <img [src]="match.logoB" [alt]="'Logo ' + match.equipeB" class="w-14 h-14 object-contain" loading="lazy">
+    </div>
+
+    <!-- Infos match -->
+    <div class="text-right text-sm text-gray-600 space-y-1">
+      <p class="font-medium text-gray-800">
+        📍 {{ match.lieu }}<br>
+        📅 {{ match.date | date:'dd MMM yyyy à HH:mm' }}
+      </p>
+      <p class="text-xs text-gray-500">Catégorie : {{ match.categorie }}</p>
+
+      <!-- Score -->
+      <p *ngIf="match.scoreA !== undefined && match.scoreB !== undefined"
+         class="font-bold text-lg text-green-700">
+        Score : {{ match.scoreA }} - {{ match.scoreB }}
+      </p>
+
+      <!-- Temps restant (optionnel) -->
+      <!-- <p class="text-red-600 font-semibold text-xs">{{ getTimeLeft(match) }}</p> -->
+    </div>
   </div>
 
-  <p *ngIf="matches.length === 0" class="text-gray-500">
-    Aucun match disponible
-  </p>
+  <!-- Aucun match -->
+  <div *ngIf="matches.length === 0" class="text-center text-gray-500 mt-10">
+    <p class="text-lg">Aucun match disponible pour le moment.</p>
+  </div>
 </div>

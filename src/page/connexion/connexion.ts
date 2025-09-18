@@ -25,10 +25,7 @@ export class Connexion {
     password: '',
   };
 
-  constructor(
-    private router: Router,
-    private http: HttpClient,
-  ) {}
+  constructor(private router: Router, private http: HttpClient) {}
 
   togglePasswordVisibility(): void {
     this.passwordVisible = !this.passwordVisible;
@@ -39,30 +36,26 @@ export class Connexion {
     return !!email && !!password && password.length >= 6;
   }
 
-  // Méthode pour normaliser et sauvegarder le rôle utilisateur
+  // 🔹 Sauvegarde et mise à jour du nouvel utilisateur (simplifié)
   private saveUser(user: any): void {
-    if (!user.initiale && user.prenom && user.nom) {
-      user.initiale = (user.prenom[0] ?? '').toUpperCase() + (user.nom[0] ?? '').toUpperCase();
-    }
-
-    // Normalisation du rôle : minuscules + suppression des espaces
-    const roleNormalized = (user.role || '').trim().toLowerCase();
-    user.role = roleNormalized;
-
-    // Sauvegarde sécurisée dans localStorage
     try {
-      localStorage.setItem('user', JSON.stringify(user));
-      if (roleNormalized === 'coach') {
-        localStorage.setItem('nomCoach', `${user.prenom} ${user.nom}`);
-      }
+      const sessionUser = {
+        _id: user._id,
+        prenom: user.prenom,
+        nom: user.nom,
+        role: (user.role || '').trim().toLowerCase(),
+        initiale: user.initiale || ((user.prenom?.[0] ?? '').toUpperCase() + (user.nom?.[0] ?? '').toUpperCase()),
+      };
+
+      localStorage.setItem('utilisateur', JSON.stringify(sessionUser));
+      console.log('Session utilisateur enregistrée :', sessionUser);
     } catch (e) {
-      console.error('Erreur sauvegarde utilisateur dans localStorage', e);
+      console.error('Erreur lors de la sauvegarde de l’utilisateur', e);
     }
   }
 
   valider(): void {
     this.formSubmitted = true;
-
     if (!this.formulaireValide()) return;
 
     this.isLoading = true;
@@ -70,22 +63,20 @@ export class Connexion {
 
     this.http.post('http://localhost:3000/api/asdam/login', { email, password }).subscribe({
       next: (user: any) => {
+        // 🔹 Stockage du nouvel utilisateur minimal
         this.saveUser(user);
 
         this.message = 'Bienvenue sur TeamAsdam !';
 
-        // Détermination de la route de redirection
-        const roleKey = (user.role || 'joueur') === 'admin' ? 'admin' :
-                        (user.role || '') === 'coach' ? 'coach' :
-                        (user.role || '') === 'inviter' ? 'inviter' : 'joueur';
-
+        // Redirection selon le rôle
         const routeMap: { [key: string]: string } = {
           admin: '/accueilA',
           coach: '/accueilC',
           joueur: '/accueilJ',
           inviter: '/accueilI',
         };
-        this.redirectionApresConnexion = routeMap[roleKey];
+        const roleKey = (user.role || 'joueur');
+        this.redirectionApresConnexion = routeMap[roleKey] || '/accueilJ';
 
         setTimeout(() => {
           this.router.navigate([this.redirectionApresConnexion!]);
@@ -104,8 +95,8 @@ export class Connexion {
 
   deconnecter(): void {
     try {
-      localStorage.removeItem('user');
-      localStorage.removeItem('nomCoach');
+      localStorage.removeItem('utilisateur');
+      console.log('Utilisateur déconnecté et localStorage vidé');
     } catch (e) {
       console.error('Erreur lors de la suppression du localStorage', e);
     }

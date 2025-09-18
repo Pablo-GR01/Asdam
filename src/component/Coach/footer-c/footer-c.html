@@ -1,0 +1,51 @@
+<footer class="bg-[var(--Gris)] backdrop-blur-md text-gray-300 w-full pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+  
+      <!-- Contenu principal -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12">
+  
+        <!-- Logo + description -->
+        <div class="flex flex-col gap-4">
+          <img src="assets/LOGO.png" alt="Logo ASDAM" class="h-12 w-12 object-contain">
+          <p class="text-gray-300 leading-relaxed text-sm">
+            Tous les outils nécessaires pour gérer votre club et vos équipes facilement et efficacement.
+          </p>
+        </div>
+  
+        <!-- Navigation -->
+        <nav aria-label="Navigation secondaire">
+          <h3 class="text-white font-semibold mb-3 text-2xl uppercase tracking-wider">Navigation</h3>
+          <ul class="space-y-2 text-sm">
+            <li *ngFor="let link of navLinks">
+              <a [routerLink]="link.path"
+                 class="inline-block hover:text-white transition-colors duration-200 focus-visible:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white rounded">
+                {{ link.label }}
+              </a>
+            </li>
+          </ul>
+        </nav>
+  
+        <!-- Réseaux sociaux -->
+        <div>
+          <h3 class="text-white font-semibold mb-3 text-2xl uppercase tracking-wider">Suivez-nous</h3>
+          <ul class="flex gap-4">
+            <li *ngFor="let s of socialIcons">
+              <a [href]="s.url" [attr.aria-label]="s.name" target="_blank" rel="noopener"
+                 class="group block hover:text-white transition-transform duration-300 ease-out hover:scale-110 focus-visible:ring-2 focus-visible:ring-white rounded">
+                <fa-icon [icon]="s.icon" class="w-16 h-16"></fa-icon>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </section>
+  
+      <!-- Séparateur -->
+      <div class="border-t border-gray-600 mt-10"></div>
+  
+      <!-- Copyright -->
+      <address class="mt-6 text-center not-italic text-xs text-gray-400">
+        &copy; <span id="year">{{ currentYear }}</span> ASDAM. Tous droits réservés.
+      </address>
+    </div>
+</footer>
+  

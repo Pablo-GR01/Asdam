@@ -1,11 +1,17 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
-import { AuthService } from './Auth.Service';
+import { Observable } from 'rxjs';
+import { AuthService } from '../userService/Auth.Service';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface User {
+  _id?: string;
+  nom: string;
+  prenom: string;
+  role?: string;
+  email?: string;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ProfileService {
   private apiUrl = 'http://localhost:3000/api/users';
 
@@ -14,15 +20,17 @@ export class ProfileService {
     private http: HttpClient
   ) {}
 
-  // 🔹 Récupérer l’utilisateur connecté depuis AuthService
-  getUser(): any {
-    return this.authService.getUser();
+  // 🔹 Récupère l’utilisateur actuellement connecté
+  getUser(): User | null {
+    return this.authService.getUser() || null;
   }
 
-  setUser(user: any): void {
+  // 🔹 Définit l’utilisateur connecté
+  setUser(user: User | null): void {
     this.authService.setUser(user);
   }
 
+  // 🔹 Récupère les initiales de l’utilisateur
   getInitiales(): string {
     const user = this.getUser();
     if (!user) return 'IN';
@@ -31,32 +39,43 @@ export class ProfileService {
     return prenomInitiale + nomInitiale;
   }
 
+  // 🔹 Récupère le nom complet
   getNomComplet(): string {
     const user = this.getUser();
     return user ? `${user.prenom} ${user.nom}` : 'Invité';
   }
 
+  // 🔹 Récupère le nom d’utilisateur (nom)
+  getUsername(): string {
+    const user = this.getUser();
+    return user ? user.nom : 'Invité';
+  }
+
+  // 🔹 Récupère le rôle
   getRole(): string {
     const user = this.getUser();
     return user?.role || 'invité';
   }
 
+  // 🔹 Supprime le profil localement
   clearProfile(): void {
-    this.authService.setUser(null);
+    this.authService.clearUser();
   }
 
-  getUsername(): string | null {
-    const user = this.getUser();
-    return user?.nom || null;
-  }
-
+  // 🔹 Supprime le compte (côté frontend)
   deleteAccount(): void {
     this.clearProfile();
     console.log('Compte et données utilisateur supprimés définitivement.');
   }
 
-  getAllJoueurs(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/users'); 
+  // 🔹 Récupère tous les utilisateurs (ex: liste des joueurs)
+  getAllJoueurs(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
   }
-  
+
+  // 🔹 Retourne l'ID utilisateur pour le backend
+  getUserId(): string | null {
+    const user = this.getUser();
+    return user?._id || null;
+  }
 }

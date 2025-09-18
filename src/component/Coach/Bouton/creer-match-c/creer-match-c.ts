@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Match, MatchService } from '../../../../../services/match.service';
@@ -10,31 +10,41 @@ import { Match, MatchService } from '../../../../../services/match.service';
   templateUrl: './creer-match-c.html',
   styleUrls: ['./creer-match-c.css']
 })
-export class CreerMatchC {
-  // ✅ Données du match avec champ supplémentaire "categorie"
-  match: Match & { categorie: string } = { 
-    equipeA: 'ASDAM',   // équipe par défaut
-    equipeB: '', 
-    date: '', 
+export class CreerMatchC implements OnInit {
+
+  // Match avec logos et durée
+  match: Match & { categorie: string; logoA?: string; logoB?: string; duree?: number } = {
+    equipeA: 'ASDAM',
+    equipeB: '',
+    date: '',
     lieu: '',
-    categorie: ''       
+    categorie: '',
+    logoA: 'assets/ASDAM.png',
+    logoB: '',
+    duree: 90
   };
 
-  // ✅ Catégories disponibles
+  // Catégories
   categories: string[] = [
     'U6','U7','U8','U9','U10','U11','U12',
     'U13','U14','U15','U16','U17','U18','U23','Senior'
   ];
 
-  // ✅ Champs dynamiques pour éviter répétition dans le HTML
-  champs: { label: string; icon: string; model: keyof (Match & { categorie: string }); readonly?: boolean; type?: string }[] = [
-    { label: 'Équipe A', icon: 'users', model: 'equipeA', readonly: true },
-    { label: 'Équipe B', icon: 'users', model: 'equipeB' },
-    { label: 'Date et heure', icon: 'calendar', model: 'date', type: 'datetime-local' },
-    { label: 'Lieu', icon: 'map-pin', model: 'lieu' }
-  ];
-  
-  // ✅ États du formulaire
+  // Logos de toutes les équipes
+  logos: Record<string, string> = {
+    'ASDAM': 'assets/ASDAM.png',
+    'FCSM': 'assets/FCSM.png',
+    'OM': 'assets/OM.png',
+    'PSG': 'assets/PSG.png',
+    'OL': 'assets/OL.png',
+    'MHSC': 'assets/MHSC.png'
+    // Ajouter d'autres équipes et logos ici
+  };
+
+  // Liste des équipes adverses
+  equipesAdverses: string[] = Object.keys(this.logos).filter(club => club !== 'ASDAM');
+
+  // États
   loading = false;
   successMsg = '';
   errorMsg = '';
@@ -42,16 +52,15 @@ export class CreerMatchC {
 
   constructor(private matchService: MatchService) {}
 
-  // ✅ Ouvrir et fermer la modal
-  openModal(): void {
-    this.showModal = true;
+  ngOnInit(): void {
+    this.updateLogos();
   }
 
-  closeModal(): void {
-    this.showModal = false;
-  }
+  // Ouvre/ferme la modal
+  openModal(): void { this.showModal = true; }
+  closeModal(): void { this.showModal = false; }
 
-  // ✅ Création du match
+  // Création du match
   creerMatch(): void {
     if (!this.match.equipeA || !this.match.equipeB || !this.match.date || !this.match.lieu || !this.match.categorie) {
       this.errorMsg = 'Tous les champs sont obligatoires';
@@ -62,15 +71,33 @@ export class CreerMatchC {
     this.successMsg = '';
     this.errorMsg = '';
 
-    // ✅ Convertir date en ISO
-    const matchToSend = { ...this.match, date: new Date(this.match.date).toISOString() };
+    this.updateLogos(); // Met à jour les logos avant envoi
+
+    const matchToSend = {
+      ...this.match,
+      date: new Date(this.match.date).toISOString(),
+      duree: 90,
+      logoA: this.match.logoA,
+      logoB: this.match.logoB
+    };
 
     this.matchService.creerMatch(matchToSend).subscribe({
       next: () => {
         this.successMsg = 'Match créé avec succès !';
         this.loading = false;
-        // ✅ Reset du formulaire
-        this.match = { equipeA: 'ASDAM', equipeB: '', date: '', lieu: '', categorie: '' };
+
+        // Reset formulaire
+        this.match = {
+          equipeA: 'ASDAM',
+          equipeB: '',
+          date: '',
+          lieu: '',
+          categorie: '',
+          logoA: 'assets/ASDAM.png',
+          logoB: '',
+          duree: 90
+        };
+
         this.closeModal();
       },
       error: (err) => {
@@ -79,5 +106,11 @@ export class CreerMatchC {
         this.loading = false;
       }
     });
+  }
+
+  // Met à jour les logos des équipes
+  updateLogos(): void {
+    this.match.logoA = this.logos[this.match.equipeA] || 'assets/ASDAM.png';
+    this.match.logoB = this.match.equipeB ? this.logos[this.match.equipeB] || '' : '';
   }
 }
