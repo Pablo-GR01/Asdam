@@ -156,14 +156,22 @@ export class ActusC implements OnInit {
 
   addComment(post: Post & { newComment?: string }) {
     if (!post._id || !post.newComment?.trim()) return;
-
-    const comment: Comment = { user: this.currentUser, text: post.newComment, time: "À l'instant" };
-    this.http.post<Post>(`${this.apiUrl}/${post._id}/comments`, comment).subscribe({
-      next: updatedPost => { post.comments = updatedPost.comments; post.newComment = ''; },
+  
+    const comment: Comment = { 
+      user: this.currentUser, 
+      text: post.newComment, 
+      time: "À l'instant" 
+    };
+  
+    this.http.post<Post>(`${this.apiUrl}/${post._id}/comment`, comment).subscribe({
+      next: updatedPost => { 
+        post.comments = updatedPost.comments; 
+        post.newComment = ''; 
+      },
       error: err => console.error(err)
     });
   }
-
+  
   toggleLike(post: Post) {
     if (!post._id) return;
     this.http.post<Post>(`${this.apiUrl}/${post._id}/like`, {}).subscribe({
