@@ -39,7 +39,6 @@ export class HeaderC {
       icon: 'fas fa-newspaper',
       link: '/actualiteC',
       items: [
-        { title: 'Dernières news', link: '/actualiteC/newsC', icon: 'fas fa-bolt' },
         { title: 'Communiqués', link: '/actualiteC/communiquesC', icon: 'fas fa-bullhorn' },
         { title: 'Archives', link: '/actualiteC/archivesC', icon: 'fas fa-archive' }
       ]
