@@ -1,173 +1,99 @@
 <app-icon></app-icon>
 
-<!-- ====== ACCESSIBILITY HELPERS ====== -->
-<span id="menu-label" class="sr-only">Navigation principale</span>
-
+<!-- ====== Header complet avec menus, dropdowns et mobile menu ====== -->
 <header class="sticky top-0 z-50 w-full backdrop-blur-lg bg-white/80 shadow-lg border-b border-white/20">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-5">
     <div class="flex h-16 items-center justify-between">
-
-      <!-- BURGER MOBILE AMÉLIORÉ -->
-      <button type="button"
-              class="Z-100 lg:hidden p-3 rounded-xl text-slate-700 hover:bg-slate-100 hover:scale-110 transition-all duration-300 group"
-              aria-label="Ouvrir le menu"
-              aria-expanded="false"
-              (click)="toggleMobileMenu()">
-        <i class="fas fa-bars text-xl group-hover:text-[var(--Rouge)] transition-colors"></i>
+      <!-- Burger mobile -->
+      <button type="button" class="lg:hidden p-3 rounded-xl text-slate-700 hover:bg-slate-100"
+              aria-label="Ouvrir le menu" (click)="toggleMobileMenu()">
+        <i class="fas fa-bars text-xl"></i>
       </button>
 
-      <!-- NAV GAUCHE -->
-      <nav class="hidden lg:flex lg:gap-2" aria-labelledby="menu-label">
-        <div *ngFor="let menu of mobileMenus.slice(0,3); let i = index"
-             class="relative flex items-center group"
-             [style.animation-delay]="i * 0.1 + 's'">
-
-          <!-- Lien principal -->
-          <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/PlanningC')"
-             class="flex items-center gap-2 rounded-xl px-4 py-3 text-[var(--Black)] font-bold hover:text-[var(--Rouge)] transition-all duration-300 group relative overflow-hidden">
-            <i [class]="menu.icon" class="group-hover:scale-110 transition-transform"></i>
-            <span>{{ menu.title }}</span>
-            
-            <!-- Effet de hover -->
-            <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)]/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
-          </a>
-
-          <!-- Flèche dropdown -->
-          <button type="button"
-                  *ngIf="menu.items.length"
-                  (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-2 rounded-xl text-[var(--Black)] hover:text-[var(--Rouge)] hover:bg-slate-100 transition-all duration-300 group"
-                  [attr.aria-expanded]="activeDropdown===menu.title">
-            <i class="fas fa-chevron-down text-xs transition-all duration-300 group-hover:scale-110"
-               [class.-rotate-180]="activeDropdown===menu.title"></i>
-          </button>
-
-          <!-- Dropdown amélioré -->
-          <div *ngIf="activeDropdown===menu.title"
-               class="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-white/95 backdrop-blur-lg shadow-2xl p-3 animate-fade-in border border-white/20 overflow-hidden">
-            <!-- Flèche décorative -->
-            <div class="absolute -top-2 left-6 w-4 h-4 bg-white/95 transform rotate-45 border-l border-t border-white/20"></div>
-            
-            <a *ngFor="let item of menu.items"
-               [routerLink]="item.link"
-               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)] hover:bg-gradient-to-r hover:from-[var(--Rouge)] hover:to-[var(--Rouge-Foncé)] hover:text-white group relative overflow-hidden">
-              <i [class]="item.icon" class="group-hover:scale-110 transition-transform"></i>
-              <span>{{ item.title }}</span>
-              
-              <!-- Effet de hover -->
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </a>
-          </div>
-        </div>
-      </nav>
-
-      <!-- LOGO AMÉLIORÉ -->
-      <a routerLink="/accueilC"
-         class="flex items-center justify-center group rounded-full relative">
-        <div class="absolute inset-0 bg-[var(--Rouge) rounded-full blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-500"></div>
-        <img src="assets/LOGO.png"
-             alt="Accueil"
-             class="h-12 w-12 sm:h-14 sm:w-14 object-contain transition-all duration-500 group-hover:scale-110 group-hover:rotate-6 relative z-10">
-      </a>
-
-      <!-- NAV DROITE -->
+      <!-- Nav gauche -->
       <nav class="hidden lg:flex lg:gap-2">
-        <div *ngFor="let menu of mobileMenus.slice(3,6); let i = index"
-             class="relative flex items-center group"
-             [style.animation-delay]="(i + 3) * 0.1 + 's'">
-
-          <!-- Lien principal -->
-          <a [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
-             class="flex items-center gap-2 rounded-xl px-4 py-3 text-[var(--Black)] font-bold hover:from-[var(--Rouge)] hover:to-[var(--Rouge-Foncé)] transition-all duration-300 group relative overflow-hidden">
-            <i [class]="menu.icon" class="group-hover:scale-110 transition-transform"></i>
+        <div *ngFor="let menu of mobileMenus.slice(0,3)" class="relative flex items-center group">
+          <a [routerLink]="menu.link || menu.items[0]?.link" class="flex items-center gap-2 rounded-xl px-4 py-3 text-[var(--Black)] font-bold hover:text-[var(--Rouge)]">
+            <i [class]="menu.icon"></i>
             <span>{{ menu.title }}</span>
-
-            <!-- Badge amélioré pour Messages -->
-            <span *ngIf="menu.title === 'Messages' && unreadMessages > 0"
-                  class="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center text-xs font-bold text-white bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] rounded-full border-2 border-[var(--Rouge)]">
-              {{ unreadMessages }}
-            </span>
-
-            <!-- Effet de hover -->
-            <!-- <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)]/10 to-orange-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div> -->
           </a>
-
-          <!-- Flèche dropdown -->
-          <button type="button"
-                  *ngIf="menu.items.length"
-                  (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-2 rounded-xl text-[var(--Black)] hover:text-[var(--Rouge)] hover:bg-slate-100 transition-all duration-300 group"
-                  [attr.aria-expanded]="activeDropdown===menu.title">
-            <i class="fas fa-chevron-down text-xs transition-all duration-300"
-               [class.-rotate-180]="activeDropdown===menu.title"></i>
+          <button *ngIf="menu.items.length" (click)="toggleDropdown(menu.title,$event)" class="ml-1 p-2 rounded-xl text-[var(--Black)] hover:text-[var(--Rouge)]">
+            <i class="fas fa-chevron-down" [class.-rotate-180]="activeDropdown===menu.title"></i>
           </button>
 
-          <!-- Dropdown droite amélioré -->
-          <div *ngIf="activeDropdown===menu.title"
-               class="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white/95 backdrop-blur-lg shadow-2xl p-3 animate-fade-in border border-white/20 overflow-hidden">
-            <!-- Flèche décorative -->
-            <div class="absolute -top-2 right-6 w-4 h-4 bg-white/95 transform rotate-45 border-r border-t border-white/20"></div>
-            
-            <a *ngFor="let item of menu.items"
-               [routerLink]="item.link"
-               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)] hover:bg-[var(--Rouge)] hover:text-white transition-all duration-300 group relative overflow-hidden">
+          <div *ngIf="activeDropdown===menu.title" class="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-white/95 backdrop-blur-lg shadow-2xl p-3 border border-white/20 overflow-hidden">
+            <div class="absolute -top-2 left-6 w-4 h-4 bg-white/95 transform rotate-45 border-l border-t border-white/20"></div>
+            <a *ngFor="let item of menu.items" [routerLink]="item.link" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)] hover:bg-[var(--Rouge)] hover:text-white">
               <i [class]="item.icon"></i>
               <span>{{ item.title }}</span>
-              
-              <!-- Effet de hover -->
-              <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </a>
           </div>
         </div>
       </nav>
 
-      <!-- PROFIL MOBILE AMÉLIORÉ -->
-      <a routerLink="/dashboardC"
-         class="lg:hidden ml-auto p-3 rounded-xl text-[var(--Black)] hover:bg-slate-100 hover:scale-110 transition-all duration-300 group"
-         aria-label="Mon compte">
-        <i class="fas fa-user-circle text-xl group-hover:text-[var(--Rouge)] transition-colors"></i>
+      <!-- Logo -->
+      <a routerLink="/accueilC" class="flex items-center justify-center relative rounded-full">
+        <img src="assets/LOGO.png" alt="Accueil" class="h-12 w-12 sm:h-14 sm:w-14 object-contain">
+      </a>
+
+      <!-- Nav droite -->
+      <nav class="hidden lg:flex lg:gap-2">
+        <div *ngFor="let menu of mobileMenus.slice(3,6)" class="relative flex items-center group">
+          <a [routerLink]="menu.link || menu.items[0]?.link" class="flex items-center gap-2 rounded-xl px-4 py-3 text-[var(--Black)] font-bold hover:text-[var(--Rouge)]">
+            <i [class]="menu.icon"></i>
+            <span>{{ menu.title }}</span>
+            <span *ngIf="menu.title==='Messages' && unreadMessages>0" class="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center text-xs font-bold text-white bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] rounded-full border-2 border-[var(--Rouge)]">
+              {{ unreadMessages }}
+            </span>
+          </a>
+          <button *ngIf="menu.items.length" (click)="toggleDropdown(menu.title,$event)" class="ml-1 p-2 rounded-xl text-[var(--Black)] hover:text-[var(--Rouge)]">
+            <i class="fas fa-chevron-down" [class.-rotate-180]="activeDropdown===menu.title"></i>
+          </button>
+
+          <div *ngIf="activeDropdown===menu.title" class="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-white/95 backdrop-blur-lg shadow-2xl p-3 border border-white/20 overflow-hidden">
+            <div class="absolute -top-2 right-6 w-4 h-4 bg-white/95 transform rotate-45 border-r border-t border-white/20"></div>
+            <a *ngFor="let item of menu.items" [routerLink]="item.link" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)] hover:bg-[var(--Rouge)] hover:text-white">
+              <i [class]="item.icon"></i>
+              <span>{{ item.title }}</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Profil mobile -->
+      <a routerLink="/dashboardC" class="lg:hidden ml-auto p-3 rounded-xl text-[var(--Black)]">
+        <i class="fas fa-user-circle text-xl"></i>
       </a>
     </div>
   </div>
 
-  <!-- PANNEAU MOBILE AMÉLIORÉ -->
-  <div *ngIf="mobileMenuOpen"
-       class="fixed inset-0 z-1000 bg-gradient-to-br from-white/98 to-gray-50/98 backdrop-blur-xl overflow-auto animate-slide-in-right">
+  <!-- Mobile menu -->
+  <div *ngIf="mobileMenuOpen" class="fixed inset-0 z-1000 bg-white/95 backdrop-blur-xl overflow-auto">
     <div class="flex flex-col h-full">
-      <!-- Header du menu mobile -->
       <div class="flex items-center justify-between p-6 border-b border-gray-200">
         <h2 class="text-2xl font-bold text-gray-900">Menu</h2>
-        <button (click)="closeMobileMenu()"
-                class="p-3 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all duration-300">
+        <button (click)="closeMobileMenu()" class="p-3 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-100">
           <i class="fas fa-times text-2xl"></i>
         </button>
       </div>
 
-      <!-- Navigation -->
       <nav class="flex-1 flex flex-col gap-2 px-6 py-8">
-        <a *ngFor="let menu of mobileMenus"
-           [routerLink]="menu.link || (menu.items.length ? menu.items[0].link : '/')"
-           class="group flex items-center gap-4 text-xl font-semibold text-gray-700 hover:text-[var(--Rouge)] rounded-2xl px-4 py-4 hover:bg-gray-100/50 transition-all duration-300"
-           (click)="closeMobileMenu()">
-          <div class="w-12 h-12 bg-gradient-to-br from-[var(--Rouge)]/10 to-orange-500/10 rounded-xl flex items-center justify-center group-hover:from-[var(--Rouge)] group-hover:to-orange-500 transition-all duration-300">
-            <i [class]="menu.icon" class="group-hover:text-white transition-colors"></i>
+        <a *ngFor="let menu of mobileMenus" [routerLink]="menu.link || menu.items[0]?.link"
+           class="group flex items-center gap-4 text-xl font-semibold text-gray-700 hover:text-[var(--Rouge)] rounded-2xl px-4 py-4 hover:bg-gray-100/50" (click)="closeMobileMenu()">
+          <div class="w-12 h-12 bg-gradient-to-br from-[var(--Rouge)]/10 to-orange-500/10 rounded-xl flex items-center justify-center">
+            <i [class]="menu.icon"></i>
           </div>
           <span>{{ menu.title }}</span>
-
-          <!-- Badge mobile pour Messages -->
-          <span *ngIf="menu.title === 'Messages' && unreadMessages > 0"
-                class="ml-auto bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-white text-sm font-bold px-3 py-1 rounded-full">
+          <span *ngIf="menu.title==='Messages' && unreadMessages>0" class="ml-auto bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-white text-sm font-bold px-3 py-1 rounded-full">
             {{ unreadMessages }}
           </span>
         </a>
       </nav>
 
-      <!-- Footer du menu mobile -->
       <div class="p-6 border-t border-gray-200">
-        <button (click)="deconnecter()"
-                class="group w-full flex items-center gap-4 text-xl font-semibold text-gray-700 hover:text-[var(--Rouge)] rounded-2xl px-4 py-4 hover:bg-red-50/50 transition-all duration-300">
-          <div class="w-12 h-12 bg-gradient-to-br from-red-500/10 to-red-600/10 rounded-xl flex items-center justify-center group-hover:from-[var(--Rouge)] group-hover:to-[var(--Rouge-Foncé)] transition-all duration-300">
-            <i class="fas fa-sign-out-alt group-hover:text-white transition-colors"></i>
+        <button (click)="deconnecter()" class="group w-full flex items-center gap-4 text-xl font-semibold text-gray-700 hover:text-[var(--Rouge)] rounded-2xl px-4 py-4 hover:bg-red-50/50">
+          <div class="w-12 h-12 bg-gradient-to-br from-red-500/10 to-red-600/10 rounded-xl flex items-center justify-center">
+            <i class="fas fa-sign-out-alt"></i>
           </div>
           <span>Déconnexion</span>
         </button>
@@ -175,138 +101,3 @@
     </div>
   </div>
 </header>
-
-<style>
-/* Animations améliorées */
-.animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-.animate-slide-in-right {
-  animation: slideInRight 0.3s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* Effet de glassmorphism pour le header */
-header {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-/* Animation pour les éléments du menu */
-.group {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Effet de brillance au survol */
-.group:hover .absolute.inset-0 {
-  opacity: 0.1;
-}
-
-/* Animation du badge */
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.8;
-    transform: scale(1.05);
-  }
-}
-
-/* Scrollbar personnalisée pour le menu mobile */
-.overflow-auto::-webkit-scrollbar {
-  width: 6px;
-}
-
-.overflow-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.overflow-auto::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 3px;
-}
-
-.overflow-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.2);
-}
-
-/* Responsive améliorations */
-@media (max-width: 1024px) {
-  .hidden.lg\\:flex {
-    display: none;
-  }
-}
-
-@media (max-width: 640px) {
-  .mx-auto.max-w-7xl {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-}
-</style>
-
-<script>
-// Amélioration de la fermeture du dropdown quand on clique ailleurs
-document.addEventListener('click', function(event) {
-  const dropdowns = document.querySelectorAll('[class*="absolute"] [class*="dropdown"]');
-  const buttons = document.querySelectorAll('button[aria-expanded="true"]');
-  
-  if (!event.target.closest('.relative')) {
-    buttons.forEach(button => {
-      button.setAttribute('aria-expanded', 'false');
-    });
-  }
-});
-
-// Amélioration de la navigation au clavier
-document.addEventListener('keydown', function(event) {
-  if (event.key === 'Escape') {
-    // Ferme tous les dropdowns
-    const buttons = document.querySelectorAll('button[aria-expanded="true"]');
-    buttons.forEach(button => {
-      button.setAttribute('aria-expanded', 'false');
-    });
-    
-    // Ferme le menu mobile
-    const mobileMenu = document.querySelector('.fixed.inset-0.z-50');
-    if (mobileMenu && mobileMenu.style.display !== 'none') {
-      mobileMenu.style.display = 'none';
-    }
-  }
-});
-
-// Animation au chargement
-window.addEventListener('load', function() {
-  const header = document.querySelector('header');
-  header.style.opacity = '1';
-  header.style.transform = 'translateY(0)';
-});
-</script>

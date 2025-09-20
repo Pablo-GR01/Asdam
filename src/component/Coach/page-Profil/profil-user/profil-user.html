@@ -1,57 +1,183 @@
-<!-- =========  SKELETON / ÉTATS  ========= -->
-<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-[60vh]">
-    <div class="w-32 h-32 rounded-full bg-gray-200 animate-pulse mb-4"></div>
-    <div class="h-10 w-80 bg-gray-200 animate-pulse rounded mb-2"></div>
-    <div class="h-6 w-64 bg-gray-200 animate-pulse rounded"></div>
+<!-- =========  ÉTATS DE CHARGEMENT  ========= -->
+<div *ngIf="loading" class="flex flex-col items-center justify-center min-h-screen space-y-6 bg-gradient-to-br from-gray-50 to-gray-100">
+  <div class="relative w-24 h-24 rounded-full bg-white shadow-lg overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-blue-100 to-transparent -translate-x-full animate-[shimmer_1.5s_infinite]"></div>
   </div>
-  
-  <div *ngIf="error" class="text-red-500 text-center mt-10">
-    <img src="assets/icons/alert-circle.svg" class="w-10 h-10 mx-auto mb-2" alt="Erreur" />
-    <p>{{ error }}</p>
+  <div class="space-y-3">
+    <div class="h-8 w-64 bg-white/70 rounded-lg animate-pulse"></div>
+    <div class="h-5 w-48 bg-white/50 rounded-lg animate-pulse mx-auto"></div>
   </div>
-  
-  <!-- =========  CARTE PROFIL  ========= -->
-  <div *ngIf="user" class="relative max-w-3xl mx-auto px-4 mt-10">
-    <!-- Image de fond floutée (optionnelle) -->
-    <div
-      *ngIf="user.photoURL"
-      class="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 rounded-full bg-cover bg-center blur-3xl opacity-20"
-      [style.background-image]="'url(' + user.photoURL + ')'"
-    ></div>
-  
-    <!-- Carte -->
-    <div class="relative bg-white/70 backdrop-blur-lg rounded-3xl shadow-lg p-8 md:p-10 transition hover:shadow-xl">
-      <div class="flex flex-col items-center text-center">
-        <!-- Avatar ou initiales -->
-        <div
-          class="relative w-32 h-32 rounded-full bg-[var(--Rouge)] text-white flex items-center justify-center text-4xl font-bold mb-5 ring-4 ring-white/80 shadow-lg"
-        >
-          <ng-container *ngIf="user.photoURL; else showInitiales">
-            <img [src]="user.photoURL" class="w-full h-full object-cover rounded-full" alt="Photo" />
-          </ng-container>
-          <ng-template #showInitiales>
-            {{ user.initiale }}
-          </ng-template>
-        </div>
-  
-        <!-- Nom -->
-        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-800">
-          {{ user.prenom }} <span class="text-[var(--Rouge)]">{{ user.nom }}</span>
-        </h1>
-  
-        <!-- E-mail + bouton modifier -->
-        <div class="flex items-center gap-3 mt-4 text-gray-600">
-          <span>{{ user.email }}</span>
-          <!-- <button
-            class="flex items-center gap-1 text-sm text-[var(--Black)] hover:text-[var(--Rouge)] font-medium transition"
-            (click)="editProfile()"
-            aria-label="Modifier le profil"
-          >
-            <img src="assets/icons/pencil.svg" class="w-4 h-4" alt="" />
-            Modifier
-          </button> -->
+</div>
+
+<!-- =========  ÉTAT D'ERREUR  ========= -->
+<div *ngIf="error" class="fixed inset-0 flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50">
+  <div class="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md mx-4">
+    <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+      <i class="fa-solid fa-circle-exclamation text-red-500 text-3xl animate-bounce"></i>
+    </div>
+    <p class="text-gray-700 font-medium">{{ error }}</p>
+  </div>
+</div>
+
+<!-- =========  CARTE PROFIL  ========= -->
+<div *ngIf="user" class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4 md:p-8">
+  <div class="max-w-6xl mx-auto animate-fadeIn">
+    
+    <!-- Container principal avec effet glassmorphism -->
+    <div class="relative bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden border border-white/20">
+      
+      <!-- Header avec vague décorative--> 
+      <div class="absolute top-0 left-0 right-0 h-32 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)]">
+        <svg class="absolute bottom-0 w-full h-12" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V0Z" 
+                fill="white" opacity="0.9"/>
+        </svg>
+      </div>
+
+      <div class="relative z-10 p-8 md:p-12">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          
+          <!-- Colonne gauche : Informations -->
+          <div class="space-y-8">
+            <!-- Avatar avec indicateur de statut -->
+            <div class="relative inline-block">
+              <div class="w-32 h-32 rounded-full bg-[var(--Rouge)] p-1 shadow-xl">
+                <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                  <img *ngIf="user.photoURL" [src]="user.photoURL" 
+                       alt="Photo de profil" 
+                       class="w-full h-full object-cover rounded-full"/>
+                  <ng-container *ngIf="!user.photoURL">
+                    <span class="text-4xl font-bold text-[var(--Black)]">{{ user.initiale }}</span>
+                  </ng-container>
+                </div>
+              </div>
+              <!-- <div class="absolute bottom-0 right-0 w-8 h-8 bg-[var(--Vert)] rounded-full border-4 border-[var(--Blanc)] shadow-lg"></div> -->
+            </div>
+
+            <!-- Informations utilisateur -->
+            <div class="space-y-4">
+              <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-[var(--Black)]">
+                  {{ user.prenom }} 
+                  <span class="text-transparent bg-clip-text bg-[var(--Rouge)]">
+                    {{ user.nom }}
+                  </span>
+                </h1>
+                <p class="text-[var(--Black)] mt-2 text-lg flex items-center gap-2">
+                  <i class="fa-solid fa-envelope text-[var(--Bleu)]"></i>
+                  {{ user.email }}
+                </p>
+              </div>
+
+              <!-- Badges/Statistiques -->
+              <div class="flex flex-wrap gap-3 mt-6">
+                <span class="px-4 py-2 bg-[var(--Bleu)] text-[var(--Blanc)] rounded-full text-sm font-medium">
+                  <i class="fa-solid fa-check-circle mr-1"></i>
+                  Compte vérifié
+                </span>
+            
+              </div>
+            </div>
+          </div>
+
+          <!-- Colonne droite : Photo et actions -->
+          <div class="space-y-8">
+            <!-- Zone de téléchargement de photo 
+            <div class="relative group">
+              <div class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:border-blue-400 transition-all duration-300 cursor-pointer hover:bg-blue-50/50">
+                <div class="space-y-4">
+                  <div class="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto group-hover:bg-blue-100 transition-colors">
+                    <i class="fa-solid fa-camera text-gray-400 text-2xl group-hover:text-blue-500 transition-colors"></i>
+                  </div>
+                  <div>
+                    <p class="text-gray-600 font-medium">Changer ma photo de profil</p>
+                    <p class="text-sm text-gray-500 mt-1">Cliquez ou glissez-déposez une image</p>
+                  </div>
+                </div>
+                
+              </div>
+            </div>-->
+
+            <!-- Actions -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-30">
+              <!-- Bouton principal -->
+              <button class="group col-span-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+                <i class="fa-solid fa-pen transition-transform group-hover:rotate-12"></i>
+                Modifier le profil
+              </button>
+
+              <!-- Boutons secondaires -->
+              <button class="group flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-500 hover:text-[var(--Blanc)] transition-all duration-200">
+                <i class="fa-solid fa-envelope transition-transform group-hover:scale-110"></i>
+                Messages
+              </button>
+
+              <button class="group flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-gray-200 text-gray-700 font-medium hover:bg-gray-500 hover:text-[var(--Blanc)] transition-all duration-200">
+                <i class="fa-solid fa-gear transition-transform group-hover:rotate-90"></i>
+                Paramètres
+              </button>
+            </div>
+
+            <!-- Composants création -->
+            <div>
+              <app-creer-convocations-c></app-creer-convocations-c>
+              <app-creer-match-c></app-creer-match-c>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  
+</div>
+
+<!-- =========  ANIMATIONS ET STYLES  ========= -->
+<style>
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(30px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Effet de pulse pour l'indicateur de statut */
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    }
+    70% {
+      transform: scale(1);
+      box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+    }
+    100% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+    }
+  }
+
+  .absolute.bottom-0.right-0 {
+    animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .grid.md\:grid-cols-2 {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+  }
+</style>

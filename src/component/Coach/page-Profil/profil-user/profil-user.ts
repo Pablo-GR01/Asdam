@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { UtilisateurService, User } from '../../../../../services/userService/utilisateur.service';
-
+import { CreerConvocationsC } from "../../Bouton/creer-convocations-c/creer-convocations-c";
+import { CreerMatchC } from "../../Bouton/creer-match-c/creer-match-c";
 
 @Component({
   selector: 'app-profil-user',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, CreerConvocationsC, CreerMatchC],
   templateUrl: './profil-user.html',
   styleUrls: ['./profil-user.css']
 })
@@ -15,15 +17,13 @@ export class ProfilUser implements OnInit {
   loading = true;
   error = '';
   club = 'ASDAM';
-  
-  
+
   constructor(private userService: UtilisateurService) {}
 
   ngOnInit(): void {
     this.userService.getCurrentUser().subscribe({
       next: (data: User | null) => {
         if (data) {
-          // Calcul automatique des initiales si absentes
           if (!data.initiale) {
             data.initiale = ((data.prenom?.[0] ?? '') + (data.nom?.[0] ?? '')).toUpperCase();
           }
@@ -43,6 +43,14 @@ export class ProfilUser implements OnInit {
 
   editProfile(): void {
     alert('Fonction de modification du profil à implémenter.');
+  }
+
+  openMessages(): void {
+    alert('Ouvrir la messagerie (à implémenter).');
+  }
+
+  logout(): void {
+    alert('Déconnexion (à implémenter).');
   }
 
   deleteProfile(): void {

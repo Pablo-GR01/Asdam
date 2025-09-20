@@ -58,16 +58,15 @@ export class ActusC implements OnInit {
   editingMediaPreview: string | null = null;
   showEditModal = false;
 
-  @ViewChild('mediaInput') mediaInput?: ElementRef<HTMLInputElement>;
-  @ViewChild('editMediaInput') editMediaInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('mediaInput') mediaInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('editMediaInput') editMediaInput!: ElementRef<HTMLInputElement>;
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
     const storedUser = localStorage.getItem('utilisateur');
-    if (storedUser) {
-      this.currentUser = JSON.parse(storedUser);
-    }
+    if (storedUser) this.currentUser = JSON.parse(storedUser);
     this.loadPosts();
   }
 
@@ -101,13 +100,16 @@ export class ActusC implements OnInit {
     });
   }
 
+  // ---- Création post ----
   openCreatePostModal() { if(this.canCreatePost()) this.showCreateModal = true; }
   closeCreatePostModal() { this.showCreateModal = false; this.newPostContent = ''; this.removeMedia(); }
+
+  openMediaSelector() { this.mediaInput.nativeElement.click(); }
+  openFilePicker() { this.fileInput.nativeElement.click(); }
 
   onMediaSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-
     this.newPostMedia = file;
 
     if (file.type.startsWith('image/')) {
@@ -132,15 +134,13 @@ export class ActusC implements OnInit {
     }
   }
 
-  openMediaSelector() { if (this.mediaInput?.nativeElement) this.mediaInput.nativeElement.click(); }
-
   removeMedia() {
     if (this.newPostMediaPreview && this.newPostMedia?.type.startsWith('video/')) {
       URL.revokeObjectURL(this.newPostMediaPreview);
     }
     this.newPostMedia = null;
     this.newPostMediaPreview = null;
-    if (this.mediaInput && this.mediaInput.nativeElement) this.mediaInput.nativeElement.value = '';
+    this.mediaInput.nativeElement.value = '';
   }
 
   createPost() {
@@ -180,33 +180,6 @@ export class ActusC implements OnInit {
     }
   }
 
-  addComment(post: Post & { newComment?: string }) {
-    if (!this.currentUser || !post._id) return;
-  
-    const commentText = post.newComment?.trim();
-    if (!commentText) return;
-  
-    const comment: Comment = {
-      user: this.currentFullName,
-      initials: this.currentInitiales,
-      text: commentText,
-      time: new Date().toISOString()
-    };
-  
-    this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/comment`, comment)
-      .pipe(
-        catchError(err => {
-          console.error('Erreur ajout commentaire:', err);
-          alert('Impossible d’ajouter le commentaire. Vérifie le serveur.');
-          return throwError(() => err);
-        })
-      )
-      .subscribe(updatedPost => {
-        post.comments = updatedPost.comments || [];
-        post.newComment = '';
-      });
-  }
-
   private addPostToList(post: Post) {
     this.posts.unshift({
       ...post,
@@ -221,6 +194,25 @@ export class ActusC implements OnInit {
     this.showCreateModal = false;
   }
 
+  // ---- Commentaires ----
+  addComment(post: Post & { newComment?: string }) {
+    if (!this.currentUser || !post._id) return;
+    const commentText = post.newComment?.trim();
+    if (!commentText) return;
+
+    const comment: Comment = {
+      user: this.currentFullName,
+      initials: this.currentInitiales,
+      text: commentText,
+      time: new Date().toISOString()
+    };
+
+    this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/comment`, comment)
+      .pipe(catchError(err => { console.error(err); alert('Impossible d’ajouter le commentaire.'); return throwError(() => err); }))
+      .subscribe(updatedPost => { post.comments = updatedPost.comments || []; post.newComment = ''; });
+  }
+
+  // ---- Likes / Bookmarks / Shares ----
   toggleLike(post: Post) {
     if (!post._id) return;
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/like`, {}).subscribe({
@@ -240,42 +232,23 @@ export class ActusC implements OnInit {
   sharePost(post: Post) {
     if (!post._id) return;
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/share`, {}).subscribe({
-      next: updatedPost => {
-        post.shares = updatedPost.shares;
-        const postUrl = `${window.location.origin}/posts/${post._id}`;
-        navigator.clipboard.writeText(postUrl).then(() => alert('Lien copié !'));
-      },
+      next: updatedPost => { post.shares = updatedPost.shares; navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`).then(() => alert('Lien copié !')); },
       error: err => console.error(err)
     });
   }
 
+  // ---- Modifier / Supprimer post ----
   deletePost(post: Post, index: number) {
     if (!post._id || !confirm('Voulez-vous supprimer ce post ?')) return;
-    this.http.delete<void>(`http://localhost:3000/api/posts/${post._id}`).subscribe({
-      next: () => this.posts.splice(index, 1),
-      error: err => console.error(err)
-    });
-  }
-
-  formatMediaUrl(url?: string) {
-    if (!url) return '';
-    return url.startsWith('http') ? url : `http://localhost:3000/uploads/${url}`;
+    this.http.delete<void>(`http://localhost:3000/api/posts/${post._id}`).subscribe({ next: () => this.posts.splice(index, 1), error: err => console.error(err) });
   }
 
   togglePostMenu(index: number) { this.posts[index].showMenu = !this.posts[index].showMenu; }
-
-  openEditModal(post: Post) {
-    this.editingPost = post;
-    this.editingContent = post.content;
-    this.editingMedia = null;
-    this.editingMediaPreview = post.mediaUrl || null;
-    this.showEditModal = true;
-  }
+  openEditModal(post: Post) { this.editingPost = post; this.editingContent = post.content; this.editingMedia = null; this.editingMediaPreview = post.mediaUrl || null; this.showEditModal = true; }
 
   onEditMediaSelected(event: Event) {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-
     this.editingMedia = file;
 
     if (file.type.startsWith('image/')) {
@@ -287,26 +260,17 @@ export class ActusC implements OnInit {
       const video = document.createElement('video');
       video.src = url;
       video.onloadedmetadata = () => {
-        if (video.duration > 30) {
-          alert("La vidéo doit durer moins de 15 secondes !");
-          this.removeEditMedia();
-        } else {
-          this.editingMediaPreview = url;
-        }
+        if (video.duration > 30) { alert("La vidéo doit durer moins de 30 secondes !"); this.removeEditMedia(); }
+        else this.editingMediaPreview = url;
       };
-    } else {
-      alert("Type de fichier non supporté !");
-      this.removeEditMedia();
-    }
+    } else { alert("Type de fichier non supporté !"); this.removeEditMedia(); }
   }
 
   removeEditMedia() {
-    if (this.editingMediaPreview && this.editingMedia?.type.startsWith('video/')) {
-      URL.revokeObjectURL(this.editingMediaPreview);
-    }
+    if (this.editingMediaPreview && this.editingMedia?.type.startsWith('video/')) URL.revokeObjectURL(this.editingMediaPreview);
     this.editingMedia = null;
     this.editingMediaPreview = this.editingPost?.mediaUrl || null;
-    if (this.editMediaInput && this.editMediaInput.nativeElement) this.editMediaInput.nativeElement.value = '';
+    this.editMediaInput.nativeElement.value = '';
   }
 
   saveEdit() {
@@ -322,28 +286,26 @@ export class ActusC implements OnInit {
     this.http.put<Post>(`http://localhost:3000/api/posts/${this.editingPost._id}`, formData).subscribe({
       next: updatedPost => {
         const idx = this.posts.findIndex(p => p._id === updatedPost._id);
-        if (idx > -1) {
-          this.posts[idx] = {
-            ...updatedPost,
-            newComment: '',
-            showMenu: false,
-            mediaType: updatedPost.media?.endsWith('.mp4') ? 'video' : updatedPost.media ? 'image' : undefined,
-            mediaUrl: updatedPost.media ? this.formatMediaUrl(updatedPost.media) : undefined
-          };
-        }
-        this.showEditModal = false;
-        this.editingPost = null;
+        if (idx > -1) this.posts[idx] = { ...updatedPost, newComment: '', showMenu: false, mediaType: updatedPost.media?.endsWith('.mp4') ? 'video' : updatedPost.media ? 'image' : undefined, mediaUrl: updatedPost.media ? this.formatMediaUrl(updatedPost.media) : undefined };
+        this.showEditModal = false; this.editingPost = null;
       },
       error: err => console.error(err)
     });
   }
 
-  cancelEdit() {
-    this.showEditModal = false;
-    this.editingPost = null;
-    this.editingMedia = null;
-    this.editingMediaPreview = null;
-    this.editingContent = '';
-    if (this.editMediaInput && this.editMediaInput.nativeElement) this.editMediaInput.nativeElement.value = '';
+  cancelEdit() { this.showEditModal = false; this.editingPost = null; this.editingMedia = null; this.editingMediaPreview = null; this.editingContent = ''; this.editMediaInput.nativeElement.value = ''; }
+
+  // ---- Drag & Drop ----
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      const inputEvent = { target: { files: [file] } } as unknown as Event;
+      this.onMediaSelected(inputEvent);
+    }
   }
+
+  onDragOver(event: DragEvent) { event.preventDefault(); }
+
+  formatMediaUrl(url?: string) { return url?.startsWith('http') ? url : `http://localhost:3000/uploads/${url}`; }
 }

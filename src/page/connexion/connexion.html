@@ -2,7 +2,7 @@
 
 <!-- Conteneur principal avec image de fond -->
 <div class="min-h-screen flex items-center justify-center px-4
-            bg-[url('/assets/ImageFond.jpg')] bg-cover bg-center relative">
+            bg-[url('/assets/i1.jpg')] bg-cover bg-center relative">
 
   <!-- Overlay sombre semi-transparent + flou -->
   <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
@@ -10,23 +10,46 @@
   <!-- Conteneur formulaire centré -->
   <div class="w-full max-w-md relative z-10">
 
-    <!-- Message de bienvenue -->
-    <div *ngIf="message"
-         class="relative border-2 border-[var(--Violet)] rounded-3xl shadow-2xl text-center font-semibold
-                text-lg md:text-xl 2xl:text-2xl px-6 py-4 mb-6
-                bg-gradient-to-r from-[var(--Bleu-Foncé)] to-[var(--Bleu)] 
-                text-[var(--Blanc)] animate-fade-in
-                ring-1 ring-[var(--Violet)] ring-opacity-30
-                backdrop-blur-sm">
-      {{ message }}
+    <!-- Message de bienvenue – version Tailwind + accessibilité -->
+    <div *ngIf="message" role="alert" class=" mb-5 group relative mx-auto max-w-3xl
+       rounded-3xl border border-[var(--Rouge-Clair)]
+       bg-gradient-to-br from-[var(--Bleu-Foncé)] to-[var(--Bleu)]
+       px-6 py-5 text-center text-[var(--Blanc)]
+       shadow-lg shadow-purple-500/20
+       backdrop-blur-md
+       motion-safe:animate-fade-in-up">
+
+      <!-- Texte -->
+      <p class="text-base font-semibold md:text-lg lg:text-xl">
+        {{ message }}
+      </p>
     </div>
 
+    <!-- Animations personnalisées (à ajouter une fois dans ton fichier global CSS ou tailwind.config.js) -->
+    <style>
+      @keyframes fade-in-up {
+        0% {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .animate-fade-in-up {
+        animation: fade-in-up .6s ease-out forwards;
+      }
+    </style>
+
     <!-- Formulaire -->
-    <div class="bg-white/70 bg-opacity-80 backdrop-blur-md rounded-3xl p-8 shadow-2xl
+    <div class="bg-[var(--Blanc)]/10 bg-opacity-40 backdrop-blur-sm rounded-3xl p-8 shadow-2xl
                 border-2 border-[var(--Rouge-Clair)] relative">
 
       <!-- Titre -->
-      <h2 class="text-center font-extrabold text-[var(--Black)] mb-6
+      <h2 class="text-center font-extrabold text-[var(--Blanc)] mb-6
                  2xl:text-4xl xl:text-3xl md:text-3xl sm:text-2xl text-xl">
         <i class="fas fa-sign-in-alt mr-2 text-[var(--Violet)]"></i>Connexion
       </h2>
@@ -35,15 +58,13 @@
 
         <!-- Email -->
         <div class="flex flex-col">
-          <label for="email" class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+          <label for="email" class="text-[var(--Blanc)] font-medium mb-1 flex items-center gap-2">
             <i class="fas fa-envelope text-[var(--Rouge-Clair)]"></i> Adresse mail
           </label>
-          <input type="email" id="email" name="email" placeholder="Votre Mail" required
-                 class="w-full text-[var(--Black)]
+          <input type="email" id="email" name="email" placeholder="Votre Mail" required class="w-full text-[var(--Blanc)]
                  relative flex items-center border-2 border-[var(--Rouge-Clair)] rounded-lg px-3 py-2
                       focus-within:border-[var(--Bleu)] focus-within:ring-2 focus-within:ring-[var(--Bleu)]
-                      transition-all outline-none"
-                 [(ngModel)]="connexionData.email" #email="ngModel" />
+                      transition-all outline-none" [(ngModel)]="connexionData.email" #email="ngModel" />
           <p *ngIf="formSubmitted && email.invalid" class="text-[var(--Rouge)] text-xs mt-1 flex items-center gap-1">
             <i class="fas fa-exclamation-circle"></i> Veuillez entrer un email valide
           </p>
@@ -51,18 +72,18 @@
 
         <!-- Mot de passe -->
         <div class="flex flex-col">
-          <label for="password" class="text-[var(--Black)] font-medium mb-1 flex items-center gap-2">
+          <label for="password" class="text-[var(--Blanc)] font-medium mb-1 flex items-center gap-2">
             <i class="fas fa-lock text-[var(--Rouge-Clair)]"></i> Mot de passe
           </label>
           <div class="relative flex items-center border-2 border-[var(--Rouge-Clair)] rounded-lg px-3 py-2
                       focus-within:border-[var(--Bleu)] focus-within:ring-2 focus-within:ring-[var(--Bleu)]
                       transition-all">
             <input [type]="passwordVisible ? 'text' : 'password'" id="password" name="password"
-                   placeholder="Votre mot de passe" required minlength="6"
-                   class="bg-transparent outline-none w-full text-[var(--Black)]"
-                   [(ngModel)]="connexionData.password" #password="ngModel" />
+              placeholder="Votre mot de passe" required minlength="6"
+              class="bg-transparent outline-none w-full text-[var(--Blanc)]" [(ngModel)]="connexionData.password"
+              #password="ngModel" />
             <button type="button" class="absolute right-3 text-[var(--Rouge-Clair)]"
-                    (click)="togglePasswordVisibility()" aria-label="Afficher / masquer mot de passe" tabindex="-1">
+              (click)="togglePasswordVisibility()" aria-label="Afficher / masquer mot de passe" tabindex="-1">
               <i class="fa" [ngClass]="passwordVisible ? 'fa-eye-slash' : 'fa-eye'"></i>
             </button>
           </div>
@@ -72,25 +93,26 @@
         </div>
 
         <!-- Message serveur -->
-        <p *ngIf="errorMessage" class="text-[var(--Rouge)] text-sm mt-2 text-center flex items-center justify-center gap-1">
+        <p *ngIf="errorMessage"
+          class="text-[var(--Rouge)] text-sm mt-2 text-center flex items-center justify-center gap-1">
           <i class="fas fa-times-circle"></i> {{ errorMessage }}
         </p>
 
         <!-- Bouton valider amélioré -->
-        <button type="submit" [disabled]="!formulaireValide() || isLoading"
-        class="flex items-center justify-center gap-2 w-full py-3 font-bold text-[var(--Blanc)]
+        <button type="submit" [disabled]="!formulaireValide() || isLoading" class="flex items-center justify-center gap-2 w-full py-3 font-bold text-[var(--Blanc)]
             rounded-xl bg-gradient-to-r from-[var(--Rouge)] to-[var(--Bleu-Foncé)]
             hover:from-[var(--Rouge)] hover:to-[var(--Rouge)]
             transition-all duration-300 ease-in-out">
-        <i class="fas fa-check"></i> {{ isLoading ? 'Connexion...' : 'Valider' }}
+          <i class="fas fa-check"></i> {{ isLoading ? 'Connexion...' : 'Valider' }}
         </button>
       </form>
 
       <!-- Lien inscription -->
-      <p class="-ml-1 -mr-3 text-sm font-bold text-[var(--Black)] mt-6">
+      <p class="-ml-1 -mr-3 text-sm font-bold text-[var(--Blanc)] mt-6">
         <i class="fas fa-user-plus text-[var(--Rouge-Clair)] mr-1"></i>
         Vous n'avez pas encore de compte ?
-        <a routerLink="/inscription" class="text-[var(--Rouge-Clair)] font-bold hover:underline transition duration-200">
+        <a routerLink="/inscription"
+          class="text-[var(--Rouge)] font-bold hover:underline transition duration-200">
           Créer un compte
         </a>
       </p>

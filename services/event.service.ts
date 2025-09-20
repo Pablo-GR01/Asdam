@@ -5,14 +5,14 @@ import { Observable } from 'rxjs';
 export interface EventItem {
   _id?: string;
   day: string;
-  hour: string;      // heure de début
-  endHour: string;   // heure de fin
+  hour: string;
+  endHour: string;
   title: string;
   coach: string;
   category: string;
   level: string;
-  duration: number;  // optionnel si on calcule depuis hour → endHour
-  color?: string;
+  duration: number;
+  imageUrl?: string;
 }
 
 @Injectable({
@@ -23,17 +23,25 @@ export class EventService {
 
   constructor(private http: HttpClient) {}
 
-  // ⚡ Maintenant on accepte FormData pour upload d'image
-  addEvent(event: FormData): Observable<EventItem> {
-    return this.http.post<EventItem>(this.apiUrl, event);
-  }
-
   getEvents(): Observable<EventItem[]> {
     return this.http.get<EventItem[]>(this.apiUrl);
+  }
+
+  addEvent(event: EventItem, file?: File): Observable<EventItem> {
+    const formData = new FormData();
+    Object.entries(event).forEach(([k, v]) => { if(v != null) formData.append(k, String(v)); });
+    if (file) formData.append('image', file);
+    return this.http.post<EventItem>(this.apiUrl, formData);
+  }
+
+  updateEvent(id: string, event: EventItem, file?: File): Observable<EventItem> {
+    const formData = new FormData();
+    Object.entries(event).forEach(([k, v]) => { if(v != null) formData.append(k, String(v)); });
+    if (file) formData.append('image', file);
+    return this.http.put<EventItem>(`${this.apiUrl}/${id}`, formData);
   }
 
   deleteEvent(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
-
 }

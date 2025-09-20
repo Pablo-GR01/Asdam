@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
 import { AuthService } from '../../../../services/userService/Auth.Service';
 
-// Interface d'un événement
 interface EventItem {
   _id?: string;
   day: string;
@@ -17,6 +16,7 @@ interface EventItem {
   level: string;
   duration: number;
   color?: string;
+  image?: string;
 }
 
 type ViewMode = 'month' | 'week';
@@ -31,7 +31,7 @@ type ViewMode = 'month' | 'week';
 export class JourC implements OnInit {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // ----- Variables du calendrier -----
+  // ----- Variables calendrier -----
   hours = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
   eventTypes = ['Match', 'Entraînement', 'Stage', 'Tournoi', 'Fête', 'Réunion'];
   categories = [
@@ -53,6 +53,7 @@ export class JourC implements OnInit {
   // ----- Popup -----
   showPopup = false;
   popupEvent: EventItem | null = null;
+  isEditing = false;
   isLoading = false;
   showSuccessMessage = false;
   successMessage = '';
@@ -79,22 +80,14 @@ export class JourC implements OnInit {
   ngOnInit(): void {
     this.updateDays();
     this.loadEvents();
-
-    // ---- Récupération du rôle utilisateur pour les permissions ----
-    this.userRole = this.authService.getUserRole(); // <-- utilise la méthode propre
-    console.log('Rôle utilisateur connecté :', this.userRole);
+    this.userRole = this.authService.getUserRole();
   }
 
-  // ---- Méthode utilitaire pour vérifier si l'utilisateur peut modifier/supprimer ----
   canEdit(): boolean {
     const role = this.authService.getUserRole();
-    console.log('Role actuel:', role);
     return ['coach','admin','super admin'].includes(role);
   }
-  
-  
 
-  // ----------------- CALENDRIER -----------------
   updateDays(): void {
     this.monthDays = this.buildMonthDays();
     this.weekDays = this.buildWeekDays();
@@ -171,7 +164,6 @@ export class JourC implements OnInit {
   }
   dayNum(day: string): number { return day ? parseInt(day.split('-')[2], 10) : 0; }
 
-  // ----------------- EVENTS -----------------
   async loadEvents(): Promise<void> {
     this.isLoading = true;
     try { 
@@ -195,14 +187,20 @@ export class JourC implements OnInit {
     }
   }
 
-  async removeEvent(evt: EventItem): Promise<void> {
+  async updateEvent(evt: EventItem): Promise<void> {
     if (!evt._id) return;
-
-    if (!this.canEdit()) {
-      this.showNotification('Vous n\'avez pas la permission de supprimer cet événement');
-      return;
+    try {
+      const updated = await lastValueFrom(this.http.put<EventItem>(`${this.apiUrl}/${evt._id}`, evt));
+      this.events = this.events.map(e => e._id === evt._id ? updated : e);
+      this.showNotification('Événement modifié avec succès');
+    } catch (e) {
+      console.error('Erreur modification', e);
+      this.showNotification('Erreur lors de la modification');
     }
+  }
 
+  async removeEvent(evt: EventItem): Promise<void> {
+    if (!evt._id || !this.canEdit()) return;
     try {
       await lastValueFrom(this.http.delete(`${this.apiUrl}/${evt._id}`));
       this.events = this.events.filter(e => e._id !== evt._id);
@@ -217,27 +215,62 @@ export class JourC implements OnInit {
     await this.removeEvent(event); 
     this.closePopup(); 
   }
-  
+
+  editEvent(evt: EventItem): void {
+    this.popupEvent = { ...evt };
+    this.isEditing = true;
+    this.newEventDate = evt.day;
+    this.newEventHour = evt.hour;
+    this.newEventEndHour = evt.endHour;
+    this.newEventTitle = evt.title;
+    this.newEventCoach = evt.coach;
+    this.newEventCategory = evt.category;
+    this.newEventLevel = evt.level;
+    this.newEventDuration = evt.duration;
+    this.showPopup = true;
+  }
+
+  async saveEvent(): Promise<void> {
+    if (!this.popupEvent) return;
+    const updatedEvent: EventItem = {
+      ...this.popupEvent,
+      day: this.newEventDate,
+      hour: this.newEventHour,
+      endHour: this.newEventEndHour,
+      title: this.newEventTitle,
+      coach: this.newEventCoach,
+      category: this.newEventCategory,
+      level: this.newEventLevel,
+      duration: this.newEventDuration
+    };
+    await this.updateEvent(updatedEvent);
+    this.isEditing = false;
+    this.closePopup();
+  }
 
   getEventsByDay(day: string | Date): EventItem[] {
     const dayStr = typeof day === 'string' ? day : this.formatDate(day);
     let events = this.events.filter(evt => evt.day === dayStr);
-
     if (this.selectedCategory) events = events.filter(evt => evt.category === this.selectedCategory);
     if (this.selectedCoach) events = events.filter(evt => evt.coach.toLowerCase().includes(this.selectedCoach.toLowerCase()));
     if (this.searchTerm) events = events.filter(evt => evt.title.toLowerCase().includes(this.searchTerm.toLowerCase()) || evt.coach.toLowerCase().includes(this.searchTerm.toLowerCase()));
-
     return events;
   }
 
   getEventsByHour(day: string, hour: string): EventItem[] {
-    return this.getEventsByDay(day).filter(evt => evt.hour.slice(0,5) === hour);
+    return this.getEventsByDay(day).filter(evt => {
+      const evtStartH = parseInt(evt.hour.split(':')[0],10);
+      const evtEndH = parseInt(evt.endHour.split(':')[0],10);
+      const h = parseInt(hour.split(':')[0],10);
+      return h >= evtStartH && h < evtEndH;
+    });
   }
 
   getEventCountByDay(day: string): number { return this.getEventsByDay(day).length; }
   getEventHeight(evt: EventItem): string { return `${evt.duration * 60}px`; }
 
   openPopup(): void {
+    this.isEditing = false;
     this.popupEvent = null;
     const d = this.viewMode === 'week' ? this.currentWeekStart : new Date(this.currentYear, this.currentMonth, 1);
     this.newEventDate = this.formatDate(d);
@@ -255,11 +288,10 @@ export class JourC implements OnInit {
   closePopup(): void { this.showPopup = false; this.popupEvent = null; }
 
   async addEvent(): Promise<void> {
-    if (!this.newEventTitle.trim()) { this.showNotification('Veuillez entrer un titre'); return; }
-
+    if (!this.newEventTitle.trim()) return;
     const [startH, startM] = this.newEventHour.split(':').map(Number);
     const [endH, endM] = this.newEventEndHour.split(':').map(Number);
-    let duration = (endH*60 + endM - (startH*60 + startM)) / 60;
+    let duration = (endH*60+endM - (startH*60+startM))/60;
     if (duration <= 0) duration = 1;
 
     const newEvent: EventItem = {
@@ -281,7 +313,6 @@ export class JourC implements OnInit {
     this.openPopup();
     const dayDate = typeof day === 'string' ? day : this.formatDate(day);
     this.newEventDate = dayDate;
-
     const [h, m] = hour.split(':').map(Number);
     this.newEventHour = hour;
     const endH = h + 1;
@@ -318,9 +349,7 @@ export class JourC implements OnInit {
   }
 
   clearFilters(): void { this.selectedCategory = ''; this.selectedCoach = ''; this.searchTerm = ''; }
-
   getUniqueCoaches(): string[] { return [...new Set(this.events.map(evt => evt.coach))].filter(Boolean).sort(); }
-
 
   
 }
