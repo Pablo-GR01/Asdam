@@ -3,20 +3,18 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
+
+// Controllers
+const postController = require('./backend/controller/post.controller');
 
 // Routes
-const authRoutes = require('./backend/routes/User.Routes');
-const utilisateurRoutes = require('./backend/routes/utilisateur.Routes');
+const userRoutes = require('./backend/routes/User.Routes');            // login/register
+const utilisateurRoutes = require('./backend/routes/utilisateur.Routes'); // gestion utilisateurs
 const eventRoutes = require('./backend/routes/Events.Routes');
 const matchRoutes = require('./backend/routes/Match.Routes');
 const convocationRoutes = require('./backend/routes/convocations.Routes');
-const postRoutes = require("./backend/routes/post.Routes");
-const userRoutes = require("./backend/routes/User.Routes");
-
-// Pour upload média
-const multer = require('multer');
-const postController = require('./backend/controller/post.controller'); // <-- ajout
-
+const postRoutes = require('./backend/routes/post.Routes');
 
 const app = express();
 const PORT = 3000;
@@ -48,14 +46,13 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 .then(() => console.log('✅ Connexion à MongoDB réussie'))
 .catch(err => console.error('❌ Erreur MongoDB :', err));
 
-// Routes
-app.use('/api/asdam', authRoutes);
-app.use('/api/users',userRoutes);
-app.use('/api/users', utilisateurRoutes);
+// 🔹 Routes
+app.use('/api/users', userRoutes);                // login/register
+app.use('/api/utilisateurs', utilisateurRoutes); // gestion utilisateurs
 app.use('/api/events', eventRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/convocations', convocationRoutes);
-app.use("/api/posts", postRoutes);
+app.use('/api/posts', postRoutes);
 
 // Route POST pour créer un post avec média
 app.post('/api/posts/media', upload.single('media'), postController.createPostWithMedia);

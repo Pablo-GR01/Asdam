@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ActusC } from '../../../component/Coach/actus-c/actus-c';
 import { HeaderC } from "../../../component/Coach/header-c/header-c";
+import { ActusC } from '../../../component/Coach/page-actualite/actus-c/actus-c';
 
 @Component({
   selector: 'app-actualite-c',

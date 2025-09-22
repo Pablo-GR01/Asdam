@@ -1,29 +1,19 @@
-const Post = require('../../src/Schema/post');
-const path = require('path');
-const fs = require('fs');
+import Post from '../../src/Schema/post.js';
+import path from 'path';
+import fs from 'fs';
 
 // 🔹 Créer un post avec média
-exports.createPostWithMedia = async (req, res) => {
+export const createPostWithMedia = async (req, res) => {
   try {
     const { content, user, initials } = req.body;
+    if (!initials) return res.status(400).json({ message: 'Initials is required' });
 
-    if (!initials) {
-      return res.status(400).json({ message: 'Initials is required' });
-    }
-
-    // Vérifier la présence du fichier uploadé
     const media = req.file ? req.file.filename : null;
-
-    // Vérification durée vidéo (moins de 15s)
-    if (req.file && req.file.mimetype.startsWith('video/')) {
-      // Ici tu peux brancher ffmpeg pour analyser la durée
-      // ou bloquer directement si nécessaire
-    }
 
     const newPost = new Post({
       content,
       user,
-      initials, // ✅ requis par le schéma
+      initials,
       media,
       likes: 0,
       isLiked: false,
@@ -41,15 +31,15 @@ exports.createPostWithMedia = async (req, res) => {
 };
 
 // 🔹 Créer un post simple
-exports.createPost = async (req, res) => {
+export const createPost = async (req, res) => {
   try {
-    const { content, user, initials } = req.body; // ✅ ajouter initials
+    const { content, user, initials } = req.body;
     const media = req.file ? req.file.filename : undefined;
 
     const newPost = new Post({
       content,
       user,
-      initials, // ✅ stocker les initiales
+      initials,
       media,
       likes: 0,
       isLiked: false,
@@ -67,7 +57,7 @@ exports.createPost = async (req, res) => {
 };
 
 // 🔹 Récupérer tous les posts
-exports.getPosts = async (req, res) => {
+export const getPosts = async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
     res.json(posts);
@@ -77,7 +67,7 @@ exports.getPosts = async (req, res) => {
 };
 
 // 🔹 Liker / unliker
-exports.likePost = async (req, res) => {
+export const likePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post non trouvé' });
@@ -92,9 +82,8 @@ exports.likePost = async (req, res) => {
 };
 
 // 🔹 Ajouter un commentaire
-exports.addComment = async (req, res) => {
+export const addComment = async (req, res) => {
   try {
-    console.log('Body reçu:', req.body); // debug
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post non trouvé' });
 
@@ -102,7 +91,7 @@ exports.addComment = async (req, res) => {
       user: req.body.user,
       initials: req.body.initials,
       text: req.body.text,
-      time: req.body.time || new Date().toLocaleString()
+      time: req.body.time || new Date().toISOString()
     });
 
     const updatedPost = await post.save();
@@ -113,15 +102,30 @@ exports.addComment = async (req, res) => {
   }
 };
 
+// 🔹 Supprimer un commentaire
+export const deleteComment = async (req, res) => {
+  const { postId, commentId } = req.params;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: 'Post non trouvé' });
+
+    post.comments = post.comments.filter(c => c._id.toString() !== commentId);
+    await post.save();
+    res.json(post);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
+  }
+};
 
 // 🔹 Supprimer un post
-exports.deletePost = async (req, res) => {
+export const deletePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post non trouvé' });
 
     if (post.media) {
-      const filePath = path.join(__dirname, '../uploads/', post.media);
+      const filePath = path.join(path.resolve('./'), 'uploads', post.media);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     }
 
@@ -132,20 +136,17 @@ exports.deletePost = async (req, res) => {
   }
 };
 
-// 🔹 Modifier un post (avec ou sans média)
-exports.updatePost = async (req, res) => {
+// 🔹 Modifier un post
+export const updatePost = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
     if (!post) return res.status(404).json({ message: 'Post non trouvé' });
 
-    // Mise à jour du contenu
     if (req.body.content) post.content = req.body.content;
 
-    // Gestion du média
     if (req.file) {
-      // Supprimer l'ancien média si existant
       if (post.media) {
-        const oldPath = path.join(__dirname, '../uploads/', post.media);
+        const oldPath = path.join(path.resolve('./'), 'uploads', post.media);
         if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
       }
       post.media = req.file.filename;

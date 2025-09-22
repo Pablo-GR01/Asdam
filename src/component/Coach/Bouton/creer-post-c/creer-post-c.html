@@ -1,0 +1,42 @@
+<!-- Bouton créer un post -->
+<div class="flex justify-center py-8">
+    <button (click)="openCreatePostModal()"
+      class="group flex items-center gap-3 px-5 py-3 bg-white text-black font-bold rounded-xl border-4 border-[var(--Rouge-Clair)] hover:scale-110 hover:border-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] transition-transform duration-300">
+      <i class="fa-solid fa-plus"></i>
+      <span>Créer un post</span>
+    </button>
+  </div>
+  
+  <!-- Modal créer post -->
+  <div *ngIf="showCreateModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-lg">
+    <div
+      class="w-full max-w-lg rounded-3xl bg-white/10 backdrop-blur-2xl border border-white/20 shadow-2xl p-8 text-white relative">
+  
+      <!-- Bouton fermer -->
+      <button (click)="closeCreatePostModal()" aria-label="Fermer"
+        class="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-[var(--Rouge)]/40 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+  
+      <h2 class="text-2xl font-bold mb-6 bg-[var(--Rouge-Clair)] bg-clip-text text-transparent">
+        Créer un post
+      </h2>
+  
+      <textarea [(ngModel)]="newPostContent" placeholder="Quoi de neuf ?"
+        class="w-full p-4 bg-white/10 border border-white/20 rounded-xl placeholder-white/60 text-white resize-none focus:outline-none focus:ring-2 focus:ring-red-400"
+        rows="4"></textarea>
+  
+      <!-- Actions -->
+      <div class="flex justify-end mt-6 gap-3">
+        <button (click)="closeCreatePostModal()"
+          class="px-6 py-2 bg-gray-500 text-white rounded-xl font-medium hover:bg-gray-600 transition">
+          Annuler
+        </button>
+        <button (click)="createPost()" [disabled]="!newPostContent.trim()"
+          class="px-6 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition">
+          Publier
+        </button>
+      </div>
+    </div>
+  </div>
+  

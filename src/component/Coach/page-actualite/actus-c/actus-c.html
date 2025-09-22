@@ -1,0 +1,246 @@
+<!-- Fond d'écran fixe -->
+<div class="fixed inset-0 z-0">
+  <img src="assets/fondActus.jpg" alt="Fond d'écran" class="w-full h-screen object-cover">
+  <div class="absolute inset-0 bg-black/10"></div>
+</div>
+
+<!-- Contenu principal -->
+<div class="relative z-10 max-w-3xl mx-auto px-4 py-8 space-y-6">
+
+  <!-- Header -->
+  <header class="text-center">
+    <h1 class="text-4xl font-extrabold bg-[var(--Blanc)] bg-clip-text text-transparent mb-2">
+      Actualités
+    </h1>
+    <p class="inline-block px-6 py-2 bg-[var(--Black)]/50 text-[var(--Blanc)] rounded-lg">
+      Partagez vos moments et restez connecté
+    </p>
+  </header>
+
+  <!-- Bouton créer un post -->
+  <div class="flex justify-center" *ngIf="canCreatePost()">
+    <button (click)="openCreatePostModal()"
+      class="group flex items-center gap-3 px-5 py-3 bg-[var(--Blanc)] text-[var(--Black)] font-bold rounded-xl border-4 border-[var(--Rouge-Clair)] hover:scale-110 hover:border-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] transition-transform duration-300">
+      <i class="fa-solid fa-plus"></i>
+      <span>Créer un post</span>
+    </button>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="flex justify-center mt-6">
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher un post..."
+      class="w-full max-w-md px-4 py-3 rounded-xl border-2 border-[var(--Blanc)]/30 bg-[var(--Blanc)]/10 text-[var(--Blanc)] placeholder-[var(--Blanc)]/60 focus:outline-none focus:ring-2 focus:ring-red-400"
+      (input)="filterPosts()">
+  </div>
+
+  <!-- Modal créer post -->
+  <div *ngIf="showCreateModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--Black)]/60 backdrop-blur-lg h-full">
+    <div
+      class="w-full max-w-lg rounded-3xl bg-[var(--Blanc)]/10 backdrop-blur-2xl border border-[var(--Blanc)]/20 shadow-2xl p-8 text-[var(--Blanc)] relative">
+
+      <button (click)="closeCreatePostModal()" aria-label="Fermer"
+        class="absolute top-4 right-4 p-2 rounded-full bg-[var(--Blanc)]/10 hover:bg-[var(--Rouge)]/40 transition">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <h2 class="text-2xl font-bold mb-6 bg-[var(--Rouge-Clair)] bg-clip-text text-transparent">
+        Créer un post
+      </h2>
+
+      <textarea [(ngModel)]="newPostContent" placeholder="Quoi de neuf ?"
+        class="w-full p-4 bg-[var(--Blanc)]/10 border-2 border-[var(--Rouge)] rounded-xl placeholder-[var(--Blanc)]/60 text-[var(--Blanc)] resize-none focus:outline-none focus:ring-2 focus:ring-red-400"
+        rows="4"></textarea>
+
+      <!-- Aperçu média -->
+      <div *ngIf="newPostMediaPreview" class="mt-4 relative">
+        <img *ngIf="newPostMedia?.type?.startsWith('image/')" [src]="newPostMediaPreview"
+          class="rounded-xl max-h-80 w-full object-cover" />
+        <video *ngIf="newPostMedia?.type?.startsWith('video/')" [src]="newPostMediaPreview"
+          class="rounded-xl max-h-80 w-full" controls></video>
+        <button (click)="removeMedia()" aria-label="Supprimer le média"
+          class="absolute top-2 right-2 bg-[var(--Rouge)] text-[var(--Blanc)] rounded-full p-2 hover:bg-[var(--Rouge-Foncé)] transition">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Zone de drop -->
+      <div *ngIf="!newPostMediaPreview" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+        class="mt-4 border-2 border-dashed border-[var(--Blanc)]/30 rounded-xl p-6 text-center hover:border-[var(--Blanc)]/60 transition cursor-pointer">
+        <input type="file" #mediaInput class="hidden" (change)="onMediaSelected($event)" accept="image/*,video/*" />
+        <button (click)="mediaInput.click()" type="button">
+          <i class="fa-regular fa-image text-3xl text-[var(--Blanc)]/60 mb-2"></i>
+          <span class="text-[var(--Blanc)]/60">Glisse une image ou vidéo ici</span>
+        </button>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center justify-between mt-6">
+        <button (click)="openMediaSelector()" type="button"
+          class="flex items-center gap-2 px-4 py-2 bg-[var(--Rouge)]/40 hover:bg-[var(--Rouge)]/70 rounded-xl transition">
+          <i class="fa-regular fa-image"></i>
+          <span>Ajouter média</span>
+        </button>
+
+        <button (click)="createPost()" [disabled]="loading || !newPostContent.trim()"
+          class="px-6 py-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition">
+          <span *ngIf="!loading">Publier</span>
+          <span *ngIf="loading" class="flex items-center gap-2">
+            <i class="fa-solid fa-spinner fa-spin"></i> Publication...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aucun post -->
+  <div *ngIf="posts.length === 0 && !loading" class="text-center py-12">
+    <i class="fa-solid fa-inbox fa-4x text-[var(--Blanc)] mb-4"></i>
+    <p class="text-[var(--Blanc)] text-lg">Aucun post pour le moment</p>
+    <p class="text-[var(--Blanc)] opacity-70">Erreur de serveur ou aucune donnée</p>
+  </div>
+
+  <!-- Liste des posts -->
+  <article *ngFor="let post of filteredPosts.length ? filteredPosts : posts; let i = index"
+    class="bg-[var(--Blanc)] rounded-xl shadow-lg p-6 space-y-4 border-2 border-[var(--Rouge)] hover:shadow-2xl transition">
+
+    <!-- Entête -->
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="relative">
+          <div
+            class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-12 h-12 flex items-center justify-center font-bold">
+            {{ post.initials || currentInitiales }}
+          </div>
+        </div>
+        <div>
+          <p class="font-bold text-[var(--Black)]">{{ post.user }}</p>
+          <p class="text-[var(--Black)] text-sm flex items-center gap-1">
+            <i class="fa-regular fa-clock fa-xs"></i>
+            {{ post.createdAt | date:"d MMMM y à HH'h'mm" : 'fr-FR' }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Menu -->
+      <div class="relative">
+        <button (click)="togglePostMenu(i)" aria-label="Menu" class="text-[var(--Black)] hover:opacity-80 transition">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <div *ngIf="post.showMenu"
+          class="absolute right-0 mt-2 w-40 bg-[var(--Blanc)]/95 backdrop-blur-md border rounded-xl shadow-xl z-10 overflow-hidden">
+          <button (click)="openEditModal(post)"
+            class="w-full text-left px-4 py-2 text-[var(--Black)] hover:bg-[var(--Black)]/5 flex items-center gap-2">
+            <i class="fa-solid fa-pen-to-square fa-sm"></i> Modifier
+          </button>
+          <button (click)="deletePost(post, i)"
+            class="w-full text-left px-4 py-2 text-[var(--Rouge)] hover:text-[var(--Blanc)] hover:bg-[var(--Rouge-Clair)] flex items-center gap-2">
+            <i class="fa-solid fa-trash fa-sm"></i> Supprimer
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Contenu -->
+    <p class="whitespace-pre-wrap text-[var(--Black)] text-lg leading-relaxed">{{ post.content }}</p>
+
+    <!-- Média -->
+    <figure *ngIf="post.mediaUrl" class="relative overflow-hidden rounded-xl">
+      <img *ngIf="post.mediaType === 'image'" [src]="post.mediaUrl" alt="Image du post"
+        class="w-full max-h-96 object-cover">
+      <video *ngIf="post.mediaType === 'video'" [src]="post.mediaUrl" class="w-full max-h-96" controls></video>
+    </figure>
+
+    <!-- Actions -->
+    <footer class="flex items-center justify-between text-[var(--Black)] pt-4 border-t border-[var(--Black)]/10">
+      <button (click)="toggleLike(post)" class="flex items-center gap-2 hover:scale-105 transition">
+        <i [ngClass]="post.isLiked ? 'fa-solid fa-heart text-[var(--Rouge-Clair)]' : 'fa-regular fa-heart'" class="text-xl"></i>
+        <span [ngClass]="post.isLiked ? 'font-bold text-[var(--Black)]' : 'font-medium'">{{ post.likes }}</span>
+      </button>
+
+      <button (click)="openCommentsModal(post)" class="flex items-center gap-2 text-[var(--Black)] hover:text-[var(--Rouge-Clair)] transition">
+        <i class="fa-regular fa-comment text-lg"></i>
+        <span class="font-medium">{{ post.comments.length }}</span>
+      </button>
+    </footer>
+
+    <!-- Commentaires (2 premiers) -->
+    <section class="space-y-3 pt-4 border-t border-[var(--Black)]/20">
+      <div *ngFor="let c of post.comments | slice:0:2" class="flex gap-3 bg-[var(--Black)]/5 rounded-lg p-3 items-start">
+        <div
+          class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+          {{ c.initials || currentInitiales }}
+        </div>
+        <div class="flex-1">
+          <p class="font-bold text-sm text-[var(--Black)]">{{ c.user }}</p>
+          <p class="text-[var(--Black)]/90">{{ c.text }}</p>
+          <p class="text-xs text-[var(--Black)]/50 mt-1">
+            <i class="fa-regular fa-clock fa-xs"></i>
+            {{ c.time | date:"d MMMM y 'à' HH'h'mm" : 'fr-FR' }}
+          </p>
+        </div>
+        <button *ngIf="canDeleteComment()"
+                (click)="deleteComment(post, c)"
+                class="text-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] ml-2 self-start">
+          <i class="fa-solid fa-trash"></i>
+        </button>
+      </div>
+
+      <div *ngIf="post.comments.length > 2" class="mt-2 text-center">
+        <button (click)="openCommentsModal(post)" class="font-black text-[var(--Rouge)] hover:underline">
+          Voir les commentaires
+        </button>
+      </div>
+
+      <div class="flex items-center gap-3 mt-4">
+        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-white font-bold">
+          {{ currentInitiales }}
+        </div>
+        <input [(ngModel)]="post.newComment"
+              placeholder="Ajouter un commentaire..."
+              class="flex-1 p-3 border border-black/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400"
+              (keyup.enter)="addComment(post)">
+        <button (click)="addComment(post)"
+                class="px-4 py-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-white rounded-xl hover:shadow-lg transition">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </section>
+  </article>
+</div>
+
+<!-- Modal voir tous les commentaires -->
+<div *ngIf="showCommentsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--Black)]/60 backdrop-blur-lg h-full p-4">
+  <div class="w-full max-w-md rounded-3xl bg-[var(--Blanc)]/10 backdrop-blur-2xl border border-[var(--Blanc)]/20 shadow-2xl p-6 text-[var(--Blanc)] relative overflow-y-auto max-h-full">
+    <button (click)="closeCommentsModal()" aria-label="Fermer"
+      class="absolute top-4 right-4 pt-2 pb-2 pl-3 pr-3 rounded-full bg-[var(--Blanc)]/10 hover:bg-[var(--Rouge)]/40 transition">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+
+    <h2 class="text-xl font-bold mb-4 text-[var(--Rouge-Clair)]">Tous les commentaires</h2>
+
+    <div *ngFor="let c of paginatedComments" class="flex gap-3 bg-[var(--Black)]/5 rounded-lg p-3 mb-2 items-start">
+      <div class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
+        {{ c.initials || currentInitiales }}
+      </div>
+      <div class="flex-1">
+        <p class="font-bold text-sm text-[var(--Blanc)]">{{ c.user }}</p>
+        <p class="text-[var(--Blanc)]/90">{{ c.text }}</p>
+        <p class="text-xs text-[var(--Blanc)]/50 mt-1">
+          <i class="fa-regular fa-clock fa-xs"></i>
+          {{ c.time | date:"d MMMM y 'à' HH'h'mm" : 'fr-FR' }}
+        </p>
+      </div>
+      <button *ngIf="canDeleteComment()"
+        (click)="deleteComment(selectedPost!, c)"
+        class="text-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] ml-2 self-start">
+        <i class="fa-solid fa-trash"></i>
+      </button>
+    </div>
+
+    <div class="flex justify-between mt-2">
+      <button (click)="prevCommentsPage()" [disabled]="commentsPage === 1" class="px-3 py-1 rounded bg-[var(--Rouge)]/50 text-white disabled:opacity-50">Précédent</button>
+      <button (click)="nextCommentsPage()" [disabled]="commentsPage === totalCommentPages" class="px-3 py-1 rounded bg-[var(--Rouge)]/50 text-white disabled:opacity-50">Suivant</button>
+    </div>
+  </div>
+</div>
