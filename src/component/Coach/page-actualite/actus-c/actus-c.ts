@@ -326,13 +326,35 @@ export class ActusC implements OnInit {
   }
 
   deleteComment(post: Post & { comments: Comment[] }, comment: Comment) {
-    if(!post._id || !this.canDeleteComment()) return;
-    if(!confirm('Voulez-vous supprimer ce commentaire ?')) return;
-    this.http.delete<Post>(`http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`)
-      .subscribe({ 
-        next: updated => post.comments = updated.comments || [], 
-        error: err => console.error(err) 
-      });
+    // Vérifications avant de faire l'appel
+    if (!post._id) {
+      console.error('ID du post manquant');
+      return;
+    }
+    if (!comment._id) {
+      console.error('ID du commentaire manquant');
+      return;
+    }
+    if (!this.canDeleteComment()) {
+      console.warn('Vous n’avez pas la permission de supprimer ce commentaire');
+      return;
+    }
+  
+    // Confirmation de l'utilisateur
+    if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) return;
+  
+    // Appel HTTP DELETE vers le backend
+    this.http.delete<Post>(
+      `http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`
+    ).subscribe({
+      next: updatedPost => {
+        // Met à jour la liste des commentaires après suppression
+        post.comments = updatedPost.comments || [];
+      },
+      error: err => {
+        console.error('Erreur lors de la suppression du commentaire :', err);
+      }
+    });
   }
   
 
