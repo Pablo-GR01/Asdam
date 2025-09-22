@@ -1,0 +1,12 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* désactive le scroll natif */
+  }
+  
+  .scrollable-content {
+    height: 100vh; /* exactement la hauteur de la fenêtre */
+    overflow-y: auto; /* scroll seulement à l’intérieur du contenu */
+  }
+  
