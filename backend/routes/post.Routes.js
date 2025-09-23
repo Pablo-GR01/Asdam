@@ -12,13 +12,45 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// ✅ Maintenant tu peux utiliser "upload"
+// ✅ Routes de création
 router.post('/media', upload.single('media'), postController.createPostWithMedia);
-
-// Routes principales
-router.get('/', postController.getPosts);
 router.post('/', upload.single('media'), postController.createPost);
-router.post('/:id/like', postController.likePost);
+
+// 🔹 Récupération posts
+router.get('/', postController.getPosts);
+
+// 🔹 Like global
+router.post('/:id/like', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).send({ error: 'Post non trouvé' });
+
+    const userId = req.body.userId; // l'ID de l'utilisateur qui like
+    if (!userId) return res.status(400).send({ error: 'Utilisateur manquant' });
+
+    // Si l'utilisateur a déjà liké -> toggle
+    post.likedBy = post.likedBy || []; // sécurité si undefined
+    const index = post.likedBy.findIndex(u => u.toString() === userId);
+    if (index === -1) {
+      post.likedBy.push(userId);
+    } else {
+      post.likedBy.splice(index, 1);
+    }
+
+    // compteur global
+    post.likes = post.likedBy.length;
+
+    await post.save();
+
+    res.send({
+      likes: post.likes,
+      isLiked: post.likedBy.includes(userId)
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({ error: 'Erreur serveur' });
+  }
+});
 
 // 🔹 Ajout commentaire
 router.post('/:id/comment', async (req, res) => {
@@ -55,6 +87,18 @@ router.delete('/:postId/comment/:commentId', async (req, res) => {
     res.json(post);
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+// 🔹 Supprimer un post
+router.delete('/:id', async (req, res) => {
+  try {
+    const post = await Post.findByIdAndDelete(req.params.id);
+    if (!post) return res.status(404).json({ message: 'Post non trouvé' });
+    res.json({ message: 'Post supprimé avec succès', post });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erreur serveur' });
   }
 });
 

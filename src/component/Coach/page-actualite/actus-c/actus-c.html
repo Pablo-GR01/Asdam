@@ -26,13 +26,6 @@
     </button>
   </div>
 
-  <!-- Barre de recherche -->
-  <div class="flex justify-center mt-6">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Rechercher un post..."
-      class="w-full max-w-md px-4 py-3 rounded-xl border-2 border-[var(--Blanc)]/30 bg-[var(--Blanc)]/10 text-[var(--Blanc)] placeholder-[var(--Blanc)]/60 focus:outline-none focus:ring-2 focus:ring-red-400"
-      (input)="filterPosts()">
-  </div>
-
   <!-- Modal créer post -->
   <div *ngIf="showCreateModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--Black)]/60 backdrop-blur-lg h-full">

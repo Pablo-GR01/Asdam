@@ -66,4 +66,9 @@ router.get('/me', authMiddleware, async (req, res) => {
 // ✅ Récupérer la carte complète de l’utilisateur par ID
 router.get('/card/:id', authMiddleware, userController.getUserCard);
 
+
+// Route pour récupérer uniquement les joueurs
+router.get('/joueurs', userController.getJoueurs);
+
+
 module.exports = router;

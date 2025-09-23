@@ -1,13 +1,15 @@
 const Joueur = require('../../src/Schema/user'); // CommonJS
 
-// 🔹 Récupérer tous les joueurs
-const getJoueurs = async (req, res) => {
+
+// ✅ Récupérer uniquement les joueurs
+exports.getJoueurs = async (req, res) => {
   try {
-    const joueurs = await Joueur.find();
-    res.status(200).json(joueurs);
+    const joueurs = await User.find({ role: 'joueur' });
+    res.json(joueurs);
   } catch (err) {
-    res.status(500).json({ message: 'Erreur serveur', error: err.message });
+    res.status(500).json({ message: err.message });
   }
 };
+
 
 module.exports = { getJoueurs }; // ✅ CommonJS

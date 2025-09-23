@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { TableauC } from './tableau-c';
+import { AbsentC } from './absent-c';
 
-describe('TableauC', () => {
-  let component: TableauC;
-  let fixture: ComponentFixture<TableauC>;
+describe('AbsentC', () => {
+  let component: AbsentC;
+  let fixture: ComponentFixture<AbsentC>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TableauC]
+      imports: [AbsentC]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(TableauC);
+    fixture = TestBed.createComponent(AbsentC);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

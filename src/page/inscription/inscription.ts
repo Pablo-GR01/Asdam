@@ -27,6 +27,7 @@ interface InscriptionData {
 })
 export class Inscription implements OnInit, OnDestroy {
   actif: 'joueur' | 'coach' | 'inviter' | 'admin' = 'joueur';
+  etape: 1 | 2 = 1;
   readonly CODE_COACH = 'COACH2025';
   readonly CODE_JOUEUR = 'JOUEUR2025';
 
@@ -42,15 +43,13 @@ export class Inscription implements OnInit, OnDestroy {
     password: '',
     codeCoach: '',
     codeJoueur: '',
-    equipe: this.equipes[0], // ⚡ équipe par défaut
+    equipe: '',
     role: 'joueur',
     initiale: '',
     cguValide: false,
   };
 
   passwordVisible = false;
-  codeCoachVisible = false;
-  codeJoueurVisible = false;
   formSubmitted = false;
   message: string | null = null;
   cguAccepte = false;
@@ -60,6 +59,7 @@ export class Inscription implements OnInit, OnDestroy {
   ngOnInit(): void { document.body.style.overflow = 'hidden'; }
   ngOnDestroy(): void { document.body.style.overflow = 'auto'; }
 
+  // 🔹 Gestion profils
   activerJoueur(): void {
     this.actif = 'joueur';
     this.inscriptionData.role = 'joueur';
@@ -84,33 +84,51 @@ export class Inscription implements OnInit, OnDestroy {
 
   togglePasswordVisibility(): void { this.passwordVisible = !this.passwordVisible; }
 
+  // 🔹 Validation email
   isEmailValid(email: string): boolean {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
   }
 
-  formulaireValide(): boolean {
-    const { nom, prenom, email, password, role, codeCoach, codeJoueur, equipe } = this.inscriptionData;
-    if (!nom || !prenom) return false;
-    if (!this.isEmailValid(email)) return false;
-    if (!password || password.length < 6) return false;
-    if (role === 'coach' && codeCoach !== this.CODE_COACH) return false;
-    if (role === 'joueur' && codeJoueur !== this.CODE_JOUEUR) return false;
-    if ((role === 'coach' || role === 'joueur') && !equipe) return false;
-    if (!this.cguAccepte) return false;
-    return true;
+  // 🔹 Validation étape 1
+  etape1Valide(): boolean {
+    return !!this.inscriptionData.nom &&
+           !!this.inscriptionData.prenom &&
+           this.isEmailValid(this.inscriptionData.email) &&
+           !!this.inscriptionData.password &&
+           this.inscriptionData.password.length >= 6;
   }
 
-  valider(): void {
-    this.formSubmitted = true;
+  // 🔹 Validation étape 2
+  etape2Valide(): boolean {
+    if ((this.actif === 'coach' && this.inscriptionData.codeCoach !== this.CODE_COACH) ||
+        (this.actif === 'joueur' && this.inscriptionData.codeJoueur !== this.CODE_JOUEUR)) {
+      return false;
+    }
+    if ((this.actif === 'coach' || this.actif === 'joueur') && !this.inscriptionData.equipe) {
+      return false;
+    }
+    return this.cguAccepte;
+  }
 
-    // Vérifier équipe
-    if ((this.inscriptionData.role === 'joueur' || this.inscriptionData.role === 'coach') && !this.inscriptionData.equipe) {
-      alert('Veuillez sélectionner une équipe !');
+  // 🔹 Navigation étapes
+  etapeSuivante(): void {
+    if (this.etape1Valide()) {
+      this.etape = 2;
+    } else {
+      alert('Veuillez remplir correctement tous les champs obligatoires.');
+    }
+  }
+
+  etapePrecedente(): void { this.etape = 1; }
+
+  // 🔹 Soumission formulaire
+  valider(): void {
+    if (!this.etape2Valide()) {
+      alert('Veuillez remplir correctement tous les champs obligatoires et accepter les CGU.');
       return;
     }
 
-    // Générer initiales
     const initiale =
       (this.inscriptionData.prenom[0] ?? '').toUpperCase() +
       (this.inscriptionData.nom[0] ?? '').toUpperCase();

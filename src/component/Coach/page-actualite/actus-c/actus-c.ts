@@ -26,6 +26,7 @@ interface Post {
   createdAt?: string;
   mediaType?: 'image' | 'video';
   mediaUrl?: string;
+  likedBy?: string[]; // tableau des IDs utilisateurs ayant liké
 }
 
 interface LocalUser { 
@@ -116,7 +117,9 @@ export class ActusC implements OnInit {
         newComment: '',
         showMenu: false,
         mediaType: p.media?.endsWith('.mp4') ? 'video' : p.media ? 'image' : undefined,
-        mediaUrl: p.media ? this.formatMediaUrl(p.media) : undefined
+        mediaUrl: p.media ? this.formatMediaUrl(p.media) : undefined,
+        likedBy: p.likedBy ?? [],
+        isLiked: p.likedBy?.includes(this.currentUser?._id || '') ?? false
       }));
       this.filterPosts();
     });
@@ -188,7 +191,8 @@ export class ActusC implements OnInit {
       content: this.newPostContent, 
       user: this.currentFullName, 
       initials: this.currentInitiales, 
-      likes:0, isLiked:false, isBookmarked:false, comments:[], shares:0 
+      likes:0, isLiked:false, isBookmarked:false, comments:[], shares:0,
+      likedBy: []
     };
     const url = this.newPostMedia ? 'http://localhost:3000/api/posts/media' : 'http://localhost:3000/api/posts';
 
@@ -211,7 +215,7 @@ export class ActusC implements OnInit {
   }
 
   private addPostToList(post: Post) {
-    this.posts.unshift({...post, newComment:'', showMenu:false, mediaType:post.media?.endsWith('.mp4')?'video':post.media?'image':undefined, mediaUrl:post.media?this.formatMediaUrl(post.media):undefined});
+    this.posts.unshift({...post, newComment:'', showMenu:false, mediaType:post.media?.endsWith('.mp4')?'video':post.media?'image':undefined, mediaUrl:post.media?this.formatMediaUrl(post.media):undefined, likedBy: post.likedBy ?? [], isLiked: post.likedBy?.includes(this.currentUser?._id || '') ?? false});
     this.newPostContent = '';
     this.removeMedia();
     this.loading = false;
@@ -229,18 +233,26 @@ export class ActusC implements OnInit {
       .subscribe(updated => { post.comments = updated.comments || []; post.newComment=''; });
   }
   
-  // --- Likes, Bookmarks, Partage ---
+  // --- Likes globaux ---
   toggleLike(post: Post) {
-    if(!post._id) return;
-    this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/like`, {}).subscribe({ next: u => { post.isLiked = u.isLiked; post.likes = u.likes; }, error: err => console.error(err) });
+    if(!post._id || !this.currentUser?._id) return;
+    this.http.post<{likes:number, isLiked:boolean}>(`http://localhost:3000/api/posts/${post._id}/like`, { userId: this.currentUser._id }).subscribe({
+      next: u => {
+        post.isLiked = u.isLiked;
+        post.likes = u.likes;
+      },
+      error: err => console.error(err)
+    });
   }
 
+  // --- Bookmarks ---
   bookmarkPost(post: Post) {
     post.isBookmarked = !post.isBookmarked;
     if(!post._id) return;
     this.http.put<Post>(`http://localhost:3000/api/posts/${post._id}`, { isBookmarked: post.isBookmarked }).subscribe({ error: err => { console.error(err); post.isBookmarked = !post.isBookmarked; }});
   }
 
+  // --- Partage ---
   sharePost(post: Post) {
     if(!post._id) return;
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/share`, {}).subscribe({
@@ -307,7 +319,7 @@ export class ActusC implements OnInit {
       .subscribe({
         next: updated => {
           const idx = this.posts.findIndex(p => p._id === updated._id);
-          if(idx>-1) this.posts[idx] = { ...updated, newComment:'', showMenu:false, mediaType: updated.media?.endsWith('.mp4')?'video':updated.media?'image':undefined, mediaUrl: updated.media?this.formatMediaUrl(updated.media):undefined };
+          if(idx>-1) this.posts[idx] = { ...updated, newComment:'', showMenu:false, mediaType: updated.media?.endsWith('.mp4')?'video':updated.media?'image':undefined, mediaUrl: updated.media?this.formatMediaUrl(updated.media):undefined, likedBy: updated.likedBy ?? [], isLiked: updated.likedBy?.includes(this.currentUser?._id || '') ?? false };
           this.showEditModal = false;
           this.editingPost = null;
           this.filterPosts();
@@ -326,50 +338,24 @@ export class ActusC implements OnInit {
   }
 
   deleteComment(post: Post & { comments: Comment[] }, comment: Comment) {
-    // Vérifications avant de faire l'appel
-    if (!post._id) {
-      console.error('ID du post manquant');
-      return;
-    }
-    if (!comment._id) {
-      console.error('ID du commentaire manquant');
-      return;
-    }
-    if (!this.canDeleteComment()) {
-      console.warn('Vous n’avez pas la permission de supprimer ce commentaire');
-      return;
-    }
-  
-    // Confirmation de l'utilisateur
+    if (!post._id || !comment._id || !this.canDeleteComment()) return;
     if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) return;
-  
-    // Appel HTTP DELETE vers le backend
-    this.http.delete<Post>(
-      `http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`
-    ).subscribe({
-      next: updatedPost => {
-        // Met à jour la liste des commentaires après suppression
-        post.comments = updatedPost.comments || [];
-      },
-      error: err => {
-        console.error('Erreur lors de la suppression du commentaire :', err);
-      }
+    this.http.delete<Post>(`http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`).subscribe({
+      next: updatedPost => { post.comments = updatedPost.comments || []; },
+      error: err => console.error('Erreur lors de la suppression du commentaire :', err)
     });
   }
-  
-
-  
-  
 
   canDeleteComment(): boolean {
     const role = this.currentUser?.role?.toLowerCase() ?? '';
     return ['coach','admin','super admin'].includes(role);
   }
-  
+
   // --- Drag & Drop ---
   onDrop(e: DragEvent) { e.preventDefault(); const f = e.dataTransfer?.files?.[0]; if(f){ const inputEvent = { target:{ files:[f] } } as unknown as Event; this.onMediaSelected(inputEvent); } }
   onDragOver(e: DragEvent) { e.preventDefault(); }
 
   // --- Helpers ---
   formatMediaUrl(url?: string) { return url?.startsWith('http') ? url : `http://localhost:3000/uploads/${url}`; }
+
 }

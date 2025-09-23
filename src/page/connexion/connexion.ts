@@ -19,6 +19,7 @@ export class Connexion {
   errorMessage: string | null = null;
   redirectionApresConnexion: string | null = null;
   formSubmitted = false;
+  rememberMe = false;
 
   connexionData = {
     email: '',
@@ -27,7 +28,19 @@ export class Connexion {
 
   constructor(private router: Router, private http: HttpClient) {}
 
-  togglePasswordVisibility(): void { this.passwordVisible = !this.passwordVisible; }
+  ngOnInit(): void {
+    const saved = localStorage.getItem('rememberMe');
+    if (saved) {
+      const { email, password } = JSON.parse(saved);
+      this.connexionData.email = email;
+      this.connexionData.password = password;
+      this.rememberMe = true;
+    }
+  }
+
+  togglePasswordVisibility(): void {
+    this.passwordVisible = !this.passwordVisible;
+  }
 
   formulaireValide(): boolean {
     const { email, password } = this.connexionData;
@@ -41,8 +54,11 @@ export class Connexion {
         prenom: user.prenom,
         nom: user.nom,
         role: (user.role || '').trim().toLowerCase(),
-        initiale: user.initiale || ((user.prenom?.[0] ?? '').toUpperCase() + (user.nom?.[0] ?? '').toUpperCase()),
-        equipe: user.equipe || ''
+        initiale:
+          user.initiale ||
+          ((user.prenom?.[0] ?? '').toUpperCase() +
+            (user.nom?.[0] ?? '').toUpperCase()),
+        equipe: user.equipe || '',
       };
       localStorage.setItem('utilisateur', JSON.stringify(sessionUser));
       console.log('Session utilisateur enregistrée :', sessionUser);
@@ -53,38 +69,53 @@ export class Connexion {
 
   valider(): void {
     this.formSubmitted = true;
-    if (!this.formulaireValide()) return;
+
+    if (!this.formulaireValide()) {
+      return;
+    }
 
     this.isLoading = true;
     const { email, password } = this.connexionData;
 
-    this.http.post('http://localhost:3000/api/asdam/login', { email, password }).subscribe({
-      next: (user: any) => {
-        this.saveUser(user);
-        this.message = 'Bienvenue sur TeamAsdam !';
+    this.http
+      .post('http://localhost:3000/api/asdam/login', { email, password })
+      .subscribe({
+        next: (user: any) => {
+          this.saveUser(user);
 
-        const routeMap: { [key: string]: string } = {
-          admin: '/accueilA',
-          coach: '/accueilC',
-          joueur: '/accueilJ',
-          inviter: '/accueilI',
-        };
-        const roleKey = (user.role || 'joueur');
-        this.redirectionApresConnexion = routeMap[roleKey] || '/accueilJ';
+          // ✅ Sauvegarde des identifiants si "Se souvenir de moi"
+          if (this.rememberMe) {
+            localStorage.setItem('rememberMe', JSON.stringify(this.connexionData));
+          } else {
+            localStorage.removeItem('rememberMe');
+          }
 
-        setTimeout(() => {
-          this.router.navigate([this.redirectionApresConnexion!]);
-          this.message = null;
-          this.redirectionApresConnexion = null;
+          this.message = 'Bienvenue sur TeamAsdam !';
+
+          const routeMap: { [key: string]: string } = {
+            admin: '/accueilA',
+            coach: '/accueilC',
+            joueur: '/accueilJ',
+            inviter: '/accueilI',
+          };
+
+          const roleKey = (user.role || 'joueur').toLowerCase();
+          this.redirectionApresConnexion = routeMap[roleKey] || '/accueilJ';
+
+          setTimeout(() => {
+            this.router.navigate([this.redirectionApresConnexion!]);
+            this.message = null;
+            this.redirectionApresConnexion = null;
+            this.isLoading = false;
+          }, 1200);
+        },
+        error: (err) => {
+          this.errorMessage =
+            err.error?.message || 'Email ou mot de passe incorrect';
           this.isLoading = false;
-        }, 1200);
-      },
-      error: (err) => {
-        this.errorMessage = err.error?.message || 'Email ou mot de passe incorrect';
-        this.isLoading = false;
-        console.error('Erreur de connexion :', err);
-      },
-    });
+          console.error('Erreur de connexion :', err);
+        },
+      });
   }
 
   deconnecter(): void {
