@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EnteteC2 } from './entete-c2';
+import { DashC } from './dash-c';
 
-describe('EnteteC2', () => {
-  let component: EnteteC2;
-  let fixture: ComponentFixture<EnteteC2>;
+describe('DashC', () => {
+  let component: DashC;
+  let fixture: ComponentFixture<DashC>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EnteteC2]
+      imports: [DashC]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(EnteteC2);
+    fixture = TestBed.createComponent(DashC);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

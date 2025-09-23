@@ -21,7 +21,7 @@ export interface User {
   providedIn: 'root'
 })
 export class UtilisateurService {
-
+  private joueursUrl = 'http://localhost:3000/api/joueurs'; // ✅ nouvelle route
   private apiUrl = 'http://localhost:3000/api/users';
   private currentUserSubject = new BehaviorSubject<User | null>(this.getUserFromLocalStorage());
 
@@ -78,5 +78,9 @@ export class UtilisateurService {
     return this.http.get<User[]>(this.apiUrl).pipe(
       map(users => users.filter(u => u.role === 'joueur'))
     );
+  }
+
+  getJoueurs(): Observable<User[]> {
+    return this.http.get<User[]>(this.joueursUrl);
   }
 }

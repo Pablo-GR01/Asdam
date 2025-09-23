@@ -45,14 +45,16 @@ export class Connexion {
         nom: user.nom,
         role: (user.role || '').trim().toLowerCase(),
         initiale: user.initiale || ((user.prenom?.[0] ?? '').toUpperCase() + (user.nom?.[0] ?? '').toUpperCase()),
+        equipe: user.equipe || '' // 🔹 Ajout de l'équipe
       };
-
+  
       localStorage.setItem('utilisateur', JSON.stringify(sessionUser));
       console.log('Session utilisateur enregistrée :', sessionUser);
     } catch (e) {
       console.error('Erreur lors de la sauvegarde de l’utilisateur', e);
     }
   }
+  
 
   valider(): void {
     this.formSubmitted = true;

@@ -4,7 +4,7 @@
 :root {
     --Blanc: #ffffff;
     --Black: #000000;
-    --Gris: #f5f5f5;
+    --Gris: #494949;
 
     --Bleu-Foncé: #040142;
     --Bleu: #06027e;
@@ -16,28 +16,6 @@
     --Rouge-Clair2: #ca6363;
 
     --Vert: #3c8401;
-
-    --bg-color: var(--Blanc);
-    --text-color: var(--Black);
-    --card-color: var(--Gris);
-}
-
-/* Thème sombre */
-[data-theme="dark"] {
-    --Blanc: #1f1f1f;
-    --Black: #f9fafb;
-    --Gris: #2c2c2c;
-
-    --Bleu-Foncé: #1e3a8a;
-    --Bleu: #3b82f6;
-    --Bleu-Clair: #60a5fa;
-
-    --Rouge-Foncé: #7f1d1d;
-    --Rouge: #dc2626;
-    --Rouge-Clair: #ef4444;
-    --Rouge-Clair2: #fca5a5;
-
-    --Vert: #84cc16;
 
     --bg-color: var(--Blanc);
     --text-color: var(--Black);
