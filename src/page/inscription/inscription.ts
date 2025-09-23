@@ -13,7 +13,7 @@ interface InscriptionData {
   password: string;
   codeCoach?: string;
   codeJoueur?: string;
-  equipe?: string;
+  equipe: string;
   role: 'joueur' | 'coach' | 'inviter' | 'admin';
   initiale?: string;
   cguValide: boolean;
@@ -30,6 +30,11 @@ export class Inscription implements OnInit, OnDestroy {
   readonly CODE_COACH = 'COACH2025';
   readonly CODE_JOUEUR = 'JOUEUR2025';
 
+  equipes: string[] = [
+    'U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23',
+    'SeniorA','SeniorB','SeniorC','SeniorD'
+  ];
+
   inscriptionData: InscriptionData = {
     nom: '',
     prenom: '',
@@ -37,23 +42,18 @@ export class Inscription implements OnInit, OnDestroy {
     password: '',
     codeCoach: '',
     codeJoueur: '',
-    equipe: '',
+    equipe: this.equipes[0], // ⚡ équipe par défaut
     role: 'joueur',
     initiale: '',
     cguValide: false,
   };
 
   passwordVisible = false;
-  codeCoachVisible = false;   // ✅ ajouté
-  codeJoueurVisible = false;  // ✅ ajouté
+  codeCoachVisible = false;
+  codeJoueurVisible = false;
   formSubmitted = false;
   message: string | null = null;
   cguAccepte = false;
-
-  equipes: string[] = [
-    'U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23',
-    'SeniorA','SeniorB','SeniorC','SeniorD'
-  ];
 
   constructor(private http: HttpClient, private router: Router, private authService: AuthService) {}
 
@@ -121,7 +121,6 @@ export class Inscription implements OnInit, OnDestroy {
       cguValide: this.cguAccepte,
     };
 
-    // Supprimer codes inutiles
     if (payload.role !== 'coach') delete payload.codeCoach;
     if (payload.role !== 'joueur') delete payload.codeJoueur;
 
@@ -130,7 +129,6 @@ export class Inscription implements OnInit, OnDestroy {
         this.message = `Bienvenue sur Asdam !`;
         this.authService.setUser(res);
 
-        // Redirection
         const redirection =
           payload.role === 'coach'   ? '/accueilC' :
           payload.role === 'admin'   ? '/accueilA' :

@@ -47,25 +47,6 @@ router.put('/users/:id', async (req, res) => {
 // ✅ Récupérer tous les utilisateurs
 router.get('/asdam/users', userController.getAllUsers);
 
-// ✅ Ajouter de l’XP à un utilisateur
-router.post('/users/:id/ajouterXP', async (req, res) => {
-  const { id } = req.params;
-  const { xp } = req.body;
-
-  if (!xp || xp <= 0) return res.status(400).json({ message: 'XP invalide' });
-
-  try {
-    const user = await User.findById(id);
-    if (!user) return res.status(404).json({ message: 'Utilisateur introuvable' });
-
-    user.xp = (user.xp || 0) + xp;
-    await user.save();
-
-    res.json({ updatedXP: user.xp });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // ✅ Modifier uniquement le mot de passe d’un utilisateur
 router.put('/users/:id/password', userController.changePassword);

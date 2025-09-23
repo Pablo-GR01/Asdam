@@ -27,16 +27,13 @@ export class Connexion {
 
   constructor(private router: Router, private http: HttpClient) {}
 
-  togglePasswordVisibility(): void {
-    this.passwordVisible = !this.passwordVisible;
-  }
+  togglePasswordVisibility(): void { this.passwordVisible = !this.passwordVisible; }
 
   formulaireValide(): boolean {
     const { email, password } = this.connexionData;
     return !!email && !!password && password.length >= 6;
   }
 
-  // 🔹 Sauvegarde et mise à jour du nouvel utilisateur (simplifié)
   private saveUser(user: any): void {
     try {
       const sessionUser = {
@@ -45,16 +42,14 @@ export class Connexion {
         nom: user.nom,
         role: (user.role || '').trim().toLowerCase(),
         initiale: user.initiale || ((user.prenom?.[0] ?? '').toUpperCase() + (user.nom?.[0] ?? '').toUpperCase()),
-        equipe: user.equipe || '' // 🔹 Ajout de l'équipe
+        equipe: user.equipe || ''
       };
-  
       localStorage.setItem('utilisateur', JSON.stringify(sessionUser));
       console.log('Session utilisateur enregistrée :', sessionUser);
     } catch (e) {
       console.error('Erreur lors de la sauvegarde de l’utilisateur', e);
     }
   }
-  
 
   valider(): void {
     this.formSubmitted = true;
@@ -65,12 +60,9 @@ export class Connexion {
 
     this.http.post('http://localhost:3000/api/asdam/login', { email, password }).subscribe({
       next: (user: any) => {
-        // 🔹 Stockage du nouvel utilisateur minimal
         this.saveUser(user);
-
         this.message = 'Bienvenue sur TeamAsdam !';
 
-        // Redirection selon le rôle
         const routeMap: { [key: string]: string } = {
           admin: '/accueilA',
           coach: '/accueilC',
