@@ -3,7 +3,7 @@ const { sendMessage, getConversation, getUserMessages } = require('../controller
 
 const router = express.Router();
 
-router.post('/send', sendMessage);
+router.post('/messages', sendMessage);
 router.get('/conversation/:user1Id/:user2Id', getConversation);
 router.get('/user/:userId', getUserMessages);
 

@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, OnInit } from '@angular/core';
+import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { ChatService, Contact, Message } from '../../../../../services/chat.service';
-import { debounceTime, Subject } from 'rxjs';
+import { debounceTime, Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-mmsc',
@@ -12,7 +12,7 @@ import { debounceTime, Subject } from 'rxjs';
   templateUrl: './mmsc.html',
   styleUrls: ['./mmsc.css']
 })
-export class MMSC implements OnInit {
+export class MMSC implements OnInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
   searchText = '';
@@ -25,11 +25,12 @@ export class MMSC implements OnInit {
   messages: Message[] = [];
 
   private searchSubject = new Subject<string>();
+  private subscriptions: Subscription[] = [];
 
   constructor(private chatService: ChatService) {}
 
   ngOnInit() {
-    // ✅ Récupère la session utilisateur depuis localStorage
+    // Récupère la session utilisateur depuis localStorage
     const storedUser = localStorage.getItem('utilisateur');
     if (!storedUser) return console.error('Utilisateur non connecté !');
 
@@ -42,10 +43,12 @@ export class MMSC implements OnInit {
     this.loadContacts();
 
     // Recherche avec debounce
-    this.searchSubject.pipe(debounceTime(200)).subscribe(text => this.filterContacts(text));
+    const searchSub = this.searchSubject.pipe(debounceTime(200))
+      .subscribe(text => this.filterContacts(text));
+    this.subscriptions.push(searchSub);
 
     // Écoute des nouveaux messages
-    this.chatService.onNewMessage().subscribe(msg => {
+    const msgSub = this.chatService.onNewMessage().subscribe(msg => {
       if (
         (msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
         (msg.senderId === this.userId && msg.receiverId === this.selectedContact?._id)
@@ -54,29 +57,26 @@ export class MMSC implements OnInit {
         setTimeout(() => this.scrollToBottom(), 100);
       }
     });
+    this.subscriptions.push(msgSub);
   }
 
-  // Charger tous les contacts depuis le service
+  ngOnDestroy() {
+    // Se désabonner pour éviter les fuites mémoire
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
   loadContacts() {
     this.chatService.getContacts().subscribe({
       next: (data) => {
         // Exclure l'utilisateur connecté
         const otherUsers = data.filter(contact => contact._id !== this.userId);
-  
-        // console.log('Contacts reçus (hors utilisateur connecté):', otherUsers);
-  
-        // Boucle pour afficher chaque contact dans la console
-        otherUsers.forEach(contact => {
-          
-        });
-  
         this.contacts = otherUsers;
         this.filteredContacts = otherUsers;
+        // console.log('Contacts chargés :', this.contacts);
       },
       error: (err) => console.error('Erreur récupération contacts:', err)
     });
   }
-  
 
   onSearchChange(text: string) {
     this.showSuggestions = true;
@@ -103,24 +103,36 @@ export class MMSC implements OnInit {
     if (!contact) return;
 
     this.selectedContact = contact;
+    console.log('Contact sélectionné :', contact);
+
+    if (!this.userId) return console.error('userId non défini');
 
     this.chatService.getConversation(this.userId, contact._id).subscribe({
       next: (msgs) => {
         this.messages = msgs;
+        console.log('Conversation chargée :', msgs);
         setTimeout(() => this.scrollToBottom(), 100);
       },
-      error: (err) => console.error('Erreur récupération conversation:', err)
+      error: (err) => {
+        console.error('Erreur récupération conversation:', err);
+        alert('Impossible de récupérer la conversation. Vérifie que le serveur est actif.');
+      }
     });
   }
 
   sendMessage() {
-    if (!this.newMessage.trim() || !this.selectedContact) return;
+    if (!this.newMessage.trim() || !this.selectedContact) {
+      console.warn('Message vide ou destinataire non sélectionné');
+      return;
+    }
 
     const msg: Message = {
       senderId: this.userId,
       receiverId: this.selectedContact._id,
       text: this.newMessage.trim()
     };
+
+    console.log('Envoi du message :', msg);
 
     this.chatService.sendMessage(msg).subscribe({
       next: (sent) => {
@@ -129,7 +141,7 @@ export class MMSC implements OnInit {
         setTimeout(() => this.scrollToBottom(), 100);
       },
       error: (err) => {
-        console.error('Erreur envoi message:', err);
+        console.error('Erreur envoi message :', err);
         alert('Impossible d’envoyer le message. Vérifie que le serveur est actif.');
       }
     });

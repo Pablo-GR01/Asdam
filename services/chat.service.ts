@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, map } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, Subject, throwError, map, catchError } from 'rxjs';
 
 // Interface Contact : vérifie que les champs correspondent à ton backend
 export interface Contact {
@@ -20,23 +20,22 @@ export interface Message {
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private newMessageSubject = new Subject<Message>();
+  private apiUrl = 'http://localhost:3000/api/messages'; // ajout de apiUrl
 
   constructor(private http: HttpClient) {}
 
   // Récupère tous les utilisateurs et map si nécessaire pour correspondre à l'interface Contact
   getContacts(): Observable<Contact[]> {
     return this.http.get<any[]>('http://localhost:3000/api/users/contacts').pipe(
-      map(users => {
-        // console.log('Raw users from API:', users); // <-- ajoute ça pour voir les vrais noms des champs
-        return users.map(u => ({
+      map(users => 
+        users.map(u => ({
           _id: u._id || u.id,
           firstName: u.firstName || u.firstname || u.prenom || u.name || 'Utilisateur',
           lastName: u.lastName || u.lastname || u.nom || ''
-        }));
-      })
+        }))
+      )
     );
   }
-  
 
   // Recherche d'utilisateurs côté serveur
   searchContacts(text: string): Observable<Contact[]> {
@@ -49,32 +48,34 @@ export class ChatService {
     );
   }
 
-  // Récupère les messages entre user et contact
+  // Récupère les messages entre user1 et user2
   getConversation(user1Id: string, user2Id: string): Observable<Message[]> {
-    return this.http.get<{messages: Message[]}>(`http://localhost:3000/api/messages/conversation/${user1Id}/${user2Id}`)
+    return this.http.get<{ messages: Message[] }>(`http://localhost:3000/api/messages/conversation/${user1Id}/${user2Id}`)
       .pipe(
-        map(res => res.messages),  // transforme {messages: [...] } en Message[]
+        map(res => res.messages || []),
+        catchError(this.handleError)
       );
   }
   
+  private handleError(error: HttpErrorResponse) {
+    console.error('Erreur API messages :', error);
+    return throwError(() => new Error('Erreur lors de la récupération des messages'));
+  }
+
   // Envoie un message
   sendMessage(msg: Message): Observable<Message> {
-    // Vérifie que tous les champs existent
     if (!msg.senderId || !msg.receiverId || !msg.text || msg.text.trim() === '') {
       throw new Error('Impossible d’envoyer le message : champs manquants');
     }
-  
-    // Envoi du message
     return this.http.post<Message>(
-      'http://localhost:3000/api/messages/send',
+      this.apiUrl,
       {
         senderId: msg.senderId,
         receiverId: msg.receiverId,
-        text: msg.text.trim()  // on retire les espaces superflus
+        text: msg.text.trim()
       }
     );
   }
-  
 
   // Observable pour les nouveaux messages
   onNewMessage(): Observable<Message> {
