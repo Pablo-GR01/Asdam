@@ -18,7 +18,14 @@ export class MMSC implements OnInit, OnDestroy {
   searchText = '';
   selectedContact: Contact | null = null;
   newMessage = '';
+
+  // Infos utilisateur connecté
   userId = '';
+  userNom = '';
+  userPrenom = '';
+  userInitiales = '';
+
+  // Liste affichée dynamiquement
   contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
   showSuggestions = false;
@@ -30,7 +37,6 @@ export class MMSC implements OnInit, OnDestroy {
   constructor(private chatService: ChatService) {}
 
   ngOnInit() {
-    // Récupère la session utilisateur depuis localStorage
     const storedUser = localStorage.getItem('utilisateur');
     if (!storedUser) return console.error('Utilisateur non connecté !');
 
@@ -38,16 +44,24 @@ export class MMSC implements OnInit, OnDestroy {
     if (!user._id) return console.error('Utilisateur invalide ou ID manquant !');
 
     this.userId = user._id;
+    this.userPrenom = user.prenom || '';
+    this.userNom = user.nom || '';
+    this.userInitiales = user.initiale || `${this.userPrenom[0] || ''}${this.userNom[0] || ''}`.toUpperCase();
+
     console.log('Utilisateur connecté :', user);
 
-    this.loadContacts();
+    // 🔹 Récupérer la liste de contacts persistée depuis localStorage
+    const savedContacts = localStorage.getItem(`contacts_${this.userId}`);
+    if (savedContacts) {
+      this.contacts = JSON.parse(savedContacts);
+    } else {
+      this.contacts = [];
+    }
 
-    // Recherche avec debounce
     const searchSub = this.searchSubject.pipe(debounceTime(200))
       .subscribe(text => this.filterContacts(text));
     this.subscriptions.push(searchSub);
 
-    // Écoute des nouveaux messages
     const msgSub = this.chatService.onNewMessage().subscribe(msg => {
       if (
         (msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
@@ -61,23 +75,10 @@ export class MMSC implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Se désabonner pour éviter les fuites mémoire
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
-  loadContacts() {
-    this.chatService.getContacts().subscribe({
-      next: (data) => {
-        // Exclure l'utilisateur connecté
-        const otherUsers = data.filter(contact => contact._id !== this.userId);
-        this.contacts = otherUsers;
-        this.filteredContacts = otherUsers;
-        // console.log('Contacts chargés :', this.contacts);
-      },
-      error: (err) => console.error('Erreur récupération contacts:', err)
-    });
-  }
-
+  // 🔹 Recherche des utilisateurs via l'API
   onSearchChange(text: string) {
     this.showSuggestions = true;
     this.searchSubject.next(text);
@@ -85,32 +86,41 @@ export class MMSC implements OnInit, OnDestroy {
 
   filterContacts(text: string) {
     if (!text.trim()) {
-      this.filteredContacts = this.contacts;
+      this.filteredContacts = [];
       return;
     }
-    this.filteredContacts = this.contacts.filter(c =>
-      `${c.firstName} ${c.lastName}`.toLowerCase().includes(text.toLowerCase())
-    );
+
+    this.chatService.getContacts().subscribe({
+      next: (data) => {
+        this.filteredContacts = data
+          .filter(c => c._id !== this.userId && `${c.firstName} ${c.lastName}`.toLowerCase().includes(text.toLowerCase()));
+      },
+      error: (err) => console.error('Erreur récupération contacts:', err)
+    });
   }
 
   selectSuggestion(contact: Contact) {
     this.showSuggestions = false;
     this.searchText = `${contact.firstName} ${contact.lastName}`;
     this.selectContact(contact);
+
+    // Ajouter le contact à la liste s'il n'y est pas déjà
+    const exists = this.contacts.find(c => c._id === contact._id);
+    if (!exists) {
+      this.contacts.unshift(contact);
+      this.saveContacts();
+    }
   }
 
   selectContact(contact: Contact | null) {
     if (!contact) return;
-
     this.selectedContact = contact;
-    console.log('Contact sélectionné :', contact);
 
     if (!this.userId) return console.error('userId non défini');
 
     this.chatService.getConversation(this.userId, contact._id).subscribe({
       next: (msgs) => {
         this.messages = msgs;
-        console.log('Conversation chargée :', msgs);
         setTimeout(() => this.scrollToBottom(), 100);
       },
       error: (err) => {
@@ -121,38 +131,46 @@ export class MMSC implements OnInit, OnDestroy {
   }
 
   sendMessage() {
-    if (!this.newMessage.trim() || !this.selectedContact) {
-      console.warn('Message vide ou destinataire non sélectionné');
-      return;
-    }
-  
+    if (!this.newMessage.trim() || !this.selectedContact) return;
+
     if (!this.userId) {
-      console.error('Erreur : userId non défini');
       alert('Impossible d’envoyer le message : utilisateur non connecté.');
       return;
     }
-  
+
     const msg: Message = {
       senderId: this.userId,
       receiverId: this.selectedContact._id,
       text: this.newMessage.trim()
     };
-  
-    console.log('Envoi du message :', msg);
-  
+
     this.chatService.sendMessage(msg).subscribe({
       next: (sent) => {
-        this.newMessage = ''; // juste vider le champ
+        this.newMessage = '';
         setTimeout(() => this.scrollToBottom(), 100);
-        this.chatService.emitNewMessage(sent); // le message sera ajouté via l'abonnement
+        this.chatService.emitNewMessage(sent);
       },
       error: (err) => {
         console.error('Erreur envoi message :', err);
-        alert('Impossible d’envoyer le message. Vérifie que le serveur est actif et que l’API est accessible.');
+        alert('Impossible d’envoyer le message.');
       }
     });
   }
-  
+
+  removeContact(contactId: string) {
+    this.contacts = this.contacts.filter(c => c._id !== contactId);
+    this.saveContacts();
+
+    if (this.selectedContact?._id === contactId) {
+      this.selectedContact = null;
+      this.messages = [];
+    }
+  }
+
+  // 🔹 Sauvegarder la liste des contacts dans localStorage
+  saveContacts() {
+    localStorage.setItem(`contacts_${this.userId}`, JSON.stringify(this.contacts));
+  }
 
   scrollToBottom() {
     if (this.messagesContainer) {
@@ -163,5 +181,12 @@ export class MMSC implements OnInit, OnDestroy {
 
   hideSuggestions() {
     setTimeout(() => (this.showSuggestions = false), 200);
+  }
+
+  // 🔹 Réinitialiser la liste des contacts à la déconnexion
+  logout() {
+    localStorage.removeItem('utilisateur');
+    localStorage.removeItem(`contacts_${this.userId}`);
+    // Ici tu peux rediriger vers la page de login
   }
 }
