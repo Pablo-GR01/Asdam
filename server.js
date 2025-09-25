@@ -60,6 +60,7 @@ app.use('/api/convocations', convocationRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/joueurs', joueurRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/messages', messageRoutes);
 
 // Route POST pour créer un post avec média
 app.post('/api/posts/media', upload.single('media'), postController.createPostWithMedia);

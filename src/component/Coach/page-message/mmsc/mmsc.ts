@@ -125,27 +125,34 @@ export class MMSC implements OnInit, OnDestroy {
       console.warn('Message vide ou destinataire non sélectionné');
       return;
     }
-
+  
+    if (!this.userId) {
+      console.error('Erreur : userId non défini');
+      alert('Impossible d’envoyer le message : utilisateur non connecté.');
+      return;
+    }
+  
     const msg: Message = {
       senderId: this.userId,
       receiverId: this.selectedContact._id,
       text: this.newMessage.trim()
     };
-
+  
     console.log('Envoi du message :', msg);
-
+  
     this.chatService.sendMessage(msg).subscribe({
       next: (sent) => {
-        this.messages.push(sent);
-        this.newMessage = '';
+        this.newMessage = ''; // juste vider le champ
         setTimeout(() => this.scrollToBottom(), 100);
+        this.chatService.emitNewMessage(sent); // le message sera ajouté via l'abonnement
       },
       error: (err) => {
         console.error('Erreur envoi message :', err);
-        alert('Impossible d’envoyer le message. Vérifie que le serveur est actif.');
+        alert('Impossible d’envoyer le message. Vérifie que le serveur est actif et que l’API est accessible.');
       }
     });
   }
+  
 
   scrollToBottom() {
     if (this.messagesContainer) {

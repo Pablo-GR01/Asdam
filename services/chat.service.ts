@@ -22,12 +22,12 @@ export class ChatService {
   private newMessageSubject = new Subject<Message>();
   private apiUrl = 'http://localhost:3000/api/messages'; // ajout de apiUrl
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   // Récupère tous les utilisateurs et map si nécessaire pour correspondre à l'interface Contact
   getContacts(): Observable<Contact[]> {
     return this.http.get<any[]>('http://localhost:3000/api/users/contacts').pipe(
-      map(users => 
+      map(users =>
         users.map(u => ({
           _id: u._id || u.id,
           firstName: u.firstName || u.firstname || u.prenom || u.name || 'Utilisateur',
@@ -56,7 +56,7 @@ export class ChatService {
         catchError(this.handleError)
       );
   }
-  
+
   private handleError(error: HttpErrorResponse) {
     console.error('Erreur API messages :', error);
     return throwError(() => new Error('Erreur lors de la récupération des messages'));
@@ -64,18 +64,27 @@ export class ChatService {
 
   // Envoie un message
   sendMessage(msg: Message): Observable<Message> {
-    if (!msg.senderId || !msg.receiverId || !msg.text || msg.text.trim() === '') {
+    // Vérifie les champs
+    if (!msg.senderId || !msg.receiverId || !msg.text?.trim()) {
       throw new Error('Impossible d’envoyer le message : champs manquants');
     }
-    return this.http.post<Message>(
-      this.apiUrl,
-      {
-        senderId: msg.senderId,
-        receiverId: msg.receiverId,
-        text: msg.text.trim()
-      }
+  
+    // Définir l'URL complète
+    const url = 'http://localhost:3000/api/messages';
+  
+    // POST vers le backend
+    return this.http.post<Message>(url, {
+      senderId: msg.senderId,
+      receiverId: msg.receiverId,
+      text: msg.text.trim()
+    }).pipe(
+      catchError((error: HttpErrorResponse) => {
+        console.error('Erreur envoi message :', error);
+        return throwError(() => new Error('Erreur lors de l’envoi du message'));
+      })
     );
   }
+  
 
   // Observable pour les nouveaux messages
   onNewMessage(): Observable<Message> {

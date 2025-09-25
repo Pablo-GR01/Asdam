@@ -9,21 +9,16 @@ exports.sendMessage = async (req, res) => {
   const { senderId, receiverId, text } = req.body;
 
   if (!senderId || !receiverId || !text) {
-    return res.status(400).json({ message: 'Champs manquants' });
+    return res.status(400).json({ error: 'Champs manquants' });
   }
 
   try {
-    const message = await Message.create({
-      senderId,
-      receiverId,
-      text,
-      dateCreation: new Date()
-    });
-
-    return res.status(201).json(message);
+    const message = new Message({ senderId, receiverId, text });
+    await message.save();
+    res.status(201).json(message); // retourne le message créé
   } catch (err) {
-    console.error('Erreur sendMessage:', err);
-    return res.status(500).json({ message: err.message });
+    console.error('Erreur envoi message :', err);
+    res.status(500).json({ error: 'Erreur lors de l’envoi du message' });
   }
 };
 
