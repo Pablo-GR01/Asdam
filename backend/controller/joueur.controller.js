@@ -1,8 +1,7 @@
-const Joueur = require('../../src/Schema/user'); // CommonJS
+const User = require('../../src/Schema/user'); // Assure-toi que le modèle s'appelle bien User
 
-
-// ✅ Récupérer uniquement les joueurs
-exports.getJoueurs = async (req, res) => {
+// Récupérer uniquement les joueurs
+const getJoueurs = async (req, res) => {
   try {
     const joueurs = await User.find({ role: 'joueur' });
     res.json(joueurs);
@@ -11,5 +10,5 @@ exports.getJoueurs = async (req, res) => {
   }
 };
 
-
-module.exports = { getJoueurs }; // ✅ CommonJS
+// Export correct en CommonJS
+module.exports = { getJoueurs };

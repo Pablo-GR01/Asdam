@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClientModule, HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { lastValueFrom } from 'rxjs';
-import { AuthService } from '../../../../services/userService/Auth.Service';
+import { AuthService } from '../../../../../services/userService/Auth.Service';
 
 interface EventItem {
   _id?: string;
@@ -17,6 +17,9 @@ interface EventItem {
   duration: number;
   color?: string;
   image?: string;
+  description?: string;
+  participants?: number;
+  location?: string;
 }
 
 type ViewMode = 'month' | 'week';
@@ -29,15 +32,11 @@ type ViewMode = 'month' | 'week';
   imports: [CommonModule, FormsModule, HttpClientModule]
 })
 export class JourC implements OnInit {
+
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // ----- Variables calendrier -----
-  hours = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00'];
-  eventTypes = ['Match', 'Entraînement', 'Stage', 'Tournoi', 'Fête', 'Réunion'];
-  categories = [
-    'U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23',
-    'SeniorA','SeniorB','SeniorC','SeniorD'
-  ];
+  hours = Array.from({length:14}, (_,i)=> `${(i+8).toString().padStart(2,'0')}:00`);
+  categories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','SeniorA','SeniorB','SeniorC','SeniorD'];
 
   events: EventItem[] = [];
   today = new Date();
@@ -50,15 +49,13 @@ export class JourC implements OnInit {
   monthDays: string[] = [];
   weekDays: string[] = [];
 
-  // ----- Popup -----
   showPopup = false;
-  popupEvent: EventItem | null = null;
+  selectedEvent: EventItem | null = null;
   isEditing = false;
   isLoading = false;
   showSuccessMessage = false;
   successMessage = '';
 
-  // ----- Formulaire création -----
   newEventTitle = '';
   newEventCoach = '';
   newEventCategory = '';
@@ -67,15 +64,15 @@ export class JourC implements OnInit {
   newEventHour = '';
   newEventEndHour = '';
   newEventDuration = 1;
+  newEventDescription = '';
 
-  // ----- Filtres -----
   selectedCategory = '';
   selectedCoach = '';
   searchTerm = '';
 
-  // ----- Permissions -----
   userRole: string = '';  
   private apiUrl = 'http://localhost:3000/api/events';
+  hourHeight = 56;
 
   ngOnInit(): void {
     this.updateDays();
@@ -83,10 +80,7 @@ export class JourC implements OnInit {
     this.userRole = this.authService.getUserRole();
   }
 
-  canEdit(): boolean {
-    const role = this.authService.getUserRole();
-    return ['coach','admin','super admin'].includes(role);
-  }
+  canEdit(): boolean { return ['coach','admin','super admin'].includes(this.authService.getUserRole()); }
 
   updateDays(): void {
     this.monthDays = this.buildMonthDays();
@@ -124,7 +118,6 @@ export class JourC implements OnInit {
     return days;
   }
 
-  daysInMonth(): number { return new Date(this.currentYear, this.currentMonth + 1, 0).getDate(); }
   monthLabel(): string { return `${this.monthNames[this.currentMonth]} ${this.currentYear}`; }
   weekLabel(): string {
     const mon = this.currentWeekStart;
@@ -150,10 +143,11 @@ export class JourC implements OnInit {
     this.updateDays(); 
   }
 
-  formatDate(d: Date): string { 
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2,'0');
-    const day = String(d.getDate()).padStart(2,'0');
+  formatDate(d: Date | string): string { 
+    const date = typeof d === 'string' ? new Date(d) : d;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2,'0');
+    const day = String(date.getDate()).padStart(2,'0');
     return `${year}-${month}-${day}`;
   }
 
@@ -211,13 +205,13 @@ export class JourC implements OnInit {
     }
   }
 
-  async deleteEvent(event: EventItem): Promise<void> { 
-    await this.removeEvent(event); 
-    this.closePopup(); 
+  deleteEvent(event: EventItem): void { 
+    this.removeEvent(event); 
+    this.closeEventDetails(); 
   }
 
   editEvent(evt: EventItem): void {
-    this.popupEvent = { ...evt };
+    this.selectedEvent = { ...evt };
     this.isEditing = true;
     this.newEventDate = evt.day;
     this.newEventHour = evt.hour;
@@ -227,51 +221,14 @@ export class JourC implements OnInit {
     this.newEventCategory = evt.category;
     this.newEventLevel = evt.level;
     this.newEventDuration = evt.duration;
+    this.newEventDescription = evt.description || '';
     this.showPopup = true;
+    this.closeEventDetails(); 
   }
-
-  async saveEvent(): Promise<void> {
-    if (!this.popupEvent) return;
-    const updatedEvent: EventItem = {
-      ...this.popupEvent,
-      day: this.newEventDate,
-      hour: this.newEventHour,
-      endHour: this.newEventEndHour,
-      title: this.newEventTitle,
-      coach: this.newEventCoach,
-      category: this.newEventCategory,
-      level: this.newEventLevel,
-      duration: this.newEventDuration
-    };
-    await this.updateEvent(updatedEvent);
-    this.isEditing = false;
-    this.closePopup();
-  }
-
-  getEventsByDay(day: string | Date): EventItem[] {
-    const dayStr = typeof day === 'string' ? day : this.formatDate(day);
-    let events = this.events.filter(evt => evt.day === dayStr);
-    if (this.selectedCategory) events = events.filter(evt => evt.category === this.selectedCategory);
-    if (this.selectedCoach) events = events.filter(evt => evt.coach.toLowerCase().includes(this.selectedCoach.toLowerCase()));
-    if (this.searchTerm) events = events.filter(evt => evt.title.toLowerCase().includes(this.searchTerm.toLowerCase()) || evt.coach.toLowerCase().includes(this.searchTerm.toLowerCase()));
-    return events;
-  }
-
-  getEventsByHour(day: string, hour: string): EventItem[] {
-    return this.getEventsByDay(day).filter(evt => {
-      const evtStartH = parseInt(evt.hour.split(':')[0],10);
-      const evtEndH = parseInt(evt.endHour.split(':')[0],10);
-      const h = parseInt(hour.split(':')[0],10);
-      return h >= evtStartH && h < evtEndH;
-    });
-  }
-
-  getEventCountByDay(day: string): number { return this.getEventsByDay(day).length; }
-  getEventHeight(evt: EventItem): string { return `${evt.duration * 60}px`; }
 
   openPopup(): void {
     this.isEditing = false;
-    this.popupEvent = null;
+    this.selectedEvent = null;
     const d = this.viewMode === 'week' ? this.currentWeekStart : new Date(this.currentYear, this.currentMonth, 1);
     this.newEventDate = this.formatDate(d);
     this.newEventHour = '09:00';
@@ -281,19 +238,36 @@ export class JourC implements OnInit {
     this.newEventCategory = '';
     this.newEventLevel = '';
     this.newEventDuration = 1;
+    this.newEventDescription = '';
     this.showPopup = true;
   }
 
-  openEventPopup(evt: EventItem): void { this.popupEvent = evt; this.showPopup = true; }
-  closePopup(): void { this.showPopup = false; this.popupEvent = null; }
+  openEventDetails(evt: EventItem): void { this.selectedEvent = evt; }
+  closeEventDetails(): void { this.selectedEvent = null; }
 
-  async addEvent(): Promise<void> {
+  getEventsByDay(day: string | Date): EventItem[] {
+    const dayStr = typeof day === 'string' ? day : this.formatDate(day);
+    let events = this.events.filter(evt => evt.day === dayStr);
+    if (this.selectedCategory) events = events.filter(evt => evt.category === this.selectedCategory);
+    if (this.selectedCoach) events = events.filter(evt => evt.coach.toLowerCase().includes(this.selectedCoach.toLowerCase()));
+    if (this.searchTerm) events = events.filter(evt => evt.title.toLowerCase().includes(this.searchTerm.toLowerCase()) || evt.coach.toLowerCase().includes(this.searchTerm.toLowerCase()));
+    return events.sort((a,b) => parseInt(a.hour.split(':')[0])*60 + parseInt(a.hour.split(':')[1]) - (parseInt(b.hour.split(':')[0])*60 + parseInt(b.hour.split(':')[1])));
+  }
+
+  getEventTopOffset(evt: EventItem): number {
+    const startHour = parseInt(evt.hour.split(':')[0], 10);
+    const startMinutes = parseInt(evt.hour.split(':')[1], 10);
+    return ((startHour - 8) * this.hourHeight) + (startMinutes / 60) * this.hourHeight;
+  }
+
+  getEventHeight(evt: EventItem): number {
+    const start = parseInt(evt.hour.split(':')[0],10) + parseInt(evt.hour.split(':')[1],10)/60;
+    const end = parseInt(evt.endHour.split(':')[0],10) + parseInt(evt.endHour.split(':')[1],10)/60;
+    return (end - start) * this.hourHeight - 2;
+  }
+
+  addEvent(): void {
     if (!this.newEventTitle.trim()) return;
-    const [startH, startM] = this.newEventHour.split(':').map(Number);
-    const [endH, endM] = this.newEventEndHour.split(':').map(Number);
-    let duration = (endH*60+endM - (startH*60+startM))/60;
-    if (duration <= 0) duration = 1;
-
     const newEvent: EventItem = {
       day: this.newEventDate,
       hour: this.newEventHour,
@@ -302,21 +276,24 @@ export class JourC implements OnInit {
       coach: this.newEventCoach.trim(),
       category: this.newEventCategory,
       level: this.newEventLevel,
-      duration
+      duration: this.newEventDuration,
+      description: this.newEventDescription
     };
-
-    await this.createEvent(newEvent);
-    this.closePopup();
+    if(this.isEditing && this.selectedEvent) {
+      newEvent._id = this.selectedEvent._id;
+      this.updateEvent(newEvent);
+    } else {
+      this.createEvent(newEvent);
+    }
+    this.showPopup = false;
   }
 
   quickAddEvent(day: string | Date, hour: string): void {
     this.openPopup();
-    const dayDate = typeof day === 'string' ? day : this.formatDate(day);
-    this.newEventDate = dayDate;
-    const [h, m] = hour.split(':').map(Number);
+    this.newEventDate = typeof day === 'string' ? day : this.formatDate(day);
     this.newEventHour = hour;
-    const endH = h + 1;
-    this.newEventEndHour = `${String(endH).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    const h = parseInt(hour.split(':')[0],10);
+    this.newEventEndHour = `${String(h+1).padStart(2,'0')}:${hour.split(':')[1]}`;
     this.newEventDuration = 1;
   }
 
@@ -327,29 +304,64 @@ export class JourC implements OnInit {
       case 'Réunion': return 'fa-solid fa-bullhorn';
       case 'Match': return 'fa-solid fa-trophy';
       case 'Tournoi': return 'fa-solid fa-medal';
-      default: return 'fa-solid fa-circle';
+      default: return 'fa-solid fa-calendar';
     }
   }
 
-  getEventClass(evt: EventItem): string {
-    switch(evt.category) {
-      case 'Entraînement': return 'bg-gradient-to-r from-green-500 to-green-600';
-      case 'Fête': return 'bg-gradient-to-r from-pink-500 to-pink-600';
-      case 'Réunion': return 'bg-gradient-to-r from-blue-600 to-blue-700';
-      case 'Match': return 'bg-gradient-to-r from-yellow-600 to-yellow-700';
-      case 'Tournoi': return 'bg-gradient-to-r from-orange-600 to-orange-700';
-      default: return 'bg-gradient-to-r from-gray-500 to-gray-600';
-    }
-  }
-
-  showNotification(message: string): void {
-    this.successMessage = message;
+  showNotification(msg: string): void {
+    this.successMessage = msg;
     this.showSuccessMessage = true;
-    setTimeout(() => { this.showSuccessMessage = false; }, 3000);
+    setTimeout(() => this.showSuccessMessage = false, 2500);
   }
 
-  clearFilters(): void { this.selectedCategory = ''; this.selectedCoach = ''; this.searchTerm = ''; }
-  getUniqueCoaches(): string[] { return [...new Set(this.events.map(evt => evt.coach))].filter(Boolean).sort(); }
+  weekDayHeaders = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
 
-  
+  currentYM(): string {
+    const d = new Date(this.currentYear, this.currentMonth, 1);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  goToday() {
+    const today = new Date();
+    this.currentMonth = today.getMonth();
+    this.currentYear = today.getFullYear();
+    this.currentWeekStart = this.getMonday(today);
+    this.updateDays();
+  }
+
+  jumpToDate(ym: string) {
+    const [y,m] = ym.split('-').map(Number);
+    this.currentYear = y;
+    this.currentMonth = m-1;
+    this.currentWeekStart = this.getMonday(new Date(y,m-1,1));
+    this.updateDays();
+  }
+
+  // Vérifie si une date est passée par rapport à aujourd'hui
+isPast(dateStr: string): boolean {
+  const today = new Date();
+  const date = new Date(dateStr + 'T00:00:00'); // ajoute l'heure pour que JS comprenne la date
+  return date < today;
+}
+
+
+  @HostListener('window:keydown', ['$event'])
+  hotkeys(e: KeyboardEvent) {
+    if (e.target instanceof HTMLInputElement) return;
+    switch (e.key) {
+      case 'ArrowLeft':
+        this.viewMode === 'month' ? this.prevMonth() : this.prevWeek();
+        break;
+      case 'ArrowRight':
+        this.viewMode === 'month' ? this.nextMonth() : this.nextWeek();
+        break;
+      case 'n':
+      case 'N':
+        if (this.canEdit()) this.openPopup();
+        break;
+    }
+  }
+
+
+
 }

@@ -30,19 +30,19 @@
   <div *ngIf="showCreateModal"
     class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--Black)]/60 backdrop-blur-lg h-full">
     <div
-      class="w-full max-w-lg rounded-3xl bg-[var(--Blanc)]/10 backdrop-blur-2xl border border-[var(--Blanc)]/20 shadow-2xl p-8 text-[var(--Blanc)] relative">
+      class="w-full max-w-lg rounded-3xl bg-[var(--Gris)]/10 backdrop-blur-2xl border border-[var(--Rouge)]/20 shadow-2xl p-8 text-[var(--Blanc)] relative">
 
       <button (click)="closeCreatePostModal()" aria-label="Fermer"
         class="absolute top-4 right-4 p-2 rounded-full bg-[var(--Blanc)]/10 hover:bg-[var(--Rouge)]/40 transition">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
-      <h2 class="text-2xl font-bold mb-6 bg-[var(--Rouge-Clair)] bg-clip-text text-transparent">
+      <h2 class="text-2xl font-bold mb-6 text-[var(--Rouge-Clair)]">
         Créer un post
       </h2>
 
       <textarea [(ngModel)]="newPostContent" placeholder="Quoi de neuf ?"
-        class="w-full p-4 bg-[var(--Blanc)]/10 border-2 border-[var(--Rouge)] rounded-xl placeholder-[var(--Blanc)]/60 text-[var(--Blanc)] resize-none focus:outline-none focus:ring-2 focus:ring-red-400"
+        class="w-full p-4 bg-[var(--Blanc)]/10 border-2 border-[var(--Rouge)] rounded-xl placeholder-[var(--Blanc)]/60 text-[var(--Blanc)] resize-none focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)]"
         rows="4"></textarea>
 
       <!-- Aperçu média -->
@@ -76,7 +76,7 @@
         </button>
 
         <button (click)="createPost()" [disabled]="loading || !newPostContent.trim()"
-          class="px-6 py-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition">
+          class="px-6 py-2 bg-gradient-to-r from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] rounded-xl font-medium shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition">
           <span *ngIf="!loading">Publier</span>
           <span *ngIf="loading" class="flex items-center gap-2">
             <i class="fa-solid fa-spinner fa-spin"></i> Publication...
@@ -95,20 +95,18 @@
 
   <!-- Liste des posts -->
   <article *ngFor="let post of filteredPosts.length ? filteredPosts : posts; let i = index"
-    class="bg-[var(--Blanc)] rounded-xl shadow-lg p-6 space-y-4 border-2 border-[var(--Rouge)] hover:shadow-2xl transition">
+    class="bg-[var(--Gris)]/10 backdrop-blur-xl rounded-2xl shadow-2xl p-6 space-y-4 border border-[var(--Rouge)]/20 transition hover:scale-[1.01]">
 
     <!-- Entête -->
     <header class="flex items-center justify-between">
       <div class="flex items-center gap-4">
-        <div class="relative">
-          <div
-            class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-12 h-12 flex items-center justify-center font-bold">
-            {{ post.initials || currentInitiales }}
-          </div>
+        <div
+          class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-12 h-12 flex items-center justify-center font-bold">
+          {{ post.initials || currentInitiales }}
         </div>
         <div>
-          <p class="font-bold text-[var(--Black)]">{{ post.user }}</p>
-          <p class="text-[var(--Black)] text-sm flex items-center gap-1">
+          <p class="font-bold text-[var(--Blanc)]">{{ post.user }}</p>
+          <p class="text-[var(--Blanc)]/80 text-sm flex items-center gap-1">
             <i class="fa-regular fa-clock fa-xs"></i>
             {{ post.createdAt | date:"d MMMM y à HH'h'mm" : 'fr-FR' }}
           </p>
@@ -117,17 +115,17 @@
 
       <!-- Menu -->
       <div class="relative">
-        <button (click)="togglePostMenu(i)" aria-label="Menu" class="text-[var(--Black)] hover:opacity-80 transition">
+        <button (click)="togglePostMenu(i)" aria-label="Menu" class="text-[var(--Blanc)] hover:text-[var(--Rouge-Clair)] transition">
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
         <div *ngIf="post.showMenu"
-          class="absolute right-0 mt-2 w-40 bg-[var(--Blanc)]/95 backdrop-blur-md border rounded-xl shadow-xl z-10 overflow-hidden">
+          class="absolute right-0 mt-2 w-40 bg-[var(--Gris)]/90 backdrop-blur-md border border-[var(--Rouge)]/20 rounded-xl shadow-xl z-10 overflow-hidden">
           <button (click)="openEditModal(post)"
-            class="w-full text-left px-4 py-2 text-[var(--Black)] hover:bg-[var(--Black)]/5 flex items-center gap-2">
+            class="w-full text-left px-4 py-2 text-[var(--Blanc)] hover:bg-[var(--Rouge)]/30 flex items-center gap-2">
             <i class="fa-solid fa-pen-to-square fa-sm"></i> Modifier
           </button>
           <button (click)="deletePost(post, i)"
-            class="w-full text-left px-4 py-2 text-[var(--Rouge)] hover:text-[var(--Blanc)] hover:bg-[var(--Rouge-Clair)] flex items-center gap-2">
+            class="w-full text-left px-4 py-2 text-[var(--Rouge-Clair)] hover:bg-[var(--Rouge)] flex items-center gap-2">
             <i class="fa-solid fa-trash fa-sm"></i> Supprimer
           </button>
         </div>
@@ -135,7 +133,7 @@
     </header>
 
     <!-- Contenu -->
-    <p class="whitespace-pre-wrap text-[var(--Black)] text-lg leading-relaxed">{{ post.content }}</p>
+    <p class="whitespace-pre-wrap text-[var(--Blanc)] text-lg leading-relaxed">{{ post.content }}</p>
 
     <!-- Média -->
     <figure *ngIf="post.mediaUrl" class="relative overflow-hidden rounded-xl">
@@ -145,36 +143,36 @@
     </figure>
 
     <!-- Actions -->
-    <footer class="flex items-center justify-between text-[var(--Black)] pt-4 border-t border-[var(--Black)]/10">
+    <footer class="flex items-center justify-between text-[var(--Blanc)] pt-4 border-t border-[var(--Blanc)]/10">
       <button (click)="toggleLike(post)" class="flex items-center gap-2 hover:scale-105 transition">
         <i [ngClass]="post.isLiked ? 'fa-solid fa-heart text-[var(--Rouge-Clair)]' : 'fa-regular fa-heart'" class="text-xl"></i>
-        <span [ngClass]="post.isLiked ? 'font-bold text-[var(--Black)]' : 'font-medium'">{{ post.likes }}</span>
+        <span [ngClass]="post.isLiked ? 'font-bold text-[var(--Blanc)]' : 'font-medium'">{{ post.likes }}</span>
       </button>
 
-      <button (click)="openCommentsModal(post)" class="flex items-center gap-2 text-[var(--Black)] hover:text-[var(--Rouge-Clair)] transition">
+      <button (click)="openCommentsModal(post)" class="flex items-center gap-2 text-[var(--Blanc)] hover:text-[var(--Rouge-Clair)] transition">
         <i class="fa-regular fa-comment text-lg"></i>
         <span class="font-medium">{{ post.comments.length }}</span>
       </button>
     </footer>
 
     <!-- Commentaires (2 premiers) -->
-    <section class="space-y-3 pt-4 border-t border-[var(--Black)]/20">
-      <div *ngFor="let c of post.comments | slice:0:2" class="flex gap-3 bg-[var(--Black)]/5 rounded-lg p-3 items-start">
+    <section class="space-y-3 pt-4 border-t border-[var(--Blanc)]/20">
+      <div *ngFor="let c of post.comments | slice:0:2" class="flex gap-3 bg-[var(--Gris)]/20 rounded-lg p-3 items-start">
         <div
           class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
           {{ c.initials || currentInitiales }}
         </div>
         <div class="flex-1">
-          <p class="font-bold text-sm text-[var(--Black)]">{{ c.user }}</p>
-          <p class="text-[var(--Black)]/90">{{ c.text }}</p>
-          <p class="text-xs text-[var(--Black)]/50 mt-1">
+          <p class="font-bold text-sm text-[var(--Blanc)]">{{ c.user }}</p>
+          <p class="text-[var(--Blanc)]/90">{{ c.text }}</p>
+          <p class="text-xs text-[var(--Blanc)]/50 mt-1">
             <i class="fa-regular fa-clock fa-xs"></i>
             {{ c.time | date:"d MMMM y 'à' HH'h'mm" : 'fr-FR' }}
           </p>
         </div>
         <button *ngIf="canDeleteComment()"
                 (click)="deleteComment(post, c)"
-                class="text-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] ml-2 self-start">
+                class="text-[var(--Rouge-Clair)] hover:text-[var(--Rouge)] ml-2 self-start">
           <i class="fa-solid fa-trash"></i>
         </button>
       </div>
@@ -191,10 +189,10 @@
         </div>
         <input [(ngModel)]="post.newComment"
               placeholder="Ajouter un commentaire..."
-              class="flex-1 p-3 border border-black/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-400"
+              class="flex-1 p-3 border border-[var(--Blanc)]/20 text-[var(--Blanc)] rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)]"
               (keyup.enter)="addComment(post)">
         <button (click)="addComment(post)"
-                class="px-4 py-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-white rounded-xl hover:shadow-lg transition">
+                class="px-4 py-2 bg-gradient-to-r from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-white rounded-xl hover:shadow-lg transition">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </div>
@@ -204,7 +202,7 @@
 
 <!-- Modal voir tous les commentaires -->
 <div *ngIf="showCommentsModal" class="fixed inset-0 z-50 flex items-center justify-center bg-[var(--Black)]/60 backdrop-blur-lg h-full p-4">
-  <div class="w-full max-w-md rounded-3xl bg-[var(--Blanc)]/10 backdrop-blur-2xl border border-[var(--Blanc)]/20 shadow-2xl p-6 text-[var(--Blanc)] relative overflow-y-auto max-h-full">
+  <div class="w-full max-w-md rounded-3xl bg-[var(--Gris)]/10 backdrop-blur-2xl border border-[var(--Rouge)]/20 shadow-2xl p-6 text-[var(--Blanc)] relative overflow-y-auto max-h-full">
     <button (click)="closeCommentsModal()" aria-label="Fermer"
       class="absolute top-4 right-4 pt-2 pb-2 pl-3 pr-3 rounded-full bg-[var(--Blanc)]/10 hover:bg-[var(--Rouge)]/40 transition">
       <i class="fa-solid fa-xmark"></i>
@@ -212,7 +210,7 @@
 
     <h2 class="text-xl font-bold mb-4 text-[var(--Rouge-Clair)]">Tous les commentaires</h2>
 
-    <div *ngFor="let c of paginatedComments" class="flex gap-3 bg-[var(--Black)]/5 rounded-lg p-3 mb-2 items-start">
+    <div *ngFor="let c of paginatedComments" class="flex gap-3 bg-[var(--Gris)]/20 rounded-lg p-3 mb-2 items-start">
       <div class="bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] text-[var(--Blanc)] rounded-full w-8 h-8 flex items-center justify-center font-bold text-sm flex-shrink-0">
         {{ c.initials || currentInitiales }}
       </div>
@@ -226,7 +224,7 @@
       </div>
       <button *ngIf="canDeleteComment()"
         (click)="deleteComment(selectedPost!, c)"
-        class="text-[var(--Rouge)] hover:text-[var(--Rouge-Clair)] ml-2 self-start">
+        class="text-[var(--Rouge-Clair)] hover:text-[var(--Rouge)] ml-2 self-start">
         <i class="fa-solid fa-trash"></i>
       </button>
     </div>

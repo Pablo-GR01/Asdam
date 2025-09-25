@@ -1,8 +1,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Train+One&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
+<app-header-c></app-header-c>
+
 <!-- HERO SECTION ––––––––––––––––––––––––––––––– -->
-<section class="relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-black"
+<section class="-mt-14 relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-black"
          aria-labelledby="hero-title">
 
   <!-- Image de fond avec effet parallaxe -->
@@ -12,11 +14,8 @@
        fetchpriority="high" loading="eager" 
   />
 
-  <!-- HEADER -->
-  <app-header-c class="absolute top-0 left-0 right-0 z-50"></app-header-c>
-
   <!-- COLONNE GAUCHE : contenu principal -->
-  <main class="z-10 flex flex-col justify-center px-6 lg:px-12 text-center lg:text-left">
+  <main class="mt-10 z-10 flex flex-col justify-center px-6 lg:px-12 text-center lg:text-left">
     <div class="max-w-xl">
 
       <!-- Badge animé -->
@@ -58,30 +57,6 @@
         </a>
       </div>
 
-      <!-- Stats améliorées --
-      <div class="mt-10 grid grid-cols-3 gap-4 text-center text-white animate-fade-in">
-        <div class="group bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-white/10 hover:bg-white/10 hover:border-[var(--Rouge)] transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-[var(--Rouge)] mb-1 group-hover:scale-110 transition-transform">24</div>
-          <div class="text-sm text-gray-300">Matchs joués</div>
-        </div>
-        <div class="group bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-white/10 hover:bg-white/10 hover:border-[var(--Rouge)] transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-[var(--Rouge)] mb-1 group-hover:scale-110 transition-transform">18</div>
-          <div class="text-sm text-gray-300">Victoires</div>
-        </div>
-        <div class="group bg-white/5 backdrop-blur-sm p-4 rounded-lg border border-white/10 hover:bg-white/10 hover:border-[var(--Rouge)] transition-all duration-300 hover:scale-105">
-          <div class="text-3xl font-bold text-[var(--Rouge)] mb-1 group-hover:scale-110 transition-transform">62</div>
-          <div class="text-sm text-gray-300">Buts marqués</div>
-        </div>
-      </div>-->
-
-      <!-- Indicateur de défilement 
-      <div class="mt-12 flex flex-col items-center gap-2 text-white/70 animate-bounce">
-        <span class="text-sm">Défiler pour découvrir</span>
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
-        </svg>
-      </div>-->
-
     </div>
   </main>
 
@@ -115,18 +90,3 @@
   </aside>
 
 </section>
-
-<!-- MODAL TEASER AMÉLIORÉ --
-<dialog id="teaserModal" class="rounded-2xl p-0 overflow-hidden backdrop:bg-black/70 max-w-4xl">
-  <div class="relative">
-    <button onclick="closeTeaser()" class="absolute top-4 right-4 text-white bg-black/70 rounded-full p-3 z-10 hover:bg-black/90 transition-all hover:scale-110">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-      </svg>
-    </button>
-    <video controls class="w-full" poster="assets/video-poster.jpg">
-      <source src="assets/teaser.mp4" type="video/mp4" />
-      Ton navigateur ne supporte pas la vidéo.
-    </video>
-  </div>
-</dialog>-->

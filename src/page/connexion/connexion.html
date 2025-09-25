@@ -41,7 +41,7 @@
                         border-2 border-[var(--Gris)]/30 focus:border-[var(--Rouge)] focus:outline-none 
                         focus:ring-4 focus:ring-[var(--Rouge)]/20 transition-all duration-300
                         hover:border-[var(--Rouge)]/50"
-                 placeholder="vous@exemple.com" />
+                 placeholder="Votre Mail" />
           <div class="absolute inset-y-0 right-0 flex items-center pr-3">
             <i class="fas fa-at text-[var(--Blanc)]/30 group-hover:text-[var(--Rouge-Clair)] transition-colors"></i>
           </div>
@@ -75,7 +75,7 @@
                         border-2 border-[var(--Gris)]/30 focus:border-[var(--Rouge)] focus:outline-none 
                         focus:ring-4 focus:ring-[var(--Rouge)]/20 transition-all duration-300
                         hover:border-[var(--Rouge)]/50"
-                 placeholder="••••••••" />
+                 placeholder="Password" />
           <button type="button" (click)="togglePasswordVisibility()" aria-label="Afficher ou masquer le mot de passe"
                   class="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--Blanc)]/50 hover:text-[var(--Rouge-Clair)] 
                          transition-all duration-300 p-2 hover:scale-110">
@@ -89,16 +89,6 @@
             <span>6 caractères minimum requis</span>
           </p>
         </div>
-      </div>
-
-      <!-- Case à cocher -->
-      <div class="flex items-center space-x-3">
-        <input type="checkbox" id="remember" name="remember" [(ngModel)]="rememberMe"
-               class="w-4 h-4 text-[var(--Rouge)] bg-[var(--Gris)]/20 border-[var(--Gris)]/30 rounded 
-                      focus:ring-[var(--Rouge)] focus:ring-2">
-        <label for="remember" class="text-sm text-[var(--Blanc)]/80 hover:text-[var(--Blanc)] transition-colors cursor-pointer">
-          Se souvenir de moi
-        </label>
       </div>
 
       <!-- Erreur serveur -->

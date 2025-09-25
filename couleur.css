@@ -1,0 +1,20 @@
+/* --Rouge-Foncé	Dégradés de fond des boutons, alertes de message, logo circulaire
+--Rouge	Dégradés, bordures, texte de lien, survol du bouton
+--Rouge-Clair	Bordures d’input, texte d’alerte, icônes, liens secondaires
+--Bleu-Foncé	Survol du bouton de connexion
+--Bleu	Survol du bouton de connexion (dégradé)
+--Gris	Fond principal du formulaire et de la page
+--Blanc	Texte, placeholders, icônes
+--Black	Overlay sombre semi-transparent derrière le formulaire
+
+bg-[var(--Gris)]/10	Fond du formulaire (translucide)
+bg-[var(--Black)]/60	Overlay sombre du background
+text-[var(--Blanc)]	Texte principal
+text-[var(--Blanc)]/50	Icônes secondaires, placeholders
+text-[var(--Blanc)]/70	Texte secondaire, description
+border-[var(--Rouge-Clair)]/30	Bordures d’alerte
+border-[var(--Rouge)]/20	Bordure du formulaire
+focus:ring-[var(--Rouge)]/20	Effet focus input
+hover:border-[var(--Rouge)]/50	Effet hover sur input
+from-[var(--Rouge-Foncé)] to-[var(--Rouge)]	Dégradé des boutons et alertes
+hover:from-[var(--Bleu-Foncé)] hover:to-[var(--Bleu)] */
