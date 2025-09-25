@@ -4,11 +4,13 @@ const User = require('../../src/Schema/user'); // Assure-toi que le chemin est c
 const userController = require('../controller/user.controller');
 const authController = require('../controller/auth.controller');
 const authMiddleware = require('../../backend/middleware/auth'); // renomme correctement
-
+const path = require('path');
 // ================= ROUTES UTILISATEURS =================
 
 // ✅ Créer un utilisateur
 router.post('/', userController.registerUser);
+
+
 
 // ✅ Connexion
 router.post('/login', authController.login);
@@ -45,7 +47,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // ✅ Récupérer tous les utilisateurs
-router.get('/asdam/users', userController.getAllUsers);
+router.get('/users', userController.getAllUsers);
 
 
 // ✅ Modifier uniquement le mot de passe d’un utilisateur
@@ -66,6 +68,11 @@ router.put('/users/:id/password', userController.changePassword);
 // ✅ Récupérer la carte complète de l’utilisateur par ID
 router.get('/card/:id', authMiddleware, userController.getUserCard);
 
+// backend/routes/user.routes.js
+router.get('/contacts', (req, res) => {
+  // récupère tous les utilisateurs
+  User.find().then(users => res.json(users)).catch(err => res.status(500).json({message: err.message}));
+});
 
 
 

@@ -1,60 +1,87 @@
-// src/services/chat.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, map } from 'rxjs'; // <--- ajouté 'map'
+import { Observable, Subject, map } from 'rxjs';
 
+// Interface Contact : vérifie que les champs correspondent à ton backend
 export interface Contact {
-  _id: string;          // correspond à MongoDB
+  _id: string;
   firstName: string;
   lastName: string;
-  role?: string;
 }
 
 export interface Message {
   senderId: string;
   receiverId: string;
   text: string;
-  createdAt?: Date;
   senderName?: string;
   receiverName?: string;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private baseUrl = 'http://localhost:3000/api'; // ton backend
   private newMessageSubject = new Subject<Message>();
 
   constructor(private http: HttpClient) {}
 
-  // Récupérer tous les utilisateurs
+  // Récupère tous les utilisateurs et map si nécessaire pour correspondre à l'interface Contact
   getContacts(): Observable<Contact[]> {
-    // On suppose que le backend renvoie un tableau directement : User.find()
-    return this.http.get<Contact[]>(`${this.baseUrl}/users`);
+    return this.http.get<any[]>('http://localhost:3000/api/users/contacts').pipe(
+      map(users => {
+        // console.log('Raw users from API:', users); // <-- ajoute ça pour voir les vrais noms des champs
+        return users.map(u => ({
+          _id: u._id || u.id,
+          firstName: u.firstName || u.firstname || u.prenom || u.name || 'Utilisateur',
+          lastName: u.lastName || u.lastname || u.nom || ''
+        }));
+      })
+    );
+  }
+  
+
+  // Recherche d'utilisateurs côté serveur
+  searchContacts(text: string): Observable<Contact[]> {
+    return this.getContacts().pipe(
+      map(users =>
+        users.filter(u =>
+          `${u.firstName} ${u.lastName}`.toLowerCase().includes(text.toLowerCase())
+        )
+      )
+    );
   }
 
-  // Rechercher les utilisateurs par texte
-  searchContacts(query: string): Observable<Contact[]> {
-    // On ajoute la recherche côté backend via query param 'search'
-    return this.http.get<Contact[]>(`${this.baseUrl}/users?search=${query}`);
+  // Récupère les messages entre user et contact
+  getConversation(user1Id: string, user2Id: string): Observable<Message[]> {
+    return this.http.get<{messages: Message[]}>(`http://localhost:3000/api/messages/conversation/${user1Id}/${user2Id}`)
+      .pipe(
+        map(res => res.messages),  // transforme {messages: [...] } en Message[]
+      );
   }
-
-  // Récupérer les messages entre deux utilisateurs
-  getMessages(userId: string, contactId: string): Observable<Message[]> {
-    return this.http.get<Message[]>(`${this.baseUrl}/messages/conversation/${userId}/${contactId}`);
-  }
-
-  // Envoyer un message
+  
+  // Envoie un message
   sendMessage(msg: Message): Observable<Message> {
-    return this.http.post<Message>(`${this.baseUrl}/messages/send`, msg);
+    // Vérifie que tous les champs existent
+    if (!msg.senderId || !msg.receiverId || !msg.text || msg.text.trim() === '') {
+      throw new Error('Impossible d’envoyer le message : champs manquants');
+    }
+  
+    // Envoi du message
+    return this.http.post<Message>(
+      'http://localhost:3000/api/messages/send',
+      {
+        senderId: msg.senderId,
+        receiverId: msg.receiverId,
+        text: msg.text.trim()  // on retire les espaces superflus
+      }
+    );
   }
+  
 
-  // Observable pour recevoir les messages en temps réel
+  // Observable pour les nouveaux messages
   onNewMessage(): Observable<Message> {
     return this.newMessageSubject.asObservable();
   }
 
-  // Pour simuler la réception d'un message
-  receiveMessage(msg: Message) {
+  emitNewMessage(msg: Message) {
     this.newMessageSubject.next(msg);
   }
 }

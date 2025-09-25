@@ -66,7 +66,7 @@ export class HeaderC {
     {
       title: 'Messages',
       icon: 'fas fa-envelope',
-      link: '/notificationsC',
+      link: '/messagesC',
       items: []
     },
     {

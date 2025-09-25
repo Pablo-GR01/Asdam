@@ -35,7 +35,7 @@ export const routes: Routes = [
     {path:'matchC', component:MatchC},
     {path:'notificationsC', component:NotifC},
     {path:'dashboardC/profileC', component:ProfilC},
-    {path:'notificationsC/messagesC', component:MessageC},
+    {path:'messagesC', component:MessageC},
     {path:'absentsC', component:AbsentsC},
     {path:'actualiteC', component:ActualiteC},
 

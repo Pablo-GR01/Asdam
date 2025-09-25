@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,14 +10,15 @@ const multer = require('multer');
 const postController = require('./backend/controller/post.controller');
 
 // Routes
-const userRoutes = require('./backend/routes/User.Routes');            //register
-const authRoutes = require('./backend/routes/User.Routes');  // login
+const userRoutes = require('./backend/routes/User.Routes');            // register/login
+const authRoutes = require('./backend/routes/User.Routes');            // auth login
 const utilisateurRoutes = require('./backend/routes/utilisateur.Routes'); // gestion utilisateurs
 const eventRoutes = require('./backend/routes/Events.Routes');
 const matchRoutes = require('./backend/routes/Match.Routes');
 const convocationRoutes = require('./backend/routes/convocations.Routes');
 const postRoutes = require('./backend/routes/post.Routes');
-const JoueurRoutes = require('./backend/routes/joueur.routes');
+const joueurRoutes = require('./backend/routes/joueur.routes');
+const messageRoutes = require('./backend/routes/message.Routes');
 
 const app = express();
 const PORT = 3000;
@@ -50,16 +52,18 @@ mongoose.connect('mongodb://localhost:27017/asdam', {
 
 // 🔹 Routes
 app.use('/api/users', userRoutes);                // login/register
-app.use('/api/asdam', authRoutes)
+app.use('/api/asdam', authRoutes);                 // login/auth
 app.use('/api/utilisateurs', utilisateurRoutes); // gestion utilisateurs
 app.use('/api/events', eventRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/convocations', convocationRoutes);
 app.use('/api/posts', postRoutes);
-app.use('/api/joueurs', JoueurRoutes);
+app.use('/api/joueurs', joueurRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Route POST pour créer un post avec média
 app.post('/api/posts/media', upload.single('media'), postController.createPostWithMedia);
+
 
 // Démarrage serveur
 app.listen(PORT, () => {
