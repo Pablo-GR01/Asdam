@@ -1,20 +1,47 @@
-<div class="container mx-auto p-6">
-    <h2 class="text-xl font-bold mb-4">Liste des joueurs</h2>
-    <table class="min-w-full border border-gray-300">
-      <thead>
-        <tr class="bg-gray-200">
-          <th class="border px-4 py-2">Nom</th>
-          <th class="border px-4 py-2">Prénom</th>
-          <th class="border px-4 py-2">Équipe</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let joueur of joueurs">
-          <td class="border px-4 py-2">{{ joueur.nom }}</td>
-          <td class="border px-4 py-2">{{ joueur.prenom }}</td>
-          <td class="border px-4 py-2">{{ joueur.equipe || 'Non défini' }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div class="container mx-auto p-4 md:p-6 space-y-6">
+
+  <!-- Barre utilisateur connecté -->
+  <div *ngIf="utilisateurConnecte" class="bg-blue-50 text-blue-800 p-4 rounded-lg shadow flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+    <span class="font-medium">Connecté : {{ utilisateurConnecte.nom }} {{ utilisateurConnecte.prenom }}</span>
+    <span class="text-sm">Équipe : <span class="font-semibold">{{ utilisateurConnecte.equipe || 'Non définie' }}</span></span>
   </div>
-  
+
+  <h2 class="text-2xl font-bold text-gray-800">Présence aux entraînements</h2>
+
+  <!-- Groupes par équipe -->
+  <div *ngFor="let groupe of getJoueursParEquipe()" class="space-y-4">
+    <h3 class="text-lg font-semibold text-gray-700 border-b pb-2">{{ groupe.equipe }}</h3>
+
+    <!-- Cartes joueurs -->
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div *ngFor="let joueur of groupe.joueurs" class="bg-white rounded-xl shadow border p-4 space-y-3 hover:shadow-md transition">
+
+        <!-- Infos joueur -->
+        <div>
+          <p class="font-semibold text-gray-900">{{ joueur.prenom }} {{ joueur.nom }}</p>
+          <p class="text-sm text-gray-500">Entraînements : {{ getJours(joueur.equipe).join(', ') }}</p>
+        </div>
+
+        <!-- Présence par jour -->
+        <div class="space-y-2">
+          <div *ngFor="let jour of getJours(joueur.equipe)" class="flex items-center justify-between">
+            <span class="text-sm text-gray-600">{{ jour }}</span>
+            <button
+              (click)="togglePresence(joueur.id, jour)"
+              [class.bg-green-600]="presenceParJour[joueur.id][jour]"
+              [class.bg-red-600]="!presenceParJour[joueur.id][jour]"
+              [class.hover:bg-green-700]="presenceParJour[joueur.id][jour]"
+              [class.hover:bg-red-700]="!presenceParJour[joueur.id][jour]"
+              class="text-white text-xs px-3 py-1 rounded-full transition focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500"
+              [attr.aria-label]="'Présence pour ' + joueur.prenom + ' le ' + jour"
+            >
+              {{ presenceParJour[joueur.id][jour] ? 'Présent' : 'Absent' }}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
