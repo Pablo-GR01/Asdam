@@ -14,6 +14,8 @@ import { MessageC } from '../page/Coach/message-c/message-c';
 import { AbsentsC } from '../page/Coach/absents-c/absents-c';
 import { PlanningJ } from '../page/Joueur/planning-j/planning-j';
 import { ActualiteC } from '../page/Coach/actualite-c/actualite-c';
+import { AbsentsJ } from '../page/Joueur/absents-j/absents-j';
+import { ParametresC } from '../page/Coach/parametres-c/parametres-c';
 
 
 
@@ -27,6 +29,7 @@ export const routes: Routes = [
     {path:'notificationsJ', component:NotifJ},
     {path:'notificationsJ/messagesJ', component:MessageJ},
     {path:'PlanningJ', component:PlanningJ},
+    {path:'absentsJ', component:AbsentsJ},
     
     //Coach
     {path:'accueilC', component:AcceuilC},
@@ -35,6 +38,7 @@ export const routes: Routes = [
     {path:'matchC', component:MatchC},
     {path:'notificationsC', component:NotifC},
     {path:'dashboardC/profileC', component:ProfilC},
+    {path:'dashboardC/settingsC', component:ParametresC},
     {path:'messagesC', component:MessageC},
     {path:'absentsC', component:AbsentsC},
     {path:'actualiteC', component:ActualiteC},

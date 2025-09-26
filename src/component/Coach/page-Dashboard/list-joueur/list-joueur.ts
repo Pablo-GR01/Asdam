@@ -11,15 +11,26 @@ import { UtilisateurService, User } from '../../../../../services/userService/ut
 })
 export class ListJoueur implements OnInit {
   joueurs: User[] = [];
+  utilisateurConnecte: User | null = null;
   loading = true;
 
   constructor(private userService: UtilisateurService) {}
 
   ngOnInit(): void {
+    // 🔹 Récupérer l'id de l'utilisateur connecté depuis le localStorage
+    const userLocal = localStorage.getItem('utilisateur');
+    const userId = userLocal ? JSON.parse(userLocal).id : null;
+
+    // 🔹 Récupérer tous les joueurs
     this.userService.getJoueurs().subscribe({
       next: (data) => {
-        // 🔹 Filtrer uniquement les utilisateurs avec role 'joueur'
         this.joueurs = data.filter(user => user.role?.toLowerCase() === 'joueur');
+
+        // 🔹 Trouver l'utilisateur connecté dans la liste
+        if (userId) {
+          this.utilisateurConnecte = this.joueurs.find(user => user.id === userId) || null;
+        }
+
         this.loading = false;
       },
       error: (err) => {

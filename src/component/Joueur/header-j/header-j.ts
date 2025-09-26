@@ -1,16 +1,16 @@
-import { Component, HostListener, OnInit } from '@angular/core';
+// src/app/component/Coach/header-c/header-c.ts
+import { Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { ProfileService } from '../../../../services/userService/Profil.Service';
-import { ConvocationService } from '../../../../services/convocation.service';
 import { Icon } from '../../icon/icon';
 import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
+import { MessageService } from '../../../../services/message.service';
 
 interface MenuItem {
   title: string;
   link: string;
   icon: string;
-  count?: number; // compteur optionnel
 }
 
 interface MobileMenu {
@@ -27,10 +27,11 @@ interface MobileMenu {
   templateUrl: './header-j.html',
   styleUrls: ['./header-j.css']
 })
-export class HeaderJ implements OnInit {
+export class HeaderJ {
   private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
+  unreadMessages = 1; // compteur de messages non lus
 
   mobileMenus: MobileMenu[] = [
     {
@@ -38,9 +39,8 @@ export class HeaderJ implements OnInit {
       icon: 'fas fa-newspaper',
       link: '/actualiteC',
       items: [
-        { title: 'Dernières news', link: '/actualiteC/newsJ', icon: 'fas fa-bolt' },
-        { title: 'Communiqués', link: '/actualiteC/communiquesJ', icon: 'fas fa-bullhorn' },
-        { title: 'Archives', link: '/actualiteC/archivesJ', icon: 'fas fa-archive' }
+        { title: 'Communiqués', link: '/actualiteC/communiquesC', icon: 'fas fa-bullhorn' },
+        { title: 'Archives', link: '/actualiteC/archivesC', icon: 'fas fa-archive' }
       ]
     },
     {
@@ -48,47 +48,40 @@ export class HeaderJ implements OnInit {
       icon: 'fas fa-futbol',
       link: '/matchC',
       items: [
-        { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users', count: 0 },
-        { title: 'Résultats', link: '/matchJ/resultatsJ', icon: 'fas fa-trophy' },
-        { title: 'Calendrier', link: '/matchJ/calendrierJ', icon: 'fas fa-calendar-check' }
+        { title: 'Convocations', link: '/matchC/convocationsC', icon: 'fas fa-users' },
+        { title: 'Résultats', link: '/matchC/resultatsC', icon: 'fas fa-trophy' },
+        { title: 'Calendrier', link: '/matchC/calendrierC', icon: 'fas fa-calendar-check' }
       ]
     },
     {
       title: 'Planning',
       icon: 'fas fa-calendar-alt',
-      link: '/PlanningJ',
+      link: '/PlanningC',
       items: [
-        { title: 'Entraînements', link: '/planningJ/entrainementsJ', icon: 'fas fa-dumbbell' },
-        { title: 'Événements', link: '/planningJ/evenementsJ', icon: 'fas fa-star' },
-        { title: 'Stages', link: '/planningJ/stagesJ', icon: 'fas fa-graduation-cap' }
+        { title: 'Entraînements', link: '/planningC/entrainementsC', icon: 'fas fa-dumbbell' },
+        { title: 'Événements', link: '/planningC/evenementsC', icon: 'fas fa-star' },
+        { title: 'Stages', link: '/planningC/stagesC', icon: 'fas fa-graduation-cap' }
       ]
     },
     {
-      title: 'Notifications',
-      icon: 'fas fa-bell',
-      link: '/notificationsJ',
-      items: [
-        { title: 'Messages', link: '/notificationsJ/messagesJ', icon: 'fas fa-envelope' },
-        { title: 'Alertes', link: '/notificationsJ/alertesJ', icon: 'fas fa-exclamation-triangle' }
-      ]
+      title: 'Messages',
+      icon: 'fas fa-envelope',
+      link: '/messagesC',
+      items: []
     },
     {
-      title: 'Stats',
-      icon: 'fas fa-chart-line',
-      link: '/statsJ',
-      items: [
-        { title: 'Joueurs', link: '/statsJ/joueursJ', icon: 'fas fa-user-friends' },
-        { title: 'Matchs', link: '/statsJ/matchsJ', icon: 'fas fa-futbol' },
-        { title: 'Performances', link: '/statsJ/performancesJ', icon: 'fas fa-bolt' }
-      ]
+      title: 'Absents',
+      icon: 'fas fa-user-slash',
+      link: '/absentsC',
+      items: [],
     },
     {
       title: 'Dashboard',
       icon: 'fas fa-tachometer-alt',
-      link: '/dashboardJ',
+      link: '/dashboardC',
       items: [
-        { title: 'Mon Profil', link: '/dashboardJ/profileJ', icon: 'fas fa-user' },
-        { title: 'Paramètres', link: '/dashboardJ/settingsJ', icon: 'fas fa-cog' },
+        { title: 'Mon Profil', link: '/dashboardC/profileC', icon: 'fas fa-user' },
+        { title: 'Paramètres', link: '/dashboardC/settingsC', icon: 'fas fa-cog' },
         { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
     }
@@ -97,35 +90,19 @@ export class HeaderJ implements OnInit {
   constructor(
     private router: Router,
     private userprofile: ProfileService,
-    private convService: ConvocationService
+    private messageService: MessageService
   ) {
+    // Dark mode
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
     this.updateTheme();
-  }
 
-  convocationsMenuItem?: MenuItem;
-
-ngOnInit(): void {
-  const username = this.userprofile.getUsername(); // récupère le nom de l'utilisateur connecté
-  if (username) {
-    this.convService.getConvocationsByUser(username).subscribe(convocations => {
-      // Trouver l'item Convocations dans le menu Match
-      const matchMenu = this.mobileMenus.find(menu => menu.title === 'Match');
-      if (matchMenu) {
-        const convItem = matchMenu.items.find(item => item.title === 'Convocations');
-        if (convItem) {
-          // Vérifie si l'utilisateur est dans au moins une convocation
-          const userInConv = convocations.some(conv => 
-            conv.joueurs.some(j => j.nom === username)
-          );
-          convItem.count = userInConv ? 1 : 0;
-          this.convocationsMenuItem = convItem; // ⚡ pour le template
-        }
-      }
+    // Initialiser le compteur de messages non lus
+    this.messageService.unreadCount$.subscribe(count => {
+      this.unreadMessages = count;
     });
+    const userId = localStorage.getItem('userId');
+    if (userId) this.messageService.getUnreadCount(userId);
   }
-}
-
 
   get mobileMenuOpen(): boolean {
     return this._mobileMenuOpen;
@@ -174,7 +151,9 @@ ngOnInit(): void {
 
   deconnecter(): void {
     localStorage.clear();
+    sessionStorage.clear();
     this.userprofile.clearProfile();
-    this.router.navigate(['/connexion']);
+
   }
+  
 }

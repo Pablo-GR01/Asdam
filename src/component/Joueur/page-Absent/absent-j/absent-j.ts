@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component,OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -7,13 +7,13 @@ import { UtilisateurService, User } from '../../../../../services/userService/ut
 type Toast = { message: string; type: 'success' | 'error' };
 
 @Component({
-  selector: 'app-absent-c',
-  templateUrl: './absent-c.html',
-  styleUrls: ['./absent-c.css'],
+  selector: 'app-absent-j',
+  templateUrl: './absent-j.html',
+  styleUrls: ['./absent-j.css'],
   standalone: true,
   imports: [FormsModule, CommonModule, HttpClientModule]
 })
-export class AbsentC implements OnInit {
+export class AbsentJ implements OnInit {
   joueurs: User[] = [];
   utilisateurConnecte?: any;
   equipeFiltre = '';
@@ -107,7 +107,14 @@ export class AbsentC implements OnInit {
     return ['coach', 'admin', 'superadmin'].includes(role) || joueurId === this.utilisateurConnecte._id;
   }
 
- 
+  confirmSetPresence(joueurId: string, jour: string, present: boolean) {
+    if (this.utilisateurConnecte?.role === 'joueur' && joueurId === this.utilisateurConnecte._id) {
+      const confirmed = confirm(`Confirmer votre présence pour ${jour} ?`);
+      if (!confirmed) return;
+    }
+    this.setPresence(joueurId, jour, present);
+  }
+
   setPresence(joueurId: string, jour: string, present: boolean) {
     if (!this.presenceParJour[joueurId]) this.presenceParJour[joueurId] = {};
     this.presenceParJour[joueurId][jour] = present;
@@ -173,20 +180,4 @@ export class AbsentC implements OnInit {
     this.toast = { message, type };
     setTimeout(() => (this.toast = null), 3000);
   }
-
-  confirmSetPresence(joueurId: string, jour: string, present: boolean) {
-    // Si l'utilisateur est un joueur
-    if (this.utilisateurConnecte?.role === 'joueur') {
-      // Il ne peut changer que son propre statut
-      if (joueurId !== this.utilisateurConnecte._id) {
-        this.showToast("Vous ne pouvez modifier que votre propre présence.", "error");
-        return;
-      }
-      const confirmed = confirm(`Confirmer votre présence pour ${jour} ?`);
-      if (!confirmed) return;
-    }
-    // Coach/admin peuvent modifier tout le monde
-    this.setPresence(joueurId, jour, present);
-  }
-  
 }

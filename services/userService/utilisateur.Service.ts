@@ -75,4 +75,16 @@ export class UtilisateurService {
   getJoueurs(): Observable<User[]> {
     return this.http.get<User[]>(this.joueursUrl);
   }
+
+
+  getUserById(id: string) {
+    return this.http.get<User>(`http://localhost:3000/api/users/${id}`);
+  }
+
+  // Ajoute cette méthode pour supprimer un utilisateur par son ID
+  deleteUser(userId: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${userId}`);
+  }
+
+  
 }

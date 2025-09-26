@@ -1,22 +1,49 @@
 <section class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
-    <h2 class="text-2xl font-bold mb-6">Liste des joueurs</h2>
-  
-    <div *ngIf="loading" class="text-gray-500">Chargement...</div>
-  
-    <ul *ngIf="!loading && joueurs.length > 0" class="space-y-4">
-      <li *ngFor="let j of joueurs" class="p-4 border rounded-lg flex items-center gap-4">
-        <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
-          {{ j.initiale }}
+  <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Liste des joueurs</h2>
+
+  <!-- 🔹 Utilisateur connecté -->
+  <div *ngIf="utilisateurConnecte" class="mb-6 p-4 bg-green-100 rounded-lg flex items-center gap-4">
+    <div class="w-14 h-14 flex items-center justify-center rounded-full bg-green-600 text-white text-xl font-bold">
+      {{ utilisateurConnecte.initiale || '?' }}
+    </div>
+    <div>
+      <p class="font-semibold text-gray-800">{{ utilisateurConnecte.prenom }} {{ utilisateurConnecte.nom }}</p>
+      <div class="flex gap-2 mt-1">
+        <span *ngIf="utilisateurConnecte.club" class="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">
+          {{ utilisateurConnecte.club }}
+        </span>
+        <span *ngIf="utilisateurConnecte.equipe" class="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">
+          {{ utilisateurConnecte.equipe }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔹 Loader -->
+  <div *ngIf="loading" class="space-y-2 animate-pulse">
+    <div class="h-6 bg-gray-200 rounded w-1/3 mx-auto"></div>
+    <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+    <div class="h-48 bg-gray-100 rounded"></div>
+  </div>
+
+  <!-- 🔹 Liste des joueurs -->
+  <ul *ngIf="!loading && joueurs.length > 0" class="space-y-4">
+    <li *ngFor="let j of joueurs" class="p-4 border rounded-lg flex items-center gap-4 hover:shadow-lg transition-shadow duration-200">
+      <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
+        {{ j.initiale || '?' }}
+      </div>
+      <div class="flex-1">
+        <p class="font-semibold text-gray-800">{{ j.prenom }} {{ j.nom }}</p>
+        <div class="flex gap-2 mt-1 text-sm">
+          <span *ngIf="j.club" class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ j.club }}</span>
+          <span *ngIf="j.equipe" class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ j.equipe }}</span>
         </div>
-        <div>
-          <p class="font-semibold">{{ j.prenom }} {{ j.nom }}</p>
-          <p class="text-sm text-gray-500">{{ j.club }} - {{ j.equipe }}</p>
-        </div>
-      </li>
-    </ul>
-  
-    <p *ngIf="!loading && joueurs.length === 0" class="text-gray-500">
-      Aucun joueur trouvé.
-    </p>
+      </div>
+    </li>
+  </ul>
+
+  <!-- 🔹 Aucun joueur trouvé -->
+  <p *ngIf="!loading && joueurs.length === 0" class="text-center text-gray-500 mt-4">
+    Aucun joueur trouvé.
+  </p>
 </section>
-  

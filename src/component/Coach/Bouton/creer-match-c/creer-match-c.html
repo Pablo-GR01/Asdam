@@ -1,8 +1,8 @@
-<!-- Bouton pour ouvrir la modal -->
+<!-- Bouton créer match -->
 <div class="flex justify-center mt-10">
   <button type="button" (click)="openModal()"
-          class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)]
-                 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-rose-400/40
+          class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)]
+                 text-[var(--Blanc)] font-semibold shadow-lg hover:scale-105 hover:shadow-rose-400/40
                  transition-transform duration-200 ease-in-out">
     <i class="fa-solid fa-plus"></i>
     Créer un match
@@ -12,77 +12,70 @@
 <!-- Modal -->
 <div *ngIf="showModal"
      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-  <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl border border-gray-100 p-6">
+  <div class="w-full max-w-lg rounded-3xl bg-white/95 backdrop-blur-xl shadow-2xl border border-[var(--Rouge)]/20 p-6">
 
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-gray-900">Créer un match</h2>
-      <button (click)="closeModal()" class="text-gray-400 hover:text-red-500 text-2xl">✕</button>
+      <h2 class="text-xl font-bold text-[var(--Rouge-Foncé)]">Créer un match</h2>
+      <button (click)="closeModal()" class="text-[var(--Rouge)] hover:text-[var(--Rouge-Foncé)] text-2xl">✕</button>
     </div>
 
-    <!-- Prévisualisation des équipes -->
+    <!-- Prévisualisation équipes -->
     <div class="flex gap-4 items-center justify-center mb-6">
       <div class="flex flex-col items-center">
         <img [src]="match.logoA" alt="{{match.equipeA}}" class="h-16 w-16 rounded-full shadow-md"/>
-        <span class="mt-2 font-medium">{{ match.equipeA }}</span>
+        <span class="mt-2 font-medium text-gray-700">{{ match.equipeA }}</span>
       </div>
-      <div class="text-xl font-bold">VS</div>
+      <div class="text-xl font-bold text-gray-800">VS</div>
       <div class="flex flex-col items-center">
         <img *ngIf="match.equipeB" [src]="match.logoB" alt="{{match.equipeB}}" class="h-16 w-16 rounded-full shadow-md"/>
-        <span class="mt-2 font-medium">{{ match.equipeB || 'Sélectionnez une équipe' }}</span>
+        <span class="mt-2 font-medium text-gray-700">{{ match.equipeB || 'Sélectionnez une équipe' }}</span>
       </div>
     </div>
 
     <!-- Formulaire -->
     <form (ngSubmit)="creerMatch()" class="space-y-4">
 
-      <!-- Équipe B : menu déroulant -->
       <label class="block">
         <span class="text-gray-700 font-medium">Équipe Adverse</span>
-        <select [(ngModel)]="match.equipeB" name="equipeB" required
-                (ngModelChange)="updateLogos()"
-                class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition">
+        <select [(ngModel)]="match.equipeB" name="equipeB" required (ngModelChange)="updateLogos()"
+                class="mt-1 w-full rounded-xl border border-[var(--Rouge)]/30 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition">
           <option value="" disabled selected>-- Choisir une équipe --</option>
           <option *ngFor="let club of equipesAdverses" [value]="club">{{ club }}</option>
         </select>
       </label>
 
-      <!-- Date -->
       <label class="block">
         <span class="text-gray-700 font-medium">Date et heure</span>
         <input [(ngModel)]="match.date" name="date" type="datetime-local" required
-               class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition"/>
+               class="mt-1 w-full rounded-xl border border-[var(--Rouge)]/30 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition"/>
       </label>
 
-      <!-- Lieu -->
       <label class="block">
         <span class="text-gray-700 font-medium">Lieu</span>
         <input [(ngModel)]="match.lieu" name="lieu" required
-               class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition"/>
+               class="mt-1 w-full rounded-xl border border-[var(--Rouge)]/30 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition"/>
       </label>
 
-      <!-- Catégorie -->
       <label class="block">
         <span class="text-gray-700 font-medium">Catégorie</span>
         <select [(ngModel)]="match.categorie" name="categorie" required
-                class="mt-1 w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition">
+                class="mt-1 w-full rounded-xl border border-[var(--Rouge)]/30 px-3 py-2 shadow-sm focus:ring-2 focus:ring-[var(--Rouge)] focus:outline-none transition">
           <option value="" disabled selected>-- Sélectionner une catégorie --</option>
           <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
         </select>
       </label>
 
-      <!-- Messages -->
       <p *ngIf="successMsg" class="text-green-600">{{ successMsg }}</p>
       <p *ngIf="errorMsg" class="text-red-600">{{ errorMsg }}</p>
 
-      <!-- Boutons -->
       <div class="flex justify-end gap-3 mt-4">
         <button type="button" (click)="closeModal()"
                 class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gray-100 text-gray-800 font-semibold shadow hover:bg-gray-200 hover:scale-105 transition-transform duration-200 ease-in-out">
           Annuler
         </button>
         <button type="submit" [disabled]="loading"
-                class="flex items-center gap-2 px-5 py-3 rounded-xl bg-[var(--Rouge)] text-white font-semibold shadow hover:scale-105 transition-transform duration-200 ease-in-out">
+                class="flex items-center gap-2 px-5 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] font-semibold shadow hover:scale-105 transition-transform duration-200 ease-in-out">
           <i class="fa-solid fa-check"></i>
           {{ loading ? 'Création...' : 'Créer le match' }}
         </button>

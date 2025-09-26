@@ -1,77 +1,61 @@
-<!-- BOUTON PRINCIPAL -->
+<!-- Bouton créer convocation -->
 <div class="flex justify-center mt-10">
-  <button
-    *ngIf="!hideMainBtn"
-    (click)="openModal()"
-    class="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)]
-           text-white font-semibold shadow-lg hover:scale-105 hover:shadow-rose-400/50
-           transition-transform duration-200 ease-in-out">
+  <button *ngIf="!hideMainBtn" (click)="openModal()"
+          class="flex items-center gap-3 px-6 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)]
+                 text-[var(--Blanc)] font-semibold shadow-lg hover:scale-105 hover:shadow-rose-400/50
+                 transition-transform duration-200 ease-in-out">
     <i class="fa-solid fa-plus"></i>
     Créer une convocation
   </button>
 </div>
 
-<!-- MODAL ÉTAPE 1 : INFOS MATCH -->
+<!-- Modal étape 1 -->
 <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
   <div class="w-full max-w-2xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden
               bg-white/95 backdrop-blur-xl flex flex-col">
 
-    <!-- Header -->
-    <div class="px-6 py-5 bg-rose-600 text-white flex justify-between items-center">
+    <div class="px-6 py-5 bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] flex justify-between items-center">
       <h2 class="text-2xl font-bold">Nouvelle convocation</h2>
-      <button (click)="closeModal()"
-              class="p-2 rounded-full hover:bg-white/20 transition">
+      <button (click)="closeModal()" class="p-2 rounded-full hover:bg-white/20 transition">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
-    <p class="text-sm text-white/80 mt-1 px-6">Étape 1 sur 2 · Informations du match</p>
+    <p class="text-sm text-[var(--Blanc)]/80 mt-1 px-6">Étape 1 sur 2 · Informations du match</p>
 
-    <!-- Formulaire -->
     <form (ngSubmit)="creerConvocation()" class="flex-1 px-6 py-6 space-y-5 overflow-y-auto">
 
       <label class="block">
         <span class="text-gray-700 font-semibold">Match</span>
         <input [(ngModel)]="convocation.match" name="match" required placeholder="Ex : U13 vs FC exemple"
-               class="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 transition"/>
+               class="mt-2 w-full rounded-xl border border-[var(--Rouge)]/30 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] transition"/>
       </label>
 
       <label class="block">
         <span class="text-gray-700 font-semibold">Équipe</span>
         <select [(ngModel)]="convocation.equipe" name="equipe" (change)="onEquipeChange()" required
-                class="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 transition">
+                class="mt-2 w-full rounded-xl border border-[var(--Rouge)]/30 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] transition">
           <option value="" disabled>-- Choisissez une équipe --</option>
           <option *ngFor="let eq of equipes" [value]="eq">{{ eq }}</option>
         </select>
       </label>
 
+      <!-- Date & Lieu -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <label class="block">
           <span class="text-gray-700 font-semibold">Date & heure</span>
           <input [(ngModel)]="convocation.date" name="date" type="datetime-local" required
-                 class="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 transition"/>
+                 class="mt-2 w-full rounded-xl border border-[var(--Rouge)]/30 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] transition"/>
         </label>
-
         <label class="block">
           <span class="text-gray-700 font-semibold">Lieu</span>
           <input [(ngModel)]="convocation.lieu" name="lieu" required placeholder="Stade municipal"
-                 class="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-400 transition"/>
+                 class="mt-2 w-full rounded-xl border border-[var(--Rouge)]/30 px-4 py-3 shadow-sm focus:outline-none focus:ring-2 focus:ring-[var(--Rouge)] transition"/>
         </label>
       </div>
 
-      <!-- Joueurs déjà sélectionnés -->
-      <div *ngIf="convocation.joueurs.length > 0" class="mt-4">
-        <p class="text-sm text-gray-600 mb-2">Joueurs convoqués :</p>
-        <div class="flex flex-wrap gap-2">
-          <span *ngFor="let j of convocation.joueurs" class="px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm font-medium">
-            {{ j.prenom }} {{ j.nom }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Bouton étape suivante -->
       <div class="pt-4 flex justify-end">
         <button type="button" *ngIf="convocation.equipe" (click)="openComposeModal()"
-                class="flex items-center gap-2 px-6 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg hover:scale-105 hover:bg-indigo-700 transition-transform duration-200 ease-in-out">
+                class="flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] font-semibold shadow-lg hover:scale-105 transition-transform duration-200 ease-in-out">
           <i class="fa-solid fa-arrow-right"></i>
           Étape suivante · Sélection des joueurs
         </button>
@@ -80,18 +64,17 @@
   </div>
 </div>
 
-<!-- MODAL ÉTAPE 2 : SÉLECTION JOUEURS -->
+<!-- Modal étape 2 -->
 <div *ngIf="showComposeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
   <div class="w-full max-w-3xl max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden bg-white/95 backdrop-blur-xl flex flex-col">
 
-    <!-- Header -->
-    <div class="px-6 py-5 bg-indigo-600 text-white flex justify-between items-center">
+    <div class="px-6 py-5 bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] flex justify-between items-center">
       <h3 class="text-2xl font-bold">Sélection des joueurs</h3>
       <button (click)="closeComposeModal()" class="p-2 rounded-full hover:bg-white/20 transition">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>
-    <p class="text-sm text-white/80 mt-1 px-6">{{ composeJoueurs.length }} / {{ maxJoueurs }} joueurs sélectionnés</p>
+    <p class="text-sm text-[var(--Blanc)]/80 mt-1 px-6">{{ composeJoueurs.length }} / {{ maxJoueurs }} joueurs sélectionnés</p>
 
     <!-- Grille joueurs -->
     <div class="flex-1 px-6 py-6 overflow-y-auto">
@@ -101,7 +84,7 @@
                     hover:shadow-lg hover:scale-[1.02] transition">
 
           <div class="flex items-center gap-3">
-            <div class="w-12 h-12 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-lg">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] flex items-center justify-center font-bold text-lg">
               {{ getInitiale(joueur) }}
             </div>
             <div>
@@ -110,13 +93,11 @@
           </div>
 
           <div class="mt-2 flex gap-2">
-            <button *ngIf="!joueur.action || joueur.action !== 'ajoute'"
-                    (click)="ajouterJoueur(joueur)"
+            <button *ngIf="!joueur.action || joueur.action !== 'ajoute'" (click)="ajouterJoueur(joueur)"
                     class="px-3 py-1 rounded-xl bg-green-500 text-white font-semibold hover:bg-green-600 transition-transform duration-200 ease-in-out">
               <i class="fa-solid fa-plus"></i> Ajouter
             </button>
-            <button *ngIf="joueur.action === 'ajoute'"
-                    (click)="retirerJoueur(joueur)"
+            <button *ngIf="joueur.action === 'ajoute'" (click)="retirerJoueur(joueur)"
                     class="px-3 py-1 rounded-xl bg-red-500 text-white font-semibold hover:bg-red-600 transition-transform duration-200 ease-in-out">
               <i class="fa-solid fa-trash"></i> Retirer
             </button>
@@ -137,18 +118,10 @@
         <i class="fa-solid fa-xmark"></i> Annuler
       </button>
       <button (click)="validerCompose()" [disabled]="composeJoueurs.length === 0"
-              class="flex items-center gap-2 px-6 py-2 rounded-xl bg-indigo-600 text-white font-semibold shadow-lg
-                     hover:scale-105 hover:bg-indigo-700 transition-transform duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+              class="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-br from-[var(--Rouge-Foncé)] to-[var(--Rouge)] text-[var(--Blanc)] font-semibold shadow-lg
+                     hover:scale-105 transition-transform duration-200 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
         <i class="fa-solid fa-check"></i> Valider la composition
       </button>
     </div>
   </div>
-</div>
-
-<!-- TOAST FEEDBACK -->
-<div *ngIf="successMsg || errorMsg"
-     class="fixed bottom-6 right-6 z-50 px-5 py-3 rounded-2xl shadow-lg text-white animate-fade-in"
-     [class.bg-green-500]="successMsg"
-     [class.bg-red-500]="errorMsg">
-  {{ successMsg || errorMsg }}
 </div>
