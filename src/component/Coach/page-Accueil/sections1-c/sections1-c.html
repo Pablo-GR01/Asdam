@@ -3,55 +3,52 @@
 
 <app-header-c></app-header-c>
 
-<!-- HERO SECTION ––––––––––––––––––––––––––––––– -->
-<section class="-mt-14 relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-black"
+<section class="-mt-16 relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-black"
          aria-labelledby="hero-title">
 
-  <!-- Image de fond avec effet parallaxe -->
+  <!-- Image de fond -->
   <img src="assets/bgacceuil.jpg"
-       alt="Stade de football éclairé de nuit, ambiance nocturne"
+       alt="Stade de football éclairé de nuit"
        class="absolute inset-0 -z-20 h-full w-full object-cover object-center parallax-bg"
-       fetchpriority="high" loading="eager" 
-  />
+       fetchpriority="high" loading="eager" />
 
-  <!-- COLONNE GAUCHE : contenu principal -->
-  <main class="mt-10 z-10 flex flex-col justify-center px-6 lg:px-12 text-center lg:text-left">
-    <div class="max-w-xl">
+  <!-- COLONNE GAUCHE -->
+  <main class="mt-22 z-10 flex flex-col justify-center px-6 sm:px-8 lg:px-12 text-center lg:text-left">
+    <div class="max-w-xl mx-auto lg:mx-0">
 
-      <!-- Badge animé -->
-      <div class="inline-flex items-center gap-2 mb-6 px-4 py-2 bg-[var(--Blanc)/10 backdrop-blur-sm rounded-full border border-[var(--Rouge-Clair)] animate-fade-in">
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 mb-6 px-3 sm:px-4 py-1 sm:py-2 bg-[var(--Blanc)/10] backdrop-blur-sm rounded-full border border-[var(--Rouge-Clair)] animate-fade-in">
         <div class="w-2 h-2 bg-[var(--Rouge-Clair)] rounded-full"></div>
-        <span class="text-sm font-medium text-[var(--Blanc)]">Saison 2024-2025</span>
+        <span class="text-sm sm:text-base font-medium text-[var(--Blanc)]">Saison 2024-2025</span>
       </div>
 
-      <!-- Slogan avec animations -->
-      <h1 id="hero-title" class="font-extrabold uppercase tracking-tight text-[clamp(3rem,10vw,8rem)] leading-none animate-slide-in-left"
+      <!-- Titres -->
+      <h1 id="hero-title" class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] sm:text-[clamp(3rem,8vw,7rem)] leading-none animate-slide-in-left"
           style="font-family: 'Poppins', sans-serif;">
-        <span class="bg-[var(--Rouge)] text-[var(--Blanc)] px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">TEAM</span>
+        <span class="bg-[var(--Rouge)] text-[var(--Blanc)] px-3 sm:px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">TEAM</span>
       </h1>
-      <h1 class="font-extrabold uppercase tracking-tight text-[clamp(3rem,10vw,8rem)] leading-none mt-2 animate-slide-in-right"
+      <h1 class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] sm:text-[clamp(3rem,8vw,7rem)] leading-none mt-2 animate-slide-in-right"
           style="font-family: 'Train One', sans-serif;">
-        <span class="bg-[var(--Blanc)] text-[var(--Rouge)] px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">ASDAM</span>
+        <span class="bg-[var(--Blanc)] text-[var(--Rouge)] px-3 sm:px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">ASDAM</span>
       </h1>
 
-      <!-- Sous-titre amélioré -->
-      <p class="mt-6 text-base sm:text-lg lg:text-xl leading-relaxed text-[var(--Blanc)] font-secondary bg-[var(--Blanc)]/5 backdrop-blur-sm p-4 rounded-lg border border-[var(--Blanc)]/10 animate-fade-in"
+      <!-- Sous-titre -->
+      <p class="mt-6 text-sm sm:text-base lg:text-lg leading-relaxed text-[var(--Blanc)] font-secondary bg-[var(--Blanc)]/5 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-[var(--Blanc)]/10 animate-fade-in"
          style="font-family: 'Roboto', sans-serif;">
         TeamAsdam, c'est l'actualité, les matchs et le planning.
       </p>
 
-      <!-- CTA améliorés -->
+      <!-- CTA -->
       <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in">
         <button routerLink="/PlanningC"
-                class="group relative inline-flex items-center gap-2 bg-[var(--Rouge)] text-[var(--Blanc)] px-8 py-4 rounded-xl font-bold text-lg hover:shadow-2xl hover:shadow-red-500/50 hover:scale-110 transition-all duration-300 overflow-hidden">
-          <svg class="w-6 h-6 group-hover:scale-125 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                class="group relative inline-flex items-center gap-2 bg-[var(--Rouge)] text-[var(--Blanc)] px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl hover:shadow-red-500/50 hover:scale-110 transition-all duration-300 overflow-hidden">
+          <svg class="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-125 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
           <span>Planning</span>
-          <div class="absolute inset-0 bg-[var(--Blanc)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
         </button>
         <a routerLink="/matchC"
-           class="group relative inline-flex items-center gap-2 border-2 border-white text-white px-8 py-4 rounded-xl font-bold text-lg hover:bg-white hover:text-black hover:shadow-2xl hover:scale-110 transition-all duration-300">
+           class="group relative inline-flex items-center gap-2 border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-black hover:shadow-2xl hover:scale-110 transition-all duration-300">
           <span>Les Matchs</span>
-          <svg class="w-5 h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
           </svg>
         </a>
@@ -60,31 +57,25 @@
     </div>
   </main>
 
-  <!-- COLONNE DROITE : logo + réseaux -->
-  <aside class="z-10 flex flex-col items-center justify-center px-6 lg:px-8 gap-8">
-    <!-- Logo avec effet de flottement -->
+  <!-- COLONNE DROITE -->
+  <aside class="z-10 flex flex-col items-center justify-center px-6 lg:px-8 gap-6 sm:gap-8 mt-10 lg:mt-0">
+    <!-- Logo -->
     <div class="relative group">
       <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)] rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
       <img src="assets/LOGO.png"
            alt="Logo officiel de TeamAsdam"
-           class="w-[clamp(12rem,30vw,20rem)] drop-shadow-2xl hover:scale-110 transition-transform duration-500 will-change-transform relative z-10" />
+           class="w-[clamp(10rem,25vw,18rem)] sm:w-[clamp(12rem,30vw,20rem)] drop-shadow-2xl hover:scale-110 transition-transform duration-500 relative z-10" />
     </div>
 
-    <!-- Réseaux sociaux améliorés -->
-    <div class="flex gap-6 text-[var(--Blanc)]">
+    <!-- Réseaux sociaux -->
+    <div class="flex flex-row sm:flex-row gap-4 sm:gap-6 text-[var(--Blanc)]">
       <a href="https://instagram.com/teamasdam" target="_blank" aria-label="Instagram" 
-         class="group relative p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
-        <svg class="w-9 h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.85s-.011 3.584-.069 4.85c-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07s-3.584-.012-4.85-.07c-3.252-.148-4.771-1.691-4.919-4.919-.058-1.265-.069-1.645-.069-4.85s.011-3.584.069-4.85c.149-3.225 1.664-4.771 4.919-4.919C8.416 2.175 8.796 2.163 12 2.163zm0 1.802C9.042 3.965 8.71 3.977 7.437 4.038c-2.4.11-3.147 1.274-3.257 3.257-.06 1.274-.072 1.605-.072 4.563s.012 3.29.072 4.563c.11 1.983.857 3.147 3.257 3.257 1.274.06 1.605.072 4.563.072s3.29-.012 4.563-.072c1.983-.11 3.147-.857 3.257-3.257.06-1.274.072-1.605.072-4.563s-.012-3.29-.072-4.563c-.11-1.983-.857-3.147-3.257-3.257-1.274-.06-1.605-.072-4.563-.072zM12 6.837c-2.846 0-5.163 2.317-5.163 5.163s2.317 5.163 5.163 5.163 5.163-2.317 5.163-5.163-2.317-5.163-5.163-5.163zm0 8.482c-1.833 0-3.319-1.486-3.319-3.319s1.486-3.319 3.319-3.319 3.319 1.486 3.319 3.319-1.486 3.319-3.319 3.319zm4.332-6.605c-.624 0-1.13.506-1.13 1.13s.506 1.13 1.13 1.13 1.13-.506 1.13-1.13-.506-1.13-1.13-1.13z"/>
-        </svg>
-        <div class="absolute inset-0 border-2 border-[var(--Rouge)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-0 group-hover:scale-100"></div>
+         class="group relative p-2 sm:p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
+        <svg class="w-7 sm:w-9 h-7 sm:h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">...</svg>
       </a>
       <a href="https://twitter.com/teamasdam" target="_blank" aria-label="Twitter" 
-         class="group relative p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
-        <svg class="w-9 h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98-3.56-.18-6.73-1.89-8.84-4.48-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.22-1.95-.55v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.94.08 4.28 4.28 0 0 0 4 2.98 8.52 8.52 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21c7.34 0 11.35-6.08 11.35-11.35 0-.17 0-.34-.01-.51.78-.57 1.45-1.28 1.99-2.09z"/>
-        </svg>
-        <div class="absolute inset-0 border-2 border-[var(--Rouge)] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 scale-0 group-hover:scale-100"></div>
+         class="group relative p-2 sm:p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
+        <svg class="w-7 sm:w-9 h-7 sm:h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">...</svg>
       </a>
     </div>
   </aside>
