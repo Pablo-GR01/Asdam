@@ -2,7 +2,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-16">
 
     <!-- Espace Coach -->
-    <section class="bg-white/10 rounded-2xl p-8 lg:p-10 grid md:grid-cols-3 gap-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
+    <section class="bg-[var(--Gris)]/60 backdrop-blur-xl rounded-2xl p-8 lg:p-10 grid md:grid-cols-3 gap-8 shadow-lg hover:shadow-xl transition-shadow duration-300">
       <div class="md:col-span-2">
         <h2 class="text-[var(--Blanc)] font-extrabold text-3xl mb-2 leading-snug">
           Espace Coach :<br>
@@ -12,13 +12,11 @@
       </div>
       <div class="flex items-center justify-end">
         <a routerLink="/dashboardC"
-           class="inline-flex items-center gap-2 bg-[var(--Rouge)] hover:bg-[var(--Rouge-Foncé)] text-[var(--Blanc)] font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400">
+           class="inline-flex items-center gap-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] text-[var(--Blanc)] font-semibold px-6 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-400">
           Dashboard
           <fa-icon [icon]="faArrowRight" class="w-4 h-4 -mt-2"></fa-icon>
         </a>
       </div>
-      
-      
     </section>
 
     <!-- Grille principale -->

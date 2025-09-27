@@ -3,7 +3,7 @@
 
 <app-header-c></app-header-c>
 
-<section class="-mt-16 relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-black"
+<section class="-mt-16 pb-4 relative min-h-screen w-full isolate overflow-hidden grid grid-cols-1 lg:grid-cols-2 items-center bg-[var(--Black)]"
          aria-labelledby="hero-title">
 
   <!-- Image de fond -->
@@ -19,7 +19,7 @@
       <!-- Badge -->
       <div class="inline-flex items-center gap-2 mb-6 px-3 sm:px-4 py-1 sm:py-2 bg-[var(--Blanc)/10] backdrop-blur-sm rounded-full border border-[var(--Rouge-Clair)] animate-fade-in">
         <div class="w-2 h-2 bg-[var(--Rouge-Clair)] rounded-full"></div>
-        <span class="text-sm sm:text-base font-medium text-[var(--Blanc)]">Saison 2024-2025</span>
+        <span class="text-sm sm:text-base font-medium text-[var(--Blanc)]">Saison 2025-2026</span>
       </div>
 
       <!-- Titres -->
@@ -38,46 +38,79 @@
         TeamAsdam, c'est l'actualité, les matchs et le planning.
       </p>
 
-      <!-- CTA -->
-      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in">
+      <!-- CTA plus petits -->
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in">
+        <!-- Bouton Planning avec Font Awesome -->
         <button routerLink="/PlanningC"
-                class="group relative inline-flex items-center gap-2 bg-[var(--Rouge)] text-[var(--Blanc)] px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:shadow-2xl hover:shadow-red-500/50 hover:scale-110 transition-all duration-300 overflow-hidden">
-          <svg class="w-5 sm:w-6 h-5 sm:h-6 group-hover:scale-125 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+          class="group relative inline-flex items-center gap-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+                hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] text-[var(--Blanc)] 
+                px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base 
+                hover:scale-105 transition-all duration-300 overflow-hidden">
+
+          <!-- Icône Font Awesome -->
+          <i class="fa-solid fa-calendar-days text-sm sm:text-base transition-transform"></i>
+
           <span>Planning</span>
         </button>
+
+
+        <!-- Bouton Matchs avec Font Awesome -->
         <a routerLink="/matchC"
-           class="group relative inline-flex items-center gap-2 border-2 border-white text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl font-bold text-base sm:text-lg hover:bg-white hover:text-black hover:shadow-2xl hover:scale-110 transition-all duration-300">
+          class="group relative inline-flex items-center gap-2 border border-[var(--Blanc)] text-[var(--Blanc)]
+                px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base 
+                hover:bg-gradient-to-r hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:text-[var(--Blanc)] hover:shadow-xl hover:scale-105 
+                transition-all duration-300">
+
           <span>Les Matchs</span>
-          <svg class="w-4 sm:w-5 h-4 sm:h-5 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-          </svg>
+
+          <!-- Icône Font Awesome -->
+          <i class="fa-solid fa-futbol text-sm sm:text-base group-hover:translate-x-1.5 transition-transform"></i>
         </a>
       </div>
-
     </div>
   </main>
 
   <!-- COLONNE DROITE -->
-  <aside class="z-10 flex flex-col items-center justify-center px-6 lg:px-8 gap-6 sm:gap-8 mt-10 lg:mt-0">
-    <!-- Logo -->
+  <aside class="z-10 flex flex-col items-center justify-center px-6 lg:px-8 gap-8 mt-10 lg:mt-0">
+
+    <!-- Logo animé -->
     <div class="relative group">
-      <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)] rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity"></div>
+      <!-- Glow animé -->
+      <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Bleu)] rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-all duration-700 animate-pulse"></div>
+      
+      <!-- Logo -->
       <img src="assets/LOGO.png"
-           alt="Logo officiel de TeamAsdam"
-           class="w-[clamp(10rem,25vw,18rem)] sm:w-[clamp(12rem,30vw,20rem)] drop-shadow-2xl hover:scale-110 transition-transform duration-500 relative z-10" />
+          alt="Logo officiel de TeamAsdam"
+          class="w-[clamp(10rem,25vw,18rem)] sm:w-[clamp(12rem,30vw,20rem)] drop-shadow-2xl hover:scale-110 hover:rotate-3 transition-transform duration-500 relative z-10" />
     </div>
 
+    <!-- Texte tagline amélioré -->
+    <p class="relative px-4 py-3 rounded-2xl text-center text-[var(--Blanc)] text-base sm:text-lg font-medium max-w-xs 
+    bg-gradient-to-r from-[var(--Black)]/70 to-[var(--Black)]/40 backdrop-blur-md shadow-lg">
+
+    <span class="opacity-90">Rejoins la</span> 
+    <span class="font-extrabold text-[var(--Rouge)] drop-shadow-md ml-3 mr-3">ASDAM</span> 
+    <span class="opacity-90">et suis nos actus !</span>
+
+    <!-- Glow subtil -->
+    <span class="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--Rouge)]/20 to-[var(--Bleu)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></span>
+    </p>
+
     <!-- Réseaux sociaux -->
-    <div class="flex flex-row sm:flex-row gap-4 sm:gap-6 text-[var(--Blanc)]">
-      <a href="https://instagram.com/teamasdam" target="_blank" aria-label="Instagram" 
-         class="group relative p-2 sm:p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
-        <svg class="w-7 sm:w-9 h-7 sm:h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">...</svg>
+    <div class="flex flex-row gap-6 text-[var(--Blanc)]">
+      <!-- Instagram -->
+      <a href="https://instagram.com/teamasdam" target="_blank" aria-label="Instagram"
+        class="group relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 transition-all duration-500 shadow-lg">
+        <i class="fa-brands fa-instagram text-2xl sm:text-3xl relative z-10 group-hover:text-white transition-colors"></i>
       </a>
-      <a href="https://twitter.com/teamasdam" target="_blank" aria-label="Twitter" 
-         class="group relative p-2 sm:p-3 rounded-full hover:text-[var(--Rouge)] transition-all duration-300 hover:scale-125">
-        <svg class="w-7 sm:w-9 h-7 sm:h-9 relative z-10" fill="currentColor" viewBox="0 0 24 24">...</svg>
+
+      <!-- Twitter / X -->
+      <a href="https://twitter.com/teamasdam" target="_blank" aria-label="Twitter"
+        class="group relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 transition-all duration-500 shadow-lg">
+        <i class="fa-brands fa-x-twitter text-2xl sm:text-3xl relative z-10 group-hover:text-white transition-colors"></i>
       </a>
     </div>
   </aside>
+
 
 </section>

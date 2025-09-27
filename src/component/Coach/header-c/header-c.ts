@@ -84,6 +84,13 @@ export class HeaderC {
         { title: 'Paramètres', link: '/dashboardC/settingsC', icon: 'fas fa-cog' },
         { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
+    },
+
+    {
+      title: 'Déconnexion',
+      icon: 'fas fa-tachometer-alt',
+      link: '/connexion',
+      items: [],
     }
   ];
 

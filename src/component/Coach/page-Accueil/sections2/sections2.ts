@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-sections2',
   templateUrl: './sections2.html',
   styleUrls: ['./sections2.css'],
+  standalone: true,
   imports: [FormsModule, CommonModule],
 })
 export class Sections2 implements OnInit {
@@ -17,19 +18,23 @@ export class Sections2 implements OnInit {
     { 
       title: 'Convocations simplifiées', 
       description: 'Envoyez des convocations aux joueurs rapidement et suivez leur réponse. Plus de détails sur le processus, modèles, rappels automatiques et statistiques d’acceptation.',
+      icon: 'fa-solid fa-envelope'  // ✉️ Exemple
     },
     { 
       title: 'Gestion des événements', 
       description: 'Créez, planifiez et gérez vos événements internes ou externes. Vous pouvez gérer la liste des participants, envoyer des notifications et visualiser la participation en temps réel.',
+      icon: 'fa-solid fa-calendar-days'  // 📅 Exemple
     },
     { 
       title: 'Suivi des joueurs', 
       description: 'Visualisez les performances et la disponibilité de vos joueurs. Historique des matchs, statistiques individuelles et suivi des absences pour optimiser vos entraînements.',
+      icon: 'fa-solid fa-users'  // 👥 Exemple
     },
     { 
-      title: 'Tableau de bord', 
-      description: 'Accédez à toutes les statistiques et informations de votre club en un coup d’œil. Analyse des performances, gestion du staff, et rapports automatiques pour les entraîneurs et dirigeants.',
-    }
+      title: 'Discussion Privée', 
+      description: 'Envoyez des messages privés à vos joueurs ou collègues du staff. Suivez les conversations et restez connecté avec votre équipe en toute simplicité.',
+      icon: 'fa-solid fa-comments'  // 💬 Icône adaptée aux messages
+    }    
   ];
 
   currentUser: any = null;
