@@ -85,11 +85,16 @@
         </div>
       </nav>
 
-      <!-- Profil mobile -->
-      <a routerLink="/prorilC"
-        class="lg:hidden ml-auto p-3 rounded-xl text-[var(--Blanc)]/80 hover:text-[var(--Rouge-Clair)] transition-all">
-        <i class="fas fa-user-circle text-xl"></i>
+      <!-- Profil mobile amélioré -->
+      <a routerLink="/dashboardC/profileC" class="lg:hidden ml-auto relative group"
+        title="{{ connectedUser?.prenom }} {{ connectedUser?.nom }}">
+        <div class="w-10 h-10 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-[var(--Blanc)] font-bold text-lg shadow-md transition-all duration-300 ease-in-out
+              hover:bg-[var(--Rouge-Clair)] hover:scale-110 hover:shadow-lg">
+          {{ connectedUser?.initiale }}
+        </div>
       </a>
+
+
     </div>
   </div>
 
@@ -131,19 +136,7 @@
 
     </div>
 
-    <!-- Déconnexion toujours en bas -->
-    <div class="p-6 border-t border-[var(--Rouge)]/20">
-      <button (click)="deconnecter()"
-        class="group w-full flex items-center gap-4 text-lg sm:text-xl font-semibold text-[var(--Blanc)]/80 
-                   hover:text-[var(--Rouge-Clair)] rounded-2xl px-4 py-4 hover:bg-[var(--Rouge)]/10 transition-all shadow-md">
 
-        <div
-          class="w-12 h-12 bg-gradient-to-br from-red-500/30 to-red-700/30 rounded-xl flex items-center justify-center text-white shadow-inner group-hover:scale-105 transform transition">
-          <i class="fas fa-sign-out-alt"></i>
-        </div>
-        <span>Déconnexion</span>
-      </button>
-    </div>
 
   </div>
 

@@ -1,5 +1,4 @@
 import { Routes } from '@angular/router';
-import { Connexion } from '../page/connexion/connexion';
 import { Inscription } from '../page/inscription/inscription';
 import { AcceuilJ } from '../page/Joueur/acceuil-j/acceuil-j';
 import { AcceuilC } from '../page/Coach/acceuil-c/acceuil-c';
@@ -16,6 +15,7 @@ import { PlanningJ } from '../page/Joueur/planning-j/planning-j';
 import { ActualiteC } from '../page/Coach/actualite-c/actualite-c';
 import { AbsentsJ } from '../page/Joueur/absents-j/absents-j';
 import { ParametresC } from '../page/Coach/parametres-c/parametres-c';
+import { Connexion } from '../page/connexion/connexion';
 
 
 

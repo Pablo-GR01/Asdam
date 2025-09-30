@@ -6,6 +6,7 @@ import { ProfileService } from '../../../../services/userService/Profil.Service'
 import { Icon } from '../../icon/icon';
 import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
 import { MessageService } from '../../../../services/message.service';
+import { UtilisateurService } from '../../../../services/userService/utilisateur.service';
 
 interface MenuItem {
   title: string;
@@ -31,7 +32,8 @@ export class HeaderC {
   private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
-  unreadMessages = 1; // compteur de messages non lus
+  unreadMessages = 0; // compteur de messages non lus
+  connectedUser: any = null; // informations complètes de l'utilisateur
 
   mobileMenus: MobileMenu[] = [
     {
@@ -85,10 +87,9 @@ export class HeaderC {
         { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
       ]
     },
-
     {
       title: 'Déconnexion',
-      icon: 'fas fa-tachometer-alt',
+      icon: 'fas fa-sign-out-alt',
       link: '/connexion',
       items: [],
     }
@@ -96,8 +97,9 @@ export class HeaderC {
 
   constructor(
     private router: Router,
-    private userprofile: ProfileService,
-    private messageService: MessageService
+    private userService: UtilisateurService,
+    private messageService: MessageService,
+    private userProfileService: ProfileService,
   ) {
     // Dark mode
     this.isDarkMode = localStorage.getItem('theme') === 'dark';
@@ -107,10 +109,26 @@ export class HeaderC {
     this.messageService.unreadCount$.subscribe(count => {
       this.unreadMessages = count;
     });
-    const userId = localStorage.getItem('userId');
-    if (userId) this.messageService.getUnreadCount(userId);
+
+    // Récupérer l'utilisateur connecté depuis le localStorage
+    const utilisateurStorage = localStorage.getItem('utilisateur');
+    if (utilisateurStorage) {
+      const utilisateur = JSON.parse(utilisateurStorage); // parser le JSON
+      this.connectedUser = utilisateur; // récupérer directement les infos locales
+
+      // Si tu veux aussi récupérer des infos depuis l'API avec l'id
+      this.userService.getUserById(utilisateur._id).subscribe({
+        next: user => {
+          this.connectedUser = user; // mise à jour avec les infos à jour
+          this.messageService.getUnreadCount(utilisateur._id);
+        },
+        error: err => console.error('Erreur récupération utilisateur :', err)
+      });
+    }
+
   }
 
+  // Getter/Setter pour mobile menu
   get mobileMenuOpen(): boolean {
     return this._mobileMenuOpen;
   }
@@ -159,8 +177,7 @@ export class HeaderC {
   deconnecter(): void {
     localStorage.clear();
     sessionStorage.clear();
-    this.userprofile.clearProfile();
-
+    this.userProfileService.clearProfile();
+    this.router.navigate(['/connexion']);
   }
-  
 }
