@@ -1,15 +1,19 @@
 const express = require('express');
-const { sendMessage, getConversation, getUserMessages } = require('../controller/message.controller');
-
 const router = express.Router();
+const messageController = require('../controller/message.controller'); // <-- Ajouter ceci
 
-// ✅ Route pour envoyer un message
-router.post('/', sendMessage);
+// Route pour envoyer un message
+router.post('/', messageController.sendMessage);
 
-// ✅ Route pour récupérer une conversation entre deux utilisateurs
-router.get('/conversation/:user1Id/:user2Id', getConversation);
+// Récupérer une conversation entre deux utilisateurs
+router.get('/conversation/:user1Id/:user2Id', messageController.getConversation);
 
-// ✅ Route pour récupérer tous les messages d'un utilisateur
-router.get('/user/:userId', getUserMessages);
+// Récupérer tous les messages d’un utilisateur
+router.get('/user/:userId', messageController.getUserMessages);
+
+// Récupérer les messages non lus d’un utilisateur
+router.get('/unread/:userId', messageController.getUnreadMessages);
 
 module.exports = router;
+
+

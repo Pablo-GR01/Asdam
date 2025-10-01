@@ -17,54 +17,50 @@
     <div class="max-w-xl mx-auto lg:mx-0">
 
       <!-- Badge -->
-      <div class="inline-flex items-center gap-2 mb-6 px-3 sm:px-4 py-1 sm:py-2 bg-[var(--Blanc)/10] backdrop-blur-sm rounded-full border border-[var(--Rouge-Clair)] animate-fade-in">
+      <div class="inline-flex items-center gap-2 mb-6 px-3 py-1 bg-[var(--Blanc)/10] backdrop-blur-sm rounded-full border border-[var(--Rouge-Clair)] animate-fade-in">
         <div class="w-2 h-2 bg-[var(--Rouge-Clair)] rounded-full"></div>
-        <span class="text-sm sm:text-base font-medium text-[var(--Blanc)]">Saison 2025-2026</span>
+        <span class="text-sm font-medium text-[var(--Blanc)]">Saison 2025-2026</span>
       </div>
 
       <!-- Titres -->
-      <h1 id="hero-title" class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] sm:text-[clamp(3rem,8vw,7rem)] leading-none animate-slide-in-left"
+      <h1 id="hero-title" class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] leading-none animate-slide-in-left"
           style="font-family: 'Poppins', sans-serif;">
-        <span class="bg-[var(--Rouge)] text-[var(--Blanc)] px-3 sm:px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">TEAM</span>
+        <span class="bg-[var(--Rouge)] text-[var(--Blanc)] px-3 py-2 inline-block transform hover:scale-105 transition-all duration-300">TEAM</span>
       </h1>
-      <h1 class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] sm:text-[clamp(3rem,8vw,7rem)] leading-none mt-2 animate-slide-in-right"
+      <h1 class="font-extrabold uppercase tracking-tight text-[clamp(2.5rem,10vw,6rem)] leading-none mt-2 animate-slide-in-right"
           style="font-family: 'Train One', sans-serif;">
-        <span class="bg-[var(--Blanc)] text-[var(--Rouge)] px-3 sm:px-4 py-2 inline-block transform hover:scale-105 transition-all duration-300">ASDAM</span>
+        <span class="bg-[var(--Blanc)] text-[var(--Rouge)] px-3 py-2 inline-block transform hover:scale-105 transition-all duration-300">ASDAM</span>
       </h1>
 
       <!-- Sous-titre -->
-      <p class="mt-6 text-sm sm:text-base lg:text-lg leading-relaxed text-[var(--Blanc)] font-secondary bg-[var(--Blanc)]/5 backdrop-blur-sm p-3 sm:p-4 rounded-lg border border-[var(--Blanc)]/10 animate-fade-in"
+      <p class="mt-6 text-sm lg:text-base leading-relaxed text-[var(--Blanc)] font-secondary bg-[var(--Blanc)]/5 backdrop-blur-sm p-3 rounded-lg border border-[var(--Blanc)]/10 animate-fade-in"
          style="font-family: 'Roboto', sans-serif;">
         TeamAsdam, c'est l'actualité, les matchs et le planning.
       </p>
 
-      <!-- CTA plus petits -->
+      <!-- CTA toujours petits -->
       <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center lg:justify-start animate-fade-in">
-        <!-- Bouton Planning avec Font Awesome -->
+        
+        <!-- Bouton Planning -->
         <button routerLink="/PlanningC"
           class="group relative inline-flex items-center gap-2 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
                 hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] text-[var(--Blanc)] 
-                px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base 
+                px-4 py-2 rounded-lg font-semibold text-sm
                 hover:scale-105 transition-all duration-300 overflow-hidden">
 
-          <!-- Icône Font Awesome -->
-          <i class="fa-solid fa-calendar-days text-sm sm:text-base transition-transform"></i>
-
+          <i class="fa-solid fa-calendar-days text-sm transition-transform"></i>
           <span>Planning</span>
         </button>
 
-
-        <!-- Bouton Matchs avec Font Awesome -->
+        <!-- Bouton Matchs -->
         <a routerLink="/matchC"
           class="group relative inline-flex items-center gap-2 border border-[var(--Blanc)] text-[var(--Blanc)]
-                px-4 sm:px-5 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base 
+                px-4 py-2 rounded-lg font-semibold text-sm
                 hover:bg-gradient-to-r hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:text-[var(--Blanc)] hover:shadow-xl hover:scale-105 
                 transition-all duration-300">
 
           <span>Les Matchs</span>
-
-          <!-- Icône Font Awesome -->
-          <i class="fa-solid fa-futbol text-sm sm:text-base group-hover:translate-x-1.5 transition-transform"></i>
+          <i class="fa-solid fa-futbol text-sm group-hover:translate-x-1.5 transition-transform"></i>
         </a>
       </div>
     </div>
@@ -75,42 +71,55 @@
 
     <!-- Logo animé -->
     <div class="relative group">
-      <!-- Glow animé -->
       <div class="absolute inset-0 bg-gradient-to-r from-[var(--Rouge)] to-[var(--Bleu)] rounded-full blur-3xl opacity-30 group-hover:opacity-60 transition-all duration-700 animate-pulse"></div>
-      
-      <!-- Logo -->
       <img src="assets/LOGO.png"
           alt="Logo officiel de TeamAsdam"
           class="w-[clamp(10rem,25vw,18rem)] sm:w-[clamp(12rem,30vw,20rem)] drop-shadow-2xl hover:scale-110 hover:rotate-3 transition-transform duration-500 relative z-10" />
     </div>
 
-    <!-- Texte tagline amélioré -->
-    <p class="relative px-4 py-3 rounded-2xl text-center text-[var(--Blanc)] text-base sm:text-lg font-medium max-w-xs 
+    <!-- Texte tagline -->
+    <p class="relative px-4 py-3 rounded-2xl text-center text-[var(--Blanc)] text-base font-medium max-w-xs 
     bg-gradient-to-r from-[var(--Black)]/70 to-[var(--Black)]/40 backdrop-blur-md shadow-lg">
-
-    <span class="opacity-90">Rejoins la</span> 
-    <span class="font-extrabold text-[var(--Rouge)] drop-shadow-md ml-3 mr-3">ASDAM</span> 
-    <span class="opacity-90">et suis nos actus !</span>
-
-    <!-- Glow subtil -->
-    <span class="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--Rouge)]/20 to-[var(--Bleu)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></span>
+      <span class="opacity-90">Rejoins la</span> 
+      <span class="font-extrabold text-[var(--Rouge)] drop-shadow-md ml-2 mr-2">ASDAM</span> 
+      <span class="opacity-90">et suis nos actus !</span>
+      <span class="absolute inset-0 rounded-2xl bg-gradient-to-r from-[var(--Rouge)]/20 to-[var(--Bleu)]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></span>
     </p>
 
     <!-- Réseaux sociaux -->
     <div class="flex flex-row gap-6 text-[var(--Blanc)]">
       <!-- Instagram -->
       <a href="https://instagram.com/teamasdam" target="_blank" aria-label="Instagram"
-        class="group relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 transition-all duration-500 shadow-lg">
-        <i class="fa-brands fa-instagram text-2xl sm:text-3xl relative z-10 group-hover:text-white transition-colors"></i>
+        class="group relative p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+              hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 hover:rotate-6
+              transition-all duration-500 shadow-lg focus-visible:ring-4 focus-visible:ring-[var(--Bleu)]">
+        <span
+          class="absolute inset-0 rounded-full bg-[var(--Bleu)] opacity-0 blur-lg group-hover:opacity-40 transition duration-500"></span>
+        <i class="fa-brands fa-instagram text-xl sm:text-2xl relative z-10 group-hover:text-white transition-colors"></i>
       </a>
 
-      <!-- Twitter / X -->
+      <!-- Twitter/X -->
       <a href="https://twitter.com/teamasdam" target="_blank" aria-label="Twitter"
-        class="group relative p-3 sm:p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 transition-all duration-500 shadow-lg">
-        <i class="fa-brands fa-x-twitter text-2xl sm:text-3xl relative z-10 group-hover:text-white transition-colors"></i>
+        class="group relative p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+              hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 hover:rotate-6
+              transition-all duration-500 shadow-lg focus-visible:ring-4 focus-visible:ring-[var(--Bleu)]">
+        <span
+          class="absolute inset-0 rounded-full bg-[var(--Bleu)] opacity-0 blur-lg group-hover:opacity-40 transition duration-500"></span>
+        <i class="fa-brands fa-x-twitter text-xl sm:text-2xl relative z-10 group-hover:text-white transition-colors"></i>
+      </a>
+
+      <!-- YouTube -->
+      <a href="https://youtube.com/@teamasdam" target="_blank" aria-label="YouTube"
+        class="group relative p-4 rounded-full bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+              hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] hover:scale-110 hover:rotate-6
+              transition-all duration-500 shadow-lg focus-visible:ring-4 focus-visible:ring-[var(--Bleu)]">
+        <span
+          class="absolute inset-0 rounded-full bg-[var(--Bleu)] opacity-0 blur-lg group-hover:opacity-40 transition duration-500"></span>
+        <i class="fa-brands fa-youtube text-xl sm:text-2xl relative z-10 group-hover:text-white transition-colors"></i>
       </a>
     </div>
-  </aside>
 
+
+  </aside>
 
 </section>

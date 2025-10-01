@@ -10,6 +10,8 @@ const path = require('path');
 // ✅ Créer un utilisateur
 router.post('/', userController.registerUser);
 
+// Récupérer un utilisateur par ID
+router.get('/users/id/:id', userController.getUserById);
 
 
 // ✅ Connexion

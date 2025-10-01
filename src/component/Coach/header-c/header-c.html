@@ -12,12 +12,19 @@
         <i class="fas fa-bars text-xl"></i>
       </button>
 
-      <!-- Nav gauche -->
+      <!-- Nav gauche desktop -->
       <nav class="hidden lg:flex lg:gap-2">
         <div *ngFor="let menu of mobileMenus.slice(0,3)" class="relative flex items-center group">
           <a [routerLink]="menu.link || menu.items[0]?.link" class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Blanc)]/80 
                     hover:text-[var(--Rouge-Clair)] transition-colors">
-            <i [class]="menu.icon"></i>
+            <ng-container *ngIf="menu.initiales; else iconTemplate">
+              <div class="w-8 h-8 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-white font-bold text-sm">
+                {{ menu.initiales }}
+              </div>
+            </ng-container>
+            <ng-template #iconTemplate>
+              <i [class]="menu.icon"></i>
+            </ng-template>
             <span>{{ menu.title }}</span>
           </a>
           <button *ngIf="menu.items.length" (click)="toggleDropdown(menu.title,$event)"
@@ -34,8 +41,15 @@
             </div>
             <a *ngFor="let item of menu.items" [routerLink]="item.link"
               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Blanc)]/80 
-                      hover:bg-gradient-to-r hover:from-[var(--Rouge)] hover:to-[var(--Bleu)] hover:text-white transition-all">
-              <i [class]="item.icon"></i>
+              hover:bg-gradient-to-r hover:from-[var(--Bleu)] hover:to-[var(--Bleu)] hover:text-white transition-all">
+              <ng-container *ngIf="item.initiales; else itemIcon">
+                <div class="w-6 h-6 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-white font-bold text-xs">
+                  {{ item.initiales }}
+                </div>
+              </ng-container>
+              <ng-template #itemIcon>
+                <i [class]="item.icon"></i>
+              </ng-template>
               <span>{{ item.title }}</span>
             </a>
           </div>
@@ -48,12 +62,19 @@
           class="h-12 w-12 sm:h-14 sm:w-14 object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg">
       </a>
 
-      <!-- Nav droite -->
+      <!-- Nav droite desktop -->
       <nav class="hidden lg:flex lg:gap-2">
         <div *ngFor="let menu of mobileMenus.slice(3,6)" class="relative flex items-center group">
           <a [routerLink]="menu.link || menu.items[0]?.link" class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Blanc)]/80 
                     hover:text-[var(--Rouge-Clair)] transition-colors relative">
-            <i [class]="menu.icon"></i>
+            <ng-container *ngIf="menu.initiales; else iconTemplateRight">
+              <div class="w-8 h-8 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-white font-bold text-sm">
+                {{ menu.initiales }}
+              </div>
+            </ng-container>
+            <ng-template #iconTemplateRight>
+              <i [class]="menu.icon"></i>
+            </ng-template>
             <span>{{ menu.title }}</span>
 
             <!-- Badge messages -->
@@ -77,8 +98,15 @@
             </div>
             <a *ngFor="let item of menu.items" [routerLink]="item.link"
               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Blanc)]/80 
-                      hover:bg-gradient-to-r hover:from-[var(--Rouge)] hover:to-[var(--Bleu)] hover:text-white transition-all">
-              <i [class]="item.icon"></i>
+                      hover:bg-gradient-to-r hover:from-[var(--Bleu)] hover:to-[var(--Bleu)] hover:text-white transition-all">
+              <ng-container *ngIf="item.initiales; else itemIconRight">
+                <div class="w-9 h-9 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-white font-bold text-lg">
+                  {{ item.initiales }}
+                </div>
+              </ng-container>
+              <ng-template #itemIconRight>
+                <i [class]="item.icon"></i>
+              </ng-template>
               <span>{{ item.title }}</span>
             </a>
           </div>
@@ -86,18 +114,19 @@
       </nav>
 
       <!-- Profil mobile amélioré -->
-      <a routerLink="/dashboardC/profileC" class="lg:hidden ml-auto relative group"
-        title="{{ connectedUser?.prenom }} {{ connectedUser?.nom }}">
-        <div class="w-10 h-10 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-[var(--Blanc)] font-bold text-lg shadow-md transition-all duration-300 ease-in-out
-              hover:bg-[var(--Rouge-Clair)] hover:scale-110 hover:shadow-lg">
-          {{ connectedUser?.initiale }}
-        </div>
-      </a>
+    <a routerLink="/dashboardC/profileC" class="lg:hidden ml-auto relative group"
+    title="Utilisateur {{ connectedUser?.initiales }}">
+    <div class="w-10 h-10 rounded-full bg-[var(--Rouge-Clair)]/80 flex items-center justify-center text-[var(--Blanc)] font-bold text-lg shadow-md transition-all duration-300 ease-in-out
+        hover:bg-[var(--Rouge-Clair)] hover:scale-110 hover:shadow-lg">
+    {{ connectedUser?.initiales }}
+    </div>
+    </a>
 
 
     </div>
   </div>
 
+  <!-- Menu mobile -->
   <div *ngIf="mobileMenuOpen"
     class="fixed inset-0 z-[1000] h-screen bg-[var(--Black)]/95 backdrop-blur-md flex flex-col animate-fade-in-up shadow-lg">
 
@@ -117,11 +146,13 @@
         class="group flex items-center gap-4 text-lg sm:text-xl font-medium text-[var(--Blanc)]/80 
               hover:text-[var(--Rouge-Clair)] rounded-2xl px-4 py-3 hover:bg-[var(--Rouge)]/10 transition-all shadow-sm" (click)="closeMobileMenu()">
 
-        <!-- Icon menu -->
-        <div
-          class="w-12 h-12 bg-gradient-to-br from-[var(--Rouge-Clair)] to-[var(--Rouge-Foncé)] rounded-xl 
-                  flex items-center justify-center text-white text-lg shadow-md group-hover:scale-105 transform transition">
-          <i [class]="menu.icon"></i>
+        <!-- Icon / Initiales menu -->
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg shadow-md group-hover:scale-105 transform transition"
+             [ngClass]="menu.initiales ? 'bg-[var(--Rouge-Clair)]/80' : 'bg-gradient-to-br from-[var(--Rouge-Clair)] to-[var(--Rouge-Foncé)]'">
+          <span *ngIf="menu.initiales; else iconMobile" class="font-bold text-lg">{{ menu.initiales }}</span>
+          <ng-template #iconMobile>
+            <i [class]="menu.icon"></i>
+          </ng-template>
         </div>
 
         <!-- Titre -->
@@ -136,11 +167,7 @@
 
     </div>
 
-
-
   </div>
-
-
 
 </header>
 
@@ -150,17 +177,14 @@
       opacity: 0;
       transform: translateY(20px) scale(0.95);
     }
-
     100% {
       opacity: 1;
       transform: translateY(0) scale(1);
     }
   }
-
   .animate-fade-in-up {
     animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
-
   /* 🔒 Empêche le scroll en arrière-plan quand le menu mobile est ouvert */
   body.menu-open {
     overflow: hidden;

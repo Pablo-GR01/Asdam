@@ -11,5 +11,13 @@ import { AbsentC } from "../../page-Absents/absent-c/absent-c";
   styleUrl: './sections1-c.css'
 })
 export class Sections1C {
+  isPopupOpen = false;
 
+  openPopup() {
+    this.isPopupOpen = true;
+  }
+
+  closePopup() {
+    this.isPopupOpen = false;
+  }
 }

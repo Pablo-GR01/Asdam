@@ -62,3 +62,28 @@ exports.getUserMessages = async (req, res) => {
     return res.status(500).json({ error: 'Erreur serveur' });
   }
 };
+
+
+// Récupérer le nombre de messages non lus pour un utilisateur
+exports.getUnreadCount = async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const count = await Message.countDocuments({ userId, read: false });
+    res.json({ count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+exports.getUnreadMessages = async (req, res) => {
+  try {
+    const messages = await Message.find({ 
+      destinataire: req.params.userId,
+      lu: false
+    });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

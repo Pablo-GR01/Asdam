@@ -19,13 +19,14 @@ export class MMSC implements OnInit, OnDestroy {
   selectedContact: Contact | null = null;
   newMessage = '';
 
-  // Infos utilisateur connecté
   userId = '';
   userNom = '';
   userPrenom = '';
   userInitiales = '';
 
-  // Liste contacts et messages
+  isSending = false;
+  isTyping = false;
+
   contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
   showSuggestions = false;
@@ -34,9 +35,22 @@ export class MMSC implements OnInit, OnDestroy {
   private searchSubject = new Subject<string>();
   private subscriptions: Subscription[] = [];
 
+  userStatus: 'En ligne' | 'Absent' | 'Ne pas déranger' = 'En ligne';
+
   constructor(private chatService: ChatService) {}
 
   ngOnInit() {
+    this.loadUser();
+    this.loadContacts();
+    this.setupSearch();
+    this.listenNewMessages();
+  }
+
+  ngOnDestroy() {
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+  }
+
+  private loadUser() {
     const storedUser = localStorage.getItem('utilisateur');
     if (!storedUser) return console.error('Utilisateur non connecté !');
 
@@ -47,34 +61,25 @@ export class MMSC implements OnInit, OnDestroy {
     this.userPrenom = user.prenom || '';
     this.userNom = user.nom || '';
     this.userInitiales = user.initiale || `${this.userPrenom[0] || ''}${this.userNom[0] || ''}`.toUpperCase();
+  }
 
+  private loadContacts() {
     const savedContacts = localStorage.getItem(`contacts_${this.userId}`);
     if (savedContacts) this.contacts = JSON.parse(savedContacts);
-
-    // Debounce recherche
-    const searchSub = this.searchSubject.pipe(debounceTime(200)).subscribe(text => this.filterContacts(text));
-    this.subscriptions.push(searchSub);
-
-    // Écoute nouveaux messages
-    const msgSub = this.chatService.onNewMessage().subscribe(msg => {
-      if (
-        (msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
-        (msg.senderId === this.userId && msg.receiverId === this.selectedContact?._id)
-      ) {
-        // Assurer qu'il y ait un timestamp
-        if (!msg.timestamp) msg.timestamp = new Date();
-        this.messages.push(msg);
-        setTimeout(() => this.scrollToBottom(), 100);
-      }
-    });
-    this.subscriptions.push(msgSub);
   }
 
-  ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+  private setupSearch() {
+    this.subscriptions.push(
+      this.searchSubject.pipe(debounceTime(200)).subscribe(text => this.filterContacts(text))
+    );
   }
 
-  // 🔹 Recherche contacts
+  private listenNewMessages() {
+    this.subscriptions.push(
+      this.chatService.onNewMessage().subscribe(msg => this.handleIncomingMessage(msg))
+    );
+  }
+
   onSearchChange(text: string) {
     this.showSuggestions = true;
     this.searchSubject.next(text);
@@ -86,11 +91,11 @@ export class MMSC implements OnInit, OnDestroy {
       return;
     }
     this.chatService.getContacts().subscribe({
-      next: (data) => {
+      next: data => {
         this.filteredContacts = data
           .filter(c => c._id !== this.userId && `${c.firstName} ${c.lastName}`.toLowerCase().includes(text.toLowerCase()));
       },
-      error: (err) => console.error('Erreur récupération contacts:', err)
+      error: err => console.error('Erreur récupération contacts:', err)
     });
   }
 
@@ -108,9 +113,12 @@ export class MMSC implements OnInit, OnDestroy {
   selectContact(contact: Contact | null) {
     if (!contact) return;
     this.selectedContact = contact;
+    this.loadConversation(contact);
+  }
 
+  private loadConversation(contact: Contact) {
     this.chatService.getConversation(this.userId, contact._id).subscribe({
-      next: (msgs) => {
+      next: msgs => {
         this.messages = msgs.map(m => ({
           ...m,
           senderName: m.senderId === this.userId ? `${this.userPrenom} ${this.userNom}` : `${contact.firstName} ${contact.lastName}`,
@@ -118,7 +126,7 @@ export class MMSC implements OnInit, OnDestroy {
         }));
         setTimeout(() => this.scrollToBottom(), 100);
       },
-      error: (err) => {
+      error: err => {
         console.error('Erreur récupération conversation:', err);
         alert('Impossible de récupérer la conversation. Vérifie que le serveur est actif.');
       }
@@ -126,8 +134,9 @@ export class MMSC implements OnInit, OnDestroy {
   }
 
   sendMessage() {
-    if (!this.newMessage.trim() || !this.selectedContact) return;
-
+    if (!this.newMessage?.trim() || !this.selectedContact || this.isSending) return;
+    this.isSending = true;
+  
     const msg: Message = {
       senderId: this.userId,
       receiverId: this.selectedContact._id,
@@ -135,20 +144,64 @@ export class MMSC implements OnInit, OnDestroy {
       senderName: `${this.userPrenom} ${this.userNom}`,
       timestamp: new Date()
     };
-
+  
     this.chatService.sendMessage(msg).subscribe({
-      next: (sent) => {
-        if (!sent.timestamp) sent.timestamp = new Date();
+      next: sent => {
         this.newMessage = '';
-        this.messages.push(sent);
-        setTimeout(() => this.scrollToBottom(), 100);
+        this.addMessage(sent);
         this.chatService.emitNewMessage(sent);
+  
+        // 🚀 Envoi email de notification (sécurisé)
+        if (this.selectedContact?.email) {
+          const subject = `Nouveau message de ${this.userPrenom} ${this.userNom}`;
+          const text = `
+            Bonjour ${this.selectedContact.firstName},
+  
+            Vous avez reçu un nouveau message dans l'application :
+  
+            "${msg.text}"
+  
+            Connectez-vous pour y répondre.
+          `;
+  
+          this.chatService.sendEmailNotification(this.selectedContact.email, subject, text)
+            .subscribe({
+              next: () => console.log("✅ Notification email envoyée"),
+              error: err => console.error("❌ Erreur envoi mail", err)
+            });
+        }
+  
+        this.isSending = false;
       },
-      error: (err) => {
+      error: err => {
         console.error('Erreur envoi message :', err);
         alert('Impossible d’envoyer le message.');
+        this.isSending = false;
       }
     });
+  }
+  
+
+  private handleIncomingMessage(msg: Message) {
+    const exists = this.messages.some(m =>
+      m.senderId === msg.senderId &&
+      m.receiverId === msg.receiverId &&
+      m.text === msg.text &&
+      new Date(m.timestamp ?? new Date()).getTime() === new Date(msg.timestamp ?? new Date()).getTime()
+    );
+
+    if (!exists && (
+      (msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
+      (msg.senderId === this.userId && msg.receiverId === this.selectedContact?._id)
+    )) {
+      if (!msg.timestamp) msg.timestamp = new Date();
+      this.addMessage(msg);
+    }
+  }
+
+  private addMessage(msg: Message) {
+    this.messages.push(msg);
+    setTimeout(() => this.scrollToBottom(), 100);
   }
 
   removeContact(contactId: string) {
@@ -186,13 +239,30 @@ export class MMSC implements OnInit, OnDestroy {
     localStorage.removeItem(`contacts_${this.userId}`);
   }
 
-  // ✅ trackBy pour messages
   trackByMsgId(_: number, msg: Message) {
-    return msg.timestamp?.toString() || msg.text; // fallback unique
+    return msg.timestamp?.toString() || msg.text;
   }
 
-  // ✅ trackBy pour contacts
   trackByContactId(_: number, contact: Contact) {
     return contact._id;
+  }
+
+  deleteContact(contact: Contact) {
+    const confirmed = confirm(`Voulez-vous vraiment supprimer ${contact.firstName} ${contact.lastName} ?`);
+    if (confirmed) this.removeContact(contact._id);
+  }
+
+  setStatus(status: 'En ligne' | 'Absent' | 'Ne pas déranger') {
+    this.userStatus = status;
+  }
+
+  getFilteredContacts() {
+    if (!this.filteredContacts) return [];
+    if (!this.searchText || this.searchText.length === 0) return this.filteredContacts;
+
+    const firstLetter = this.searchText[0].toUpperCase();
+    return this.filteredContacts.filter(contact =>
+      contact.firstName.toUpperCase().startsWith(firstLetter)
+    );
   }
 }

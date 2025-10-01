@@ -10,7 +10,7 @@ export interface User {
   email: string;
   initiale: string;
   club: string;
-  equipe: string; // ✅ inclus
+  equipe: string;
   membreDepuis: Date;
   role: string;
   photoURL?: string;
@@ -25,29 +25,40 @@ export class UtilisateurService {
 
   constructor(private http: HttpClient) {}
 
+  // =========================
+  // Récupération de l'utilisateur depuis le localStorage
+  // =========================
   private getUserFromLocalStorage(): User | null {
     const userStr = localStorage.getItem('user');
     if (!userStr) return null;
 
-    const userObj = JSON.parse(userStr);
-    const initiale = userObj.initiale ??
-      ((userObj.prenom?.[0] ?? '') + (userObj.nom?.[0] ?? '')).toUpperCase();
+    try {
+      const userObj = JSON.parse(userStr);
+      const initiale = userObj.initiale ??
+        ((userObj.prenom?.[0] ?? '') + (userObj.nom?.[0] ?? '')).toUpperCase();
 
-    return {
-      id: userObj.id ?? '',
-      prenom: userObj.prenom,
-      nom: userObj.nom,
-      role: userObj.role,
-      initiale,
-      email: userObj.email ?? '',
-      club: userObj.club ?? '',
-      equipe: userObj.equipe ?? '', // ✅ inclus
-      joueurs: userObj.joueurs ?? [],
-      membreDepuis: userObj.membreDepuis ? new Date(userObj.membreDepuis) : new Date(),
-      photoURL: userObj.photoURL ?? ''
-    };
+      return {
+        id: userObj.id ?? '',
+        prenom: userObj.prenom ?? '',
+        nom: userObj.nom ?? '',
+        role: userObj.role ?? '',
+        initiale,
+        email: userObj.email ?? '',
+        club: userObj.club ?? '',
+        equipe: userObj.equipe ?? '',
+        joueurs: userObj.joueurs ?? [],
+        membreDepuis: userObj.membreDepuis ? new Date(userObj.membreDepuis) : new Date(),
+        photoURL: userObj.photoURL ?? ''
+      };
+    } catch (err) {
+      console.error('Erreur lors de la lecture de l’utilisateur depuis le localStorage', err);
+      return null;
+    }
   }
 
+  // =========================
+  // Observables pour l'utilisateur courant
+  // =========================
   get currentUser$(): Observable<User | null> {
     return this.currentUserSubject.asObservable();
   }
@@ -56,16 +67,19 @@ export class UtilisateurService {
     return of(this.currentUserSubject.value);
   }
 
-  setCurrentUser(user: User) {
+  setCurrentUser(user: User): void {
     localStorage.setItem('user', JSON.stringify(user));
     this.currentUserSubject.next(user);
   }
 
-  clearCurrentUser() {
+  clearCurrentUser(): void {
     localStorage.removeItem('user');
     this.currentUserSubject.next(null);
   }
 
+  // =========================
+  // API: utilisateurs et joueurs
+  // =========================
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl).pipe(
       map(users => users.filter(u => u.role === 'joueur'))
@@ -76,15 +90,11 @@ export class UtilisateurService {
     return this.http.get<User[]>(this.joueursUrl);
   }
 
-
-  getUserById(id: string) {
-    return this.http.get<User>(`http://localhost:3000/api/users/${id}`);
+  getUserById(id: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  // Ajoute cette méthode pour supprimer un utilisateur par son ID
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
-
-  
 }

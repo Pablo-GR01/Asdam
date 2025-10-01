@@ -7,6 +7,7 @@ export interface Contact {
   _id: string;
   firstName: string;
   lastName: string;
+  email?: string;   // ✅ optionnel
 }
 
 // Interface Message
@@ -99,4 +100,10 @@ export class ChatService {
     console.error('Erreur API messages :', error);
     return throwError(() => new Error('Erreur lors de la récupération des données'));
   }
+
+  // chat.service.ts
+  sendEmailNotification(to: string, subject: string, text: string) {
+    return this.http.post(`${this.apiUrl}/email/send`, { to, subject, text });
+  }
+  
 }

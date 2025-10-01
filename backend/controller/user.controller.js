@@ -60,6 +60,17 @@ exports.deleteUserById = async (req, res) => {
   }
 };
 
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('-password');
+    if (!user) return res.status(404).json({ message: 'Utilisateur introuvable' });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 
 // -------------------- RÉCUPÉRER TOUS LES UTILISATEURS --------------------
 exports.getAllUsers = async (req, res) => {

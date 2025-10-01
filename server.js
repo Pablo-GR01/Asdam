@@ -18,6 +18,7 @@ const convocationRoutes = require('./backend/routes/convocations.Routes');
 const postRoutes = require('./backend/routes/post.Routes');
 const joueurRoutes = require('./backend/routes/joueur.routes');
 const messageRoutes = require('./backend/routes/message.Routes');
+const emailRoutes = require('./backend/routes/email.routes')
 
 const app = express();
 const PORT = 3000;
@@ -55,6 +56,9 @@ app.use('/api/posts', postRoutes);
 app.use('/api/joueurs', joueurRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/messages', messageRoutes);
+
+app.use('/api/email', emailRoutes);
+
 
 // Route POST pour créer un post avec média
 app.post('/api/posts/media', upload.single('media'), postController.createPostWithMedia);

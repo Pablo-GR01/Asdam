@@ -13,27 +13,28 @@ export class Sections2 implements OnInit {
 
   // Gère quelle carte est ouverte
   activeFeatureIndex: number | null = null;
+  showFullDescription = false;
 
   features = [
     { 
-      title: 'Convocations simplifiées', 
-      description: 'Envoyez des convocations aux joueurs rapidement et suivez leur réponse. Plus de détails sur le processus, modèles, rappels automatiques et statistiques d’acceptation.',
-      icon: 'fa-solid fa-envelope'  // ✉️ Exemple
+      title: 'Créer des convocations', 
+      description: "Envoyez des convocations aux joueurs rapidement depuis l'onglet Match ou le Dashboard grâce au bouton prévu.",
+      icon: 'fa-solid fa-envelope'
     },
     { 
-      title: 'Gestion des événements', 
-      description: 'Créez, planifiez et gérez vos événements internes ou externes. Vous pouvez gérer la liste des participants, envoyer des notifications et visualiser la participation en temps réel.',
-      icon: 'fa-solid fa-calendar-days'  // 📅 Exemple
+      title: 'Créer et planifier des événements', 
+      description: "Créez, planifiez et gérez vos événements internes ou externes depuis l'onglet Planning ou le Dashboard. Vous pouvez également envoyer des rappels automatiques aux joueurs inscrits.",
+      icon: 'fa-solid fa-calendar-days'
     },
     { 
-      title: 'Suivi des joueurs', 
-      description: 'Visualisez les performances et la disponibilité de vos joueurs. Historique des matchs, statistiques individuelles et suivi des absences pour optimiser vos entraînements.',
-      icon: 'fa-solid fa-users'  // 👥 Exemple
+      title: 'Créer des matchs', 
+      description: "Créez des matchs visibles par tous depuis l'onglet Match ou le Dashboard grâce au bouton. Ajoutez la composition de l’équipe et suivez la présence des joueurs.",
+      icon: 'fa-solid fa-users'
     },
     { 
-      title: 'Discussion Privée', 
-      description: 'Envoyez des messages privés à vos joueurs ou collègues du staff. Suivez les conversations et restez connecté avec votre équipe en toute simplicité.',
-      icon: 'fa-solid fa-comments'  // 💬 Icône adaptée aux messages
+      title: 'Discussion privée', 
+      description: "Envoyez des messages privés à vos joueurs, invités ou collègues du staff. Suivez les conversations et restez connecté avec votre équipe en toute simplicité.",
+      icon: 'fa-solid fa-comments'
     }    
   ];
 
@@ -42,15 +43,24 @@ export class Sections2 implements OnInit {
   ngOnInit() {
     const userData = localStorage.getItem('currentUser');
     if (userData) {
-      this.currentUser = JSON.parse(userData);
+      try {
+        this.currentUser = JSON.parse(userData);
+      } catch (e) {
+        console.error("Erreur parsing currentUser:", e);
+      }
     }
   }
 
   openFeature(index: number) {
     this.activeFeatureIndex = index;
+    this.showFullDescription = false;
   }
 
   closeFeature() {
     this.activeFeatureIndex = null;
+  }
+
+  toggleDescription() {
+    this.showFullDescription = !this.showFullDescription;
   }
 }
