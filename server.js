@@ -57,7 +57,7 @@ app.use('/api/joueurs', joueurRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/messages', messageRoutes);
 
-app.use('/api/email', emailRoutes);
+app.use('/api/messages', emailRoutes);
 
 
 // Route POST pour créer un post avec média

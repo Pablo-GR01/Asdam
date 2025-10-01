@@ -134,7 +134,10 @@ export class MMSC implements OnInit, OnDestroy {
   }
 
   sendMessage() {
-    if (!this.newMessage?.trim() || !this.selectedContact || this.isSending) return;
+    if (!this.newMessage?.trim() || !this.selectedContact || this.isSending) {
+      return;
+    }
+  
     this.isSending = true;
   
     const msg: Message = {
@@ -145,41 +148,24 @@ export class MMSC implements OnInit, OnDestroy {
       timestamp: new Date()
     };
   
+    // Envoi au backend
     this.chatService.sendMessage(msg).subscribe({
       next: sent => {
         this.newMessage = '';
         this.addMessage(sent);
         this.chatService.emitNewMessage(sent);
-  
-        // 🚀 Envoi email de notification (sécurisé)
-        if (this.selectedContact?.email) {
-          const subject = `Nouveau message de ${this.userPrenom} ${this.userNom}`;
-          const text = `
-            Bonjour ${this.selectedContact.firstName},
-  
-            Vous avez reçu un nouveau message dans l'application :
-  
-            "${msg.text}"
-  
-            Connectez-vous pour y répondre.
-          `;
-  
-          this.chatService.sendEmailNotification(this.selectedContact.email, subject, text)
-            .subscribe({
-              next: () => console.log("✅ Notification email envoyée"),
-              error: err => console.error("❌ Erreur envoi mail", err)
-            });
-        }
-  
         this.isSending = false;
+        console.log('Message envoyé et email déclenché par le backend ✅');
       },
       error: err => {
         console.error('Erreur envoi message :', err);
-        alert('Impossible d’envoyer le message.');
         this.isSending = false;
+        alert('Impossible d’envoyer le message.');
       }
     });
   }
+  
+  
   
 
   private handleIncomingMessage(msg: Message) {

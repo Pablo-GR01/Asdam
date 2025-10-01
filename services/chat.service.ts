@@ -7,12 +7,12 @@ export interface Contact {
   _id: string;
   firstName: string;
   lastName: string;
-  email?: string;   // ✅ optionnel
+  email?: string;
 }
 
 // Interface Message
 export interface Message {
-  id?: string;              // <-- ajouté
+  id?: string;
   senderId: string;
   receiverId: string;
   text: string;
@@ -22,13 +22,12 @@ export interface Message {
   timestamp?: string | Date;
 }
 
-
 @Injectable({ providedIn: 'root' })
 export class ChatService {
   private newMessageSubject = new Subject<Message>();
   private apiUrl = 'http://localhost:3000/api/messages';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Récupère tous les utilisateurs
   getContacts(): Observable<Contact[]> {
@@ -37,7 +36,8 @@ export class ChatService {
         users.map(u => ({
           _id: u._id || u.id,
           firstName: u.firstName || u.firstname || u.prenom || u.name || 'Utilisateur',
-          lastName: u.lastName || u.lastname || u.nom || ''
+          lastName: u.lastName || u.lastname || u.nom || '',
+          email: u.email || ''
         }))
       ),
       catchError(this.handleError)
@@ -57,14 +57,13 @@ export class ChatService {
 
   // Récupère la conversation entre 2 utilisateurs
   getConversation(user1Id: string, user2Id: string): Observable<Message[]> {
-    return this.http.get<{ messages: Message[] }>(`${this.apiUrl}/conversation/${user1Id}/${user2Id}`)
-      .pipe(
-        map(res => res.messages || []),
-        catchError(this.handleError)
-      );
+    return this.http.get<{ messages: Message[] }>(`${this.apiUrl}/conversation/${user1Id}/${user2Id}`).pipe(
+      map(res => res.messages || []),
+      catchError(this.handleError)
+    );
   }
 
-  // Envoie un message
+  // Envoie un message (backend gère l'envoi en DB + email)
   sendMessage(msg: Message): Observable<Message> {
     if (!msg.senderId || !msg.receiverId || !msg.text?.trim()) {
       return throwError(() => new Error('Impossible d’envoyer le message : champs manquants'));
@@ -74,7 +73,7 @@ export class ChatService {
       senderId: msg.senderId,
       receiverId: msg.receiverId,
       text: msg.text.trim(),
-      senderName: msg.senderName || '' // on ajoute senderName pour le composant
+      senderName: msg.senderName || ''
     };
 
     return this.http.post<Message>(this.apiUrl, payload).pipe(
@@ -101,9 +100,8 @@ export class ChatService {
     return throwError(() => new Error('Erreur lors de la récupération des données'));
   }
 
-  // chat.service.ts
+  // Optionnel si tu veux envoyer un email directement depuis Angular
   sendEmailNotification(to: string, subject: string, text: string) {
     return this.http.post(`${this.apiUrl}/email/send`, { to, subject, text });
   }
-  
 }
