@@ -2,6 +2,17 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+interface Feature {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+interface Stat {
+  label: string;
+  value: number | string;
+}
+
 @Component({
   selector: 'app-sections2',
   templateUrl: './sections2.html',
@@ -11,11 +22,12 @@ import { FormsModule } from '@angular/forms';
 })
 export class Sections2 implements OnInit {
 
-  // Gère quelle carte est ouverte
+  // Gestion de la modal
   activeFeatureIndex: number | null = null;
   showFullDescription = false;
 
-  features = [
+  // Liste des fonctionnalités
+  features: Feature[] = [
     { 
       title: 'Créer des convocations', 
       description: "Envoyez des convocations aux joueurs rapidement depuis l'onglet Match ou le Dashboard grâce au bouton prévu.",
@@ -36,6 +48,14 @@ export class Sections2 implements OnInit {
       description: "Envoyez des messages privés à vos joueurs, invités ou collègues du staff. Suivez les conversations et restez connecté avec votre équipe en toute simplicité.",
       icon: 'fa-solid fa-comments'
     }    
+  ];
+
+  // Stats du club
+  stats: Stat[] = [
+    { label: 'Membres', value: 120 },
+    { label: 'Matchs joués', value: 45 },
+    { label: 'Événements', value: 32 },
+    { label: 'Titres gagnés', value: 10 }
   ];
 
   currentUser: any = null;

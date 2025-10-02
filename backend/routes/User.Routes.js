@@ -76,6 +76,26 @@ router.get('/contacts', (req, res) => {
   User.find().then(users => res.json(users)).catch(err => res.status(500).json({message: err.message}));
 });
 
+// PUT /api/users/:id
+router.put("/:id", async (req, res) => {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        nom: req.body.nom,
+        prenom: req.body.prenom,
+        email: req.body.email,
+      },
+      { new: true } // renvoie l'utilisateur mis à jour
+    );
+    if (!updatedUser) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Erreur serveur", error });
+  }
+});
 
 
 module.exports = router;

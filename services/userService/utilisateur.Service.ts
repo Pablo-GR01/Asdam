@@ -97,4 +97,9 @@ export class UtilisateurService {
   deleteUser(userId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${userId}`);
   }
+
+  updateUser(userId: string, data: any): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/users/${userId}`, data);
+  }
+  
 }

@@ -15,11 +15,7 @@ interface EventItem {
   category: string;
   level: string;
   duration: number;
-  color?: string;
-  image?: string;
   description?: string;
-  participants?: number;
-  location?: string;
 }
 
 type ViewMode = 'month' | 'week';
@@ -35,10 +31,12 @@ export class JourC implements OnInit {
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  hours = Array.from({length:14}, (_,i)=> `${(i+8).toString().padStart(2,'0')}:00`);
-  categories = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','SeniorA','SeniorB','SeniorC','SeniorD'];
-
+  // ===== Variables calendrier =====
+  hours = Array.from({ length: 14 }, (_, i) => `${(i + 8).toString().padStart(2, '0')}:00`);
+  categories = ['Entraînement', 'Match', 'Tournoi', 'Réunion', 'Fête'];
+  levels = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','SeniorA','SeniorB','SeniorC','SeniorD'];
   events: EventItem[] = [];
+
   today = new Date();
   currentYear = this.today.getFullYear();
   currentMonth = this.today.getMonth();
@@ -49,13 +47,12 @@ export class JourC implements OnInit {
   monthDays: string[] = [];
   weekDays: string[] = [];
 
+  // ===== Popup =====
   showPopup = false;
   selectedEvent: EventItem | null = null;
   isEditing = false;
-  isLoading = false;
-  showSuccessMessage = false;
-  successMessage = '';
 
+  // ===== Formulaire =====
   newEventTitle = '';
   newEventCoach = '';
   newEventCategory = '';
@@ -66,11 +63,13 @@ export class JourC implements OnInit {
   newEventDuration = 1;
   newEventDescription = '';
 
+  // ===== Filtres =====
   selectedCategory = '';
   selectedCoach = '';
   searchTerm = '';
 
-  userRole: string = '';  
+  // ===== Auth & API =====
+  userRole: string = '';
   private apiUrl = 'http://localhost:3000/api/events';
   hourHeight = 56;
 
@@ -80,8 +79,11 @@ export class JourC implements OnInit {
     this.userRole = this.authService.getUserRole();
   }
 
-  canEdit(): boolean { return ['coach','admin','super admin'].includes(this.authService.getUserRole()); }
+  canEdit(): boolean { 
+    return ['coach','admin','super admin'].includes(this.userRole); 
+  }
 
+  // ===== Gestion calendrier =====
   updateDays(): void {
     this.monthDays = this.buildMonthDays();
     this.weekDays = this.buildWeekDays();
@@ -158,27 +160,17 @@ export class JourC implements OnInit {
   }
   dayNum(day: string): number { return day ? parseInt(day.split('-')[2], 10) : 0; }
 
+  // ===== Backend =====
   async loadEvents(): Promise<void> {
-    this.isLoading = true;
-    try { 
-      this.events = await lastValueFrom(this.http.get<EventItem[]>(this.apiUrl)); 
-    } catch (e) { 
-      console.error('Erreur chargement événements', e); 
-      this.showNotification('Erreur lors du chargement des événements');
-    } finally {
-      this.isLoading = false;
-    }
+    try { this.events = await lastValueFrom(this.http.get<EventItem[]>(this.apiUrl)); } 
+    catch(e){ console.error(e); }
   }
 
   async createEvent(evt: EventItem): Promise<void> {
     try { 
       const newEvent = await lastValueFrom(this.http.post<EventItem>(this.apiUrl, evt));
       this.events.push(newEvent);
-      this.showNotification('Événement créé avec succès');
-    } catch (e) { 
-      console.error('Erreur création', e); 
-      this.showNotification('Erreur lors de la création');
-    }
+    } catch(e){ console.error(e); }
   }
 
   async updateEvent(evt: EventItem): Promise<void> {
@@ -186,45 +178,43 @@ export class JourC implements OnInit {
     try {
       const updated = await lastValueFrom(this.http.put<EventItem>(`${this.apiUrl}/${evt._id}`, evt));
       this.events = this.events.map(e => e._id === evt._id ? updated : e);
-      this.showNotification('Événement modifié avec succès');
-    } catch (e) {
-      console.error('Erreur modification', e);
-      this.showNotification('Erreur lors de la modification');
-    }
+    } catch(e){ console.error(e); }
   }
 
   async removeEvent(evt: EventItem): Promise<void> {
-    if (!evt._id || !this.canEdit()) return;
+    if (!evt._id) return;
     try {
       await lastValueFrom(this.http.delete(`${this.apiUrl}/${evt._id}`));
       this.events = this.events.filter(e => e._id !== evt._id);
-      this.showNotification('Événement supprimé avec succès');
-    } catch (e) { 
-      console.error('Erreur suppression', e); 
-      this.showNotification('Erreur lors de la suppression');
-    }
+    } catch(e){ console.error(e); }
   }
 
+  // ===== Actions popup =====
   deleteEvent(event: EventItem): void { 
     this.removeEvent(event); 
     this.closeEventDetails(); 
   }
 
   editEvent(evt: EventItem): void {
+    // NE PAS fermer la pop-up ici !
     this.selectedEvent = { ...evt };
     this.isEditing = true;
+  
+    // Remplir les champs du formulaire avec les valeurs de l'événement
     this.newEventDate = evt.day;
     this.newEventHour = evt.hour;
     this.newEventEndHour = evt.endHour;
     this.newEventTitle = evt.title;
     this.newEventCoach = evt.coach;
     this.newEventCategory = evt.category;
-    this.newEventLevel = evt.level;
+    this.newEventLevel = evt.level || this.levels[0];
     this.newEventDuration = evt.duration;
     this.newEventDescription = evt.description || '';
+  
+    // Afficher la pop-up d'édition
     this.showPopup = true;
-    this.closeEventDetails(); 
   }
+  
 
   openPopup(): void {
     this.isEditing = false;
@@ -236,22 +226,20 @@ export class JourC implements OnInit {
     this.newEventTitle = '';
     this.newEventCoach = '';
     this.newEventCategory = '';
-    this.newEventLevel = '';
+    this.newEventLevel = this.levels[0];
     this.newEventDuration = 1;
     this.newEventDescription = '';
     this.showPopup = true;
   }
 
   openEventDetails(evt: EventItem): void { this.selectedEvent = evt; }
-  closeEventDetails(): void { this.selectedEvent = null; }
+  closeEventDetails(): void { if (!this.isEditing) this.selectedEvent = null; }
 
+  // ===== Helpers calendrier =====
   getEventsByDay(day: string | Date): EventItem[] {
     const dayStr = typeof day === 'string' ? day : this.formatDate(day);
-    let events = this.events.filter(evt => evt.day === dayStr);
-    if (this.selectedCategory) events = events.filter(evt => evt.category === this.selectedCategory);
-    if (this.selectedCoach) events = events.filter(evt => evt.coach.toLowerCase().includes(this.selectedCoach.toLowerCase()));
-    if (this.searchTerm) events = events.filter(evt => evt.title.toLowerCase().includes(this.searchTerm.toLowerCase()) || evt.coach.toLowerCase().includes(this.searchTerm.toLowerCase()));
-    return events.sort((a,b) => parseInt(a.hour.split(':')[0])*60 + parseInt(a.hour.split(':')[1]) - (parseInt(b.hour.split(':')[0])*60 + parseInt(b.hour.split(':')[1])));
+    return this.events.filter(evt => evt.day === dayStr)
+      .sort((a,b) => parseInt(a.hour.split(':')[0])*60+parseInt(a.hour.split(':')[1]) - (parseInt(b.hour.split(':')[0])*60+parseInt(b.hour.split(':')[1])));
   }
 
   getEventTopOffset(evt: EventItem): number {
@@ -267,7 +255,8 @@ export class JourC implements OnInit {
   }
 
   addEvent(): void {
-    if (!this.newEventTitle.trim()) return;
+    if (!this.newEventTitle.trim() || !this.newEventLevel.trim()) return;
+
     const newEvent: EventItem = {
       day: this.newEventDate,
       hour: this.newEventHour,
@@ -275,10 +264,11 @@ export class JourC implements OnInit {
       title: this.newEventTitle.trim(),
       coach: this.newEventCoach.trim(),
       category: this.newEventCategory,
-      level: this.newEventLevel,
+      level: this.newEventLevel.trim(),
       duration: this.newEventDuration,
       description: this.newEventDescription
     };
+
     if(this.isEditing && this.selectedEvent) {
       newEvent._id = this.selectedEvent._id;
       this.updateEvent(newEvent);
@@ -286,32 +276,7 @@ export class JourC implements OnInit {
       this.createEvent(newEvent);
     }
     this.showPopup = false;
-  }
-
-  quickAddEvent(day: string | Date, hour: string): void {
-    this.openPopup();
-    this.newEventDate = typeof day === 'string' ? day : this.formatDate(day);
-    this.newEventHour = hour;
-    const h = parseInt(hour.split(':')[0],10);
-    this.newEventEndHour = `${String(h+1).padStart(2,'0')}:${hour.split(':')[1]}`;
-    this.newEventDuration = 1;
-  }
-
-  getEventIcon(evt: EventItem): string {
-    switch(evt.category) {
-      case 'Entraînement': return 'fa-solid fa-futbol';
-      case 'Fête': return 'fa-solid fa-champagne-glasses';
-      case 'Réunion': return 'fa-solid fa-bullhorn';
-      case 'Match': return 'fa-solid fa-trophy';
-      case 'Tournoi': return 'fa-solid fa-medal';
-      default: return 'fa-solid fa-calendar';
-    }
-  }
-
-  showNotification(msg: string): void {
-    this.successMessage = msg;
-    this.showSuccessMessage = true;
-    setTimeout(() => this.showSuccessMessage = false, 2500);
+    this.isEditing = false;
   }
 
   weekDayHeaders = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
@@ -337,31 +302,65 @@ export class JourC implements OnInit {
     this.updateDays();
   }
 
-  // Vérifie si une date est passée par rapport à aujourd'hui
-isPast(dateStr: string): boolean {
-  const today = new Date();
-  const date = new Date(dateStr + 'T00:00:00'); // ajoute l'heure pour que JS comprenne la date
-  return date < today;
-}
-
+  isPast(dateStr: string): boolean {
+    const today = new Date();
+    const date = new Date(dateStr + 'T00:00:00');
+    return date < today;
+  }
 
   @HostListener('window:keydown', ['$event'])
   hotkeys(e: KeyboardEvent) {
     if (e.target instanceof HTMLInputElement) return;
     switch (e.key) {
-      case 'ArrowLeft':
-        this.viewMode === 'month' ? this.prevMonth() : this.prevWeek();
-        break;
-      case 'ArrowRight':
-        this.viewMode === 'month' ? this.nextMonth() : this.nextWeek();
-        break;
+      case 'ArrowLeft': this.viewMode === 'month' ? this.prevMonth() : this.prevWeek(); break;
+      case 'ArrowRight': this.viewMode === 'month' ? this.nextMonth() : this.nextWeek(); break;
       case 'n':
       case 'N':
-        if (this.canEdit()) this.openPopup();
-        break;
+        if (this.canEdit()) this.openPopup(); break;
     }
   }
 
+  onEditEvent(evt: EventItem): void {
+    // 1️⃣ Fermer la pop-up de détails
+    this.closeEventDetails();
+  
+    // 2️⃣ Remplir les champs du formulaire de modification
+    this.selectedEvent = { ...evt };
+    this.isEditing = true;
+    this.newEventDate = evt.day;
+    this.newEventHour = evt.hour;
+    this.newEventEndHour = evt.endHour;
+    this.newEventTitle = evt.title;
+    this.newEventCoach = evt.coach;
+    this.newEventCategory = evt.category;
+    this.newEventLevel = evt.level || this.levels[0];
+    this.newEventDuration = evt.duration;
+    this.newEventDescription = evt.description || '';
+  
+    // 3️⃣ Ouvrir la pop-up de modification
+    this.showPopup = true;
+  }
+  
+  getEventIcon(evt: EventItem) {
+    switch(evt.category) {
+      case 'Entraînement': return 'fa-solid fa-dumbbell';
+      case 'Match': return 'fa-solid fa-futbol';
+      case 'Tournoi': return 'fa-solid fa-trophy';
+      case 'Réunion': return 'fa-solid fa-calendar';
+      case 'Fête': return 'fa-solid fa-glass-cheers'; // icône existante Font Awesome
+      default: return 'fa-solid fa-circle';
+    }
+  }
 
+  getEventColor(evt: EventItem): string {
+    switch(evt.category) {
+      case 'Entraînement': return 'bg-blue-500';   // bleu
+      case 'Match': return 'bg-red-500';          // rouge
+      case 'Tournoi': return 'bg-yellow-500';     // jaune
+      case 'Réunion': return 'bg-purple-500';     // violet
+      case 'Fête': return 'bg-green-500';         // vert
+      default: return 'bg-gray-400';              // gris par défaut
+    }
+  }
 
 }

@@ -53,6 +53,7 @@ export class Login {
         _id: user._id,
         prenom: user.prenom,
         nom: user.nom,
+        email: user.email || '', // <--- ajout de l'email
         role: (user.role || '').trim().toLowerCase(),
         initiale:
           user.initiale ||
@@ -60,6 +61,7 @@ export class Login {
             (user.nom?.[0] ?? '').toUpperCase()),
         equipe: user.equipe || '',
       };
+      
       localStorage.setItem('utilisateur', JSON.stringify(sessionUser));
       console.log('Session utilisateur enregistrée :', sessionUser);
     } catch (e) {
