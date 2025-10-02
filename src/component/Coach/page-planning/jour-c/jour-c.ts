@@ -354,11 +354,11 @@ export class JourC implements OnInit {
 
   getEventColor(evt: EventItem): string {
     switch(evt.category) {
-      case 'Entraînement': return 'bg-blue-500';   // bleu
-      case 'Match': return 'bg-red-500';          // rouge
-      case 'Tournoi': return 'bg-yellow-500';     // jaune
-      case 'Réunion': return 'bg-purple-500';     // violet
-      case 'Fête': return 'bg-green-500';         // vert
+      case 'Entraînement': return 'bg-blue-800';   // bleu
+      case 'Match': return 'bg-red-800';          // rouge
+      case 'Tournoi': return 'bg-yellow-800';     // jaune
+      case 'Réunion': return 'bg-purple-800';     // violet
+      case 'Fête': return 'bg-green-800';         // vert
       default: return 'bg-gray-400';              // gris par défaut
     }
   }
