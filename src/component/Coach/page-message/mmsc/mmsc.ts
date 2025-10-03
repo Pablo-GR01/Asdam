@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -13,89 +13,80 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
   styleUrls: ['./mmsc.css']
 })
 export class MMSC implements OnInit, OnDestroy {
-  @ViewChild('messagesContainer') messagesContainer!: ElementRef;
-
-  searchText = '';
-  selectedContact: Contact | null = null;
-  newMessage = '';
-
   userId = '';
   userNom = '';
   userPrenom = '';
   userInitiales = '';
 
   isSending = false;
-  isTyping = false;
-
+  searchText = '';
+  newMessage = '';
+  selectedContact: Contact | null = null;
   contacts: Contact[] = [];
   filteredContacts: Contact[] = [];
-  showSuggestions = false;
   messages: Message[] = [];
+  pageContacts = 0;
+  showSearch = false;
+  showSuggestions = false;
 
   private searchSubject = new Subject<string>();
   private subscriptions: Subscription[] = [];
-
-  userStatus: 'En ligne' | 'Absent' | 'Ne pas déranger' = 'En ligne';
+  isMobileScreen = window.innerWidth < 768; // < md
 
   constructor(private chatService: ChatService) {}
 
   ngOnInit() {
     this.loadUser();
     this.loadContacts();
+    this.restoreLastContact(); // ✅ Restaurer la dernière conversation ouverte
     this.setupSearch();
     this.listenNewMessages();
   }
 
   ngOnDestroy() {
-    this.subscriptions.forEach(sub => sub.unsubscribe());
+    this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  @HostListener('window:resize')
+  onResize() {
+    this.isMobileScreen = window.innerWidth < 768;
   }
 
   private loadUser() {
-    const storedUser = localStorage.getItem('utilisateur');
-    if (!storedUser) return console.error('Utilisateur non connecté !');
-
-    const user = JSON.parse(storedUser);
-    if (!user._id) return console.error('Utilisateur invalide ou ID manquant !');
-
-    this.userId = user._id;
-    this.userPrenom = user.prenom || '';
-    this.userNom = user.nom || '';
-    this.userInitiales = user.initiale || `${this.userPrenom[0] || ''}${this.userNom[0] || ''}`.toUpperCase();
+    const raw = localStorage.getItem('utilisateur');
+    if (!raw) return;
+    const u = JSON.parse(raw);
+    this.userId = u._id;
+    this.userPrenom = u.prenom || '';
+    this.userNom = u.nom || '';
+    this.userInitiales = (this.userPrenom[0] || '') + (this.userNom[0] || '');
   }
 
   private loadContacts() {
-    const savedContacts = localStorage.getItem(`contacts_${this.userId}`);
-    if (savedContacts) this.contacts = JSON.parse(savedContacts);
+    const raw = localStorage.getItem(`contacts_${this.userId}`);
+    this.contacts = raw ? JSON.parse(raw) : [];
   }
 
-  private setupSearch() {
-    this.subscriptions.push(
-      this.searchSubject.pipe(debounceTime(200)).subscribe(text => this.filterContacts(text))
-    );
+  private saveContacts() {
+    localStorage.setItem(`contacts_${this.userId}`, JSON.stringify(this.contacts));
   }
 
-  private listenNewMessages() {
-    this.subscriptions.push(
-      this.chatService.onNewMessage().subscribe(msg => this.handleIncomingMessage(msg))
-    );
-  }
-
-  onSearchChange(text: string) {
-    this.showSuggestions = true;
-    this.searchSubject.next(text);
+  private restoreLastContact() {
+    const lastContactId = localStorage.getItem(`lastContact_${this.userId}`);
+    if (lastContactId) {
+      const contact = this.contacts.find(c => c._id === lastContactId);
+      if (contact) this.selectContact(contact);
+    }
   }
 
   filterContacts(text: string) {
-    if (!text.trim()) {
-      this.filteredContacts = [];
-      return;
-    }
+    if (!text.trim()) { this.filteredContacts = []; return; }
     this.chatService.getContacts().subscribe({
       next: data => {
-        this.filteredContacts = data
-          .filter(c => c._id !== this.userId && `${c.firstName} ${c.lastName}`.toLowerCase().includes(text.toLowerCase()));
-      },
-      error: err => console.error('Erreur récupération contacts:', err)
+        this.filteredContacts = data.filter(
+          c => c._id !== this.userId && `${c.firstName} ${c.lastName}`.toLowerCase().includes(text.toLowerCase())
+        );
+      }
     });
   }
 
@@ -103,17 +94,46 @@ export class MMSC implements OnInit, OnDestroy {
     this.showSuggestions = false;
     this.searchText = `${contact.firstName} ${contact.lastName}`;
     this.selectContact(contact);
-
     if (!this.contacts.find(c => c._id === contact._id)) {
       this.contacts.unshift(contact);
       this.saveContacts();
     }
   }
 
-  selectContact(contact: Contact | null) {
-    if (!contact) return;
+  selectContact(contact: Contact) {
     this.selectedContact = contact;
+    localStorage.setItem(`lastContact_${this.userId}`, contact._id); // ✅ Sauvegarder la conversation
     this.loadConversation(contact);
+  }
+
+  deleteContact(contact: Contact) {
+    if (!confirm(`Supprimer ${contact.firstName} ${contact.lastName} ?`)) return;
+    this.contacts = this.contacts.filter(c => c._id !== contact._id);
+    this.saveContacts();
+    if (this.selectedContact?._id === contact._id) {
+      this.selectedContact = null;
+      this.messages = [];
+      localStorage.removeItem(`lastContact_${this.userId}`);
+    }
+  }
+
+  private setupSearch() {
+    this.subscriptions.push(this.searchSubject.pipe(debounceTime(200)).subscribe(t => this.filterContacts(t)));
+  }
+
+  onSearchChange(text: string) {
+    this.showSuggestions = true;
+    this.searchSubject.next(text);
+  }
+
+  getFilteredContacts() {
+    if (!this.searchText) return this.filteredContacts;
+    const first = this.searchText[0].toUpperCase();
+    return this.filteredContacts.filter(c => c.firstName.toUpperCase().startsWith(first));
+  }
+
+  private listenNewMessages() {
+    this.subscriptions.push(this.chatService.onNewMessage().subscribe(m => this.handleIncoming(m)));
   }
 
   private loadConversation(contact: Contact) {
@@ -124,22 +144,13 @@ export class MMSC implements OnInit, OnDestroy {
           senderName: m.senderId === this.userId ? `${this.userPrenom} ${this.userNom}` : `${contact.firstName} ${contact.lastName}`,
           timestamp: m.timestamp ? new Date(m.timestamp) : new Date()
         }));
-        setTimeout(() => this.scrollToBottom(), 100);
-      },
-      error: err => {
-        console.error('Erreur récupération conversation:', err);
-        alert('Impossible de récupérer la conversation. Vérifie que le serveur est actif.');
       }
     });
   }
 
   sendMessage() {
-    if (!this.newMessage?.trim() || !this.selectedContact || this.isSending) {
-      return;
-    }
-  
+    if (!this.newMessage?.trim() || !this.selectedContact || this.isSending) return;
     this.isSending = true;
-  
     const msg: Message = {
       senderId: this.userId,
       receiverId: this.selectedContact._id,
@@ -147,108 +158,33 @@ export class MMSC implements OnInit, OnDestroy {
       senderName: `${this.userPrenom} ${this.userNom}`,
       timestamp: new Date()
     };
-  
-    // Envoi au backend
     this.chatService.sendMessage(msg).subscribe({
-      next: sent => {
-        this.newMessage = '';
-        this.addMessage(sent);
-        this.chatService.emitNewMessage(sent);
-        this.isSending = false;
-        console.log('Message envoyé et email déclenché par le backend ✅');
-      },
-      error: err => {
-        console.error('Erreur envoi message :', err);
-        this.isSending = false;
-        alert('Impossible d’envoyer le message.');
-      }
+      next: sent => { this.newMessage = ''; this.messages.push(sent); this.chatService.emitNewMessage(sent); this.isSending = false; },
+      error: () => { this.isSending = false; alert("Erreur d'envoi"); }
     });
   }
-  
-  
-  
 
-  private handleIncomingMessage(msg: Message) {
+  private handleIncoming(msg: Message) {
     const exists = this.messages.some(m =>
-      m.senderId === msg.senderId &&
-      m.receiverId === msg.receiverId &&
-      m.text === msg.text &&
-      new Date(m.timestamp ?? new Date()).getTime() === new Date(msg.timestamp ?? new Date()).getTime()
+      m.senderId === msg.senderId && m.receiverId === msg.receiverId && m.text === msg.text &&
+      new Date(m.timestamp ?? 0).getTime() === new Date(msg.timestamp ?? 0).getTime()
     );
-
-    if (!exists && (
-      (msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
-      (msg.senderId === this.userId && msg.receiverId === this.selectedContact?._id)
-    )) {
+    if (!exists &&
+        ((msg.senderId === this.selectedContact?._id && msg.receiverId === this.userId) ||
+         (msg.senderId === this.userId && msg.receiverId === this.selectedContact?._id))) {
       if (!msg.timestamp) msg.timestamp = new Date();
-      this.addMessage(msg);
+      this.messages.push(msg);
     }
   }
 
-  private addMessage(msg: Message) {
-    this.messages.push(msg);
-    setTimeout(() => this.scrollToBottom(), 100);
+  getInitiales(n?: string) {
+    if (!n) return '';
+    const p = n.split(' ');
+    return (p[0]?.[0] || '') + (p[1]?.[0] || '');
   }
 
-  removeContact(contactId: string) {
-    this.contacts = this.contacts.filter(c => c._id !== contactId);
-    this.saveContacts();
-    if (this.selectedContact?._id === contactId) {
-      this.selectedContact = null;
-      this.messages = [];
-    }
-  }
+  trackByMsgId(_: number, m: Message) { return m.timestamp?.toString() + m.text; }
+  trackByContactId(_: number, c: Contact) { return c._id; }
 
-  saveContacts() {
-    localStorage.setItem(`contacts_${this.userId}`, JSON.stringify(this.contacts));
-  }
-
-  scrollToBottom() {
-    if (this.messagesContainer) {
-      const el = this.messagesContainer.nativeElement;
-      el.scrollTop = el.scrollHeight;
-    }
-  }
-
-  hideSuggestions() {
-    setTimeout(() => (this.showSuggestions = false), 200);
-  }
-
-  getInitiales(fullName?: string): string {
-    if (!fullName) return '';
-    const parts = fullName.split(' ');
-    return ((parts[0]?.[0] || '') + (parts[1]?.[0] || '')).toUpperCase();
-  }
-
-  logout() {
-    localStorage.removeItem('utilisateur');
-    localStorage.removeItem(`contacts_${this.userId}`);
-  }
-
-  trackByMsgId(_: number, msg: Message) {
-    return msg.timestamp?.toString() || msg.text;
-  }
-
-  trackByContactId(_: number, contact: Contact) {
-    return contact._id;
-  }
-
-  deleteContact(contact: Contact) {
-    const confirmed = confirm(`Voulez-vous vraiment supprimer ${contact.firstName} ${contact.lastName} ?`);
-    if (confirmed) this.removeContact(contact._id);
-  }
-
-  setStatus(status: 'En ligne' | 'Absent' | 'Ne pas déranger') {
-    this.userStatus = status;
-  }
-
-  getFilteredContacts() {
-    if (!this.filteredContacts) return [];
-    if (!this.searchText || this.searchText.length === 0) return this.filteredContacts;
-
-    const firstLetter = this.searchText[0].toUpperCase();
-    return this.filteredContacts.filter(contact =>
-      contact.firstName.toUpperCase().startsWith(firstLetter)
-    );
-  }
+  loadOlder() {}
 }
