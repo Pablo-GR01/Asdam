@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, Subject, throwError, map, catchError } from 'rxjs';
 
-// Interface Contact
 export interface Contact {
   _id: string;
   firstName: string;
@@ -10,7 +9,6 @@ export interface Contact {
   email?: string;
 }
 
-// Interface Message
 export interface Message {
   id?: string;
   senderId: string;
@@ -29,79 +27,43 @@ export class ChatService {
 
   constructor(private http: HttpClient) {}
 
-  // Récupère tous les utilisateurs
   getContacts(): Observable<Contact[]> {
     return this.http.get<any[]>('http://localhost:3000/api/users/contacts').pipe(
-      map(users =>
-        users.map(u => ({
-          _id: u._id || u.id,
-          firstName: u.firstName || u.firstname || u.prenom || u.name || 'Utilisateur',
-          lastName: u.lastName || u.lastname || u.nom || '',
-          email: u.email || ''
-        }))
-      ),
+      map(users => users.map(u => ({
+        _id: u._id || u.id,
+        firstName: u.firstName || u.prenom || u.name || 'Utilisateur',
+        lastName: u.lastName || u.nom || '',
+        email: u.email || ''
+      }))),
       catchError(this.handleError)
     );
   }
 
-  // Recherche côté serveur
-  searchContacts(text: string): Observable<Contact[]> {
-    return this.getContacts().pipe(
-      map(users =>
-        users.filter(u =>
-          `${u.firstName} ${u.lastName}`.toLowerCase().includes(text.toLowerCase())
-        )
-      )
-    );
-  }
-
-  // Récupère la conversation entre 2 utilisateurs
   getConversation(user1Id: string, user2Id: string): Observable<Message[]> {
-    return this.http.get<{ messages: Message[] }>(`${this.apiUrl}/conversation/${user1Id}/${user2Id}`).pipe(
-      map(res => res.messages || []),
+    return this.http.get<Message[]>(`${this.apiUrl}/conversation/${user1Id}/${user2Id}`).pipe(
       catchError(this.handleError)
     );
   }
 
-  // Envoie un message (backend gère l'envoi en DB + email)
   sendMessage(msg: Message): Observable<Message> {
     if (!msg.senderId || !msg.receiverId || !msg.text?.trim()) {
-      return throwError(() => new Error('Impossible d’envoyer le message : champs manquants'));
+      return throwError(() => new Error('Champs manquants'));
     }
-
-    const payload = {
-      senderId: msg.senderId,
-      receiverId: msg.receiverId,
-      text: msg.text.trim(),
-      senderName: msg.senderName || ''
-    };
-
-    return this.http.post<Message>(this.apiUrl, payload).pipe(
-      catchError((error: HttpErrorResponse) => {
-        console.error('Erreur envoi message :', error);
-        return throwError(() => new Error('Erreur lors de l’envoi du message'));
-      })
+    return this.http.post<Message>(this.apiUrl, msg).pipe(
+      catchError(this.handleError)
     );
   }
 
-  // Observable pour les nouveaux messages
   onNewMessage(): Observable<Message> {
     return this.newMessageSubject.asObservable();
   }
 
-  // Émettre un nouveau message
   emitNewMessage(msg: Message) {
     this.newMessageSubject.next(msg);
   }
 
-  // Gestion des erreurs génériques
   private handleError(error: HttpErrorResponse) {
     console.error('Erreur API messages :', error);
-    return throwError(() => new Error('Erreur lors de la récupération des données'));
-  }
-
-  // Optionnel si tu veux envoyer un email directement depuis Angular
-  sendEmailNotification(to: string, subject: string, text: string) {
-    return this.http.post(`${this.apiUrl}/email/send`, { to, subject, text });
+    return throwError(() => new Error(error.message || 'Erreur API'));
   }
 }

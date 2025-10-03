@@ -1,11 +1,33 @@
-// backend/controller/message.controller.js
-
+require('dotenv').config(); // ⚠️ doit être au début
 const Message = require('../../src/Schema/message.js');
+const User = require('../../src/Schema/user.js');
+const nodemailer = require('nodemailer');
+
+// ===== Service Mailer =====
+async function sendMail({ to, subject, plainText, html }) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS
+    }
+  });
+
+  return transporter.sendMail({
+    from: `"TeamAsdam" <${process.env.MAIL_USER}>`,
+    to,
+    subject,
+    text: plainText,
+    html
+  });
+}
 
 // ===========================
 // Envoyer un message
 // ===========================
-exports.sendMessage = async (req, res) => {
+
+
+async function sendMessage(req, res) {
   try {
     const { senderId, receiverId, text, senderName } = req.body;
 
@@ -13,32 +35,59 @@ exports.sendMessage = async (req, res) => {
       return res.status(400).json({ message: 'Champs manquants' });
     }
 
-    // 1️⃣ Enregistrer le message
+    // Création du message dans la base
     const newMessage = await Message.create({
       senderId,
       receiverId,
       text,
       senderName,
+      read: false,
       timestamp: new Date()
     });
 
-    // 2️⃣ Envoyer un mail si l'utilisateur a un email
+    // Récupérer l'email du destinataire
     const receiver = await User.findById(receiverId);
+
     if (receiver?.email) {
+      console.log('📩 Tentative d’envoi de mail à prout :', receiver.email);
+
       const subject = `Nouveau message de ${senderName}`;
-      const emailText = `
-Bonjour ${receiver.firstName},
+      const appUrl = process.env.NODE_ENV === 'production'
+    ? 'https://teamasdam.app/login'
+    : 'http://localhost:4200/connexion';// Lien vers ton app
 
-Vous avez reçu un nouveau message sur l'application :
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; color: #333;">
+          <p>Bonjour ${receiver.nom || receiver.lastName || ''},</p>
+          <p>Vous avez reçu un nouveau message sur l'application TeamAsdam :</p>
+          <p>
+            <a href="${appUrl}" target="_blank" 
+              style="display: inline-block; 
+                      padding: 12px 24px; 
+                      background-color: #ca0303; 
+                      color: #ffffff !important; 
+                      text-decoration: none; 
+                      border-radius: 6px; 
+                      font-weight: bold; 
+                      font-size: 14px; 
+                      font-family: Arial, sans-serif; 
+                      text-align: center;">
+              Répondre au message
+            </a>
 
-"${text}"
-
-Connectez-vous pour y répondre.
+          </p>
+          <p>Bonne journée,<br/>L'équipe TeamAsdam</p>
+        </div>
       `;
 
-      sendMail({ to: receiver.email, subject, text: emailText })
-        .then(info => console.log('✅ Email envoyé', info))
-        .catch(err => console.error('❌ Erreur envoi mail', err));
+      try {
+        await sendMail({ to: receiver.email, subject, plainText: text, html: emailHtml });
+        console.log(`✅ Email envoyé à ${receiver.email}`);
+      } catch (err) {
+        console.error('❌ Erreur envoi mail', err);
+      }
+    } else {
+      console.log('ℹ️ Pas d’email trouvé pour ce destinataire.');
     }
 
     res.status(200).json(newMessage);
@@ -47,69 +96,79 @@ Connectez-vous pour y répondre.
     console.error('Erreur envoi message', err);
     res.status(500).json({ message: 'Erreur envoi message', error: err.message });
   }
-};
-// ===========================
-// Récupérer la conversation entre deux utilisateurs
-// ===========================
-exports.getConversation = async (req, res) => {
-  const { user1Id, user2Id } = req.params;
+}
 
+// ===========================
+// Récupérer une conversation entre deux utilisateurs
+// ===========================
+
+
+async function getConversation(req, res) {
   try {
-    const messages = await Message.find({
+    const { user1Id, user2Id } = req.params;
+    const conversation = await Message.find({
       $or: [
         { senderId: user1Id, receiverId: user2Id },
         { senderId: user2Id, receiverId: user1Id }
       ]
-    }).sort({ createdAt: 1 }); // trie par date croissante
+    }).sort({ timestamp: 1 });
 
-    res.status(200).json({ messages });
+    res.json(conversation);
   } catch (err) {
-    console.error('Erreur récupération conversation :', err);
-    res.status(500).json({ error: 'Erreur lors de la récupération des messages' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-};
+}
+
 // ===========================
 // Récupérer tous les messages d’un utilisateur
 // ===========================
-exports.getUserMessages = async (req, res) => {
+async function getUserMessages(req, res) {
   try {
     const { userId } = req.params;
-
     const messages = await Message.find({
-      $or: [
-        { senderId: userId },
-        { receiverId: userId }
-      ]
-    }).sort({ dateCreation: -1 });
+      $or: [{ senderId: userId }, { receiverId: userId }]
+    }).sort({ timestamp: -1 });
 
-    return res.status(200).json(messages);
+    res.json(messages);
   } catch (err) {
-    console.error('Erreur getUserMessages:', err);
-    return res.status(500).json({ error: 'Erreur serveur' });
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
-};
+}
 
-
-// Récupérer le nombre de messages non lus pour un utilisateur
-exports.getUnreadCount = async (req, res) => {
-  const userId = req.params.userId;
+// ===========================
+// Récupérer les messages non lus
+// ===========================
+async function getUnreadMessages(req, res) {
   try {
-    const count = await Message.countDocuments({ userId, read: false });
+    const { userId } = req.params;
+    const messages = await Message.find({ receiverId: userId, read: false }).sort({ timestamp: -1 });
+    res.json(messages);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// ===========================
+// Compter les messages non lus
+// ===========================
+async function getUnreadCount(req, res) {
+  try {
+    const { userId } = req.params;
+    const count = await Message.countDocuments({ receiverId: userId, read: false });
     res.json({ count });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: err.message });
   }
-};
+}
 
-exports.getUnreadMessages = async (req, res) => {
-  try {
-    const messages = await Message.find({
-      destinataire: req.params.userId,
-      lu: false
-    });
-    res.json(messages);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+module.exports = {
+  sendMessage,
+  getConversation,
+  getUserMessages,
+  getUnreadMessages,
+  getUnreadCount
 };
