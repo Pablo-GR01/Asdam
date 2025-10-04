@@ -48,7 +48,9 @@ export class Inscription implements OnInit, OnDestroy {
     initiale: '',
     cguValide: false,
   };
-
+  showCoachPassword: boolean = false;
+  showJoueurPassword: boolean = false;
+  
   passwordVisible = false;
   formSubmitted = false;
   message: string | null = null;
