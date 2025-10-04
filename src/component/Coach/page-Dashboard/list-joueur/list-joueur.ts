@@ -10,26 +10,45 @@ import { UtilisateurService, User } from '../../../../../services/userService/ut
   styleUrls: ['./list-joueur.css']
 })
 export class ListJoueur implements OnInit {
-  joueurs: User[] = [];
-  utilisateurConnecte: User | null = null;
+  joueurs: User[] = [];                    // Tous les joueurs filtrés
+  utilisateurConnecte: User | null = null; // Coach connecté
   loading = true;
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 3;
+  totalPages = 1;
+  paginatedJoueurs: User[] = [];
 
   constructor(private userService: UtilisateurService) {}
 
   ngOnInit(): void {
-    // 🔹 Récupérer l'id de l'utilisateur connecté depuis le localStorage
+    // 1️⃣ Récupérer l'utilisateur connecté depuis le localStorage
     const userLocal = localStorage.getItem('utilisateur');
-    const userId = userLocal ? JSON.parse(userLocal).id : null;
+    if (userLocal) {
+      this.utilisateurConnecte = JSON.parse(userLocal) as User;
+    }
 
-    // 🔹 Récupérer tous les joueurs
+    // 2️⃣ Récupérer tous les utilisateurs
     this.userService.getJoueurs().subscribe({
-      next: (data) => {
-        this.joueurs = data.filter(user => user.role?.toLowerCase() === 'joueur');
+      next: (data: User[]) => {
 
-        // 🔹 Trouver l'utilisateur connecté dans la liste
-        if (userId) {
-          this.utilisateurConnecte = this.joueurs.find(user => user.id === userId) || null;
+        if (this.utilisateurConnecte) {
+          const equipeCoach = this.utilisateurConnecte.equipe; // ex: 'U23'
+
+          // 3️⃣ Filtrer uniquement les joueurs avec la même équipe
+          this.joueurs = data.filter(u =>
+            u.role?.toLowerCase() === 'joueur' &&
+            u.equipe === equipeCoach
+          );
+        } else {
+          // Si aucun utilisateur connecté, afficher tous les joueurs
+          this.joueurs = data.filter(u => u.role?.toLowerCase() === 'joueur');
         }
+
+        // 4️⃣ Pagination
+        this.totalPages = Math.ceil(this.joueurs.length / this.pageSize);
+        this.setPage(this.currentPage);
 
         this.loading = false;
       },
@@ -38,5 +57,21 @@ export class ListJoueur implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  // Pagination
+  setPage(page: number) {
+    this.currentPage = page;
+    const start = (page - 1) * this.pageSize;
+    const end = start + this.pageSize;
+    this.paginatedJoueurs = this.joueurs.slice(start, end);
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) this.setPage(this.currentPage - 1);
+  }
+
+  nextPage() {
+    if (this.currentPage < this.totalPages) this.setPage(this.currentPage + 1);
   }
 }

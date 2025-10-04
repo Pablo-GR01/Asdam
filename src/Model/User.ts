@@ -4,6 +4,6 @@ export interface User {
     prenom: string;
     role: string;
     equipe?: string;
-    
+    categorie?: string; 
 }
   

@@ -15,6 +15,7 @@ export interface User {
   role: string;
   photoURL?: string;
   joueurs?: any[];
+  categorie?: string; 
 }
 
 @Injectable({ providedIn: 'root' })

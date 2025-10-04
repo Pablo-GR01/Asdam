@@ -10,6 +10,7 @@ export class UserService {
     role: string;
     initiale: string;
     equipe?: string; // ✅ ajouté
+    categorie?: string; 
   } | null = null;
 
   constructor() {

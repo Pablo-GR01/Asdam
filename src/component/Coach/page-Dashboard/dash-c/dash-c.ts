@@ -6,13 +6,14 @@ import { UtilisateurService, User } from '../../../../../services/userService/ut
 import { CreerConvocationsC } from '../../Bouton/creer-convocations-c/creer-convocations-c';
 import { CreerMatchC } from '../../Bouton/creer-match-c/creer-match-c';
 import { ActusC } from "../../Bouton/creer-post-c/creer-post-c";
+import { ListJoueur } from "../list-joueur/list-joueur";
 
 type Toast = { message: string; type: 'success' | 'error' };
 
 @Component({
   selector: 'app-dash-c',
   standalone: true,
-  imports: [CommonModule, FormsModule, CreerConvocationsC, CreerMatchC, RouterLink, ActusC],
+  imports: [CommonModule, FormsModule, CreerConvocationsC, CreerMatchC, RouterLink, ActusC, ListJoueur],
   templateUrl: './dash-c.html',
   styleUrls: ['./dash-c.css']
 })

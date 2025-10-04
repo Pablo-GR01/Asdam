@@ -1,49 +1,55 @@
-<section class="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
-  <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Liste des joueurs</h2>
+<!-- Carte Liste des joueurs (absolute, responsive) -->
+<div class="absolute top-0 left-0 mt-15 ml-5 w-[90%] max-w-[350px] sm:w-[350px] h-auto max-h-[400px] bg-[var(--Blanc)] rounded-2xl shadow-2xl border border-[var(--Rouge)]/30 flex flex-col p-4 sm:p-6 transition-transform duration-300 ease-out hover:scale-105 z-10">
 
-  <!-- 🔹 Utilisateur connecté -->
-  <div *ngIf="utilisateurConnecte" class="mb-6 p-4 bg-green-100 rounded-lg flex items-center gap-4">
-    <div class="w-14 h-14 flex items-center justify-center rounded-full bg-green-600 text-white text-xl font-bold">
-      {{ utilisateurConnecte.initiale || '?' }}
-    </div>
-    <div>
-      <p class="font-semibold text-gray-800">{{ utilisateurConnecte.prenom }} {{ utilisateurConnecte.nom }}</p>
-      <div class="flex gap-2 mt-1">
-        <span *ngIf="utilisateurConnecte.club" class="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">
-          {{ utilisateurConnecte.club }}
-        </span>
-        <span *ngIf="utilisateurConnecte.equipe" class="px-2 py-1 text-xs font-medium bg-green-200 text-green-800 rounded-full">
-          {{ utilisateurConnecte.equipe }}
-        </span>
-      </div>
-    </div>
-  </div>
+  <!-- Titre -->
+  <h3 class="text-lg font-semibold text-[var(--Black)] text-center mb-4 sm:mb-4">Liste des joueurs</h3>
 
-  <!-- 🔹 Loader -->
-  <div *ngIf="loading" class="space-y-2 animate-pulse">
-    <div class="h-6 bg-gray-200 rounded w-1/3 mx-auto"></div>
-    <div class="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
-    <div class="h-48 bg-gray-100 rounded"></div>
-  </div>
-
-  <!-- 🔹 Liste des joueurs -->
-  <ul *ngIf="!loading && joueurs.length > 0" class="space-y-4">
-    <li *ngFor="let j of joueurs" class="p-4 border rounded-lg flex items-center gap-4 hover:shadow-lg transition-shadow duration-200">
-      <div class="w-12 h-12 flex items-center justify-center rounded-full bg-blue-600 text-white text-lg font-bold">
+  <!-- Liste des joueurs -->
+  <ul *ngIf="!loading && paginatedJoueurs.length > 0" class="flex-1 overflow-y-auto w-full space-y-2">
+    <li *ngFor="let j of paginatedJoueurs" class="flex items-center gap-2 p-2 border rounded-lg hover:shadow-lg transition-shadow duration-200">
+      
+      <!-- Avatar réduit -->
+      <div class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-600 text-white text-base font-bold shrink-0">
         {{ j.initiale || '?' }}
       </div>
-      <div class="flex-1">
-        <p class="font-semibold text-gray-800">{{ j.prenom }} {{ j.nom }}</p>
-        <div class="flex gap-2 mt-1 text-sm">
-          <span *ngIf="j.club" class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ j.club }}</span>
-          <span *ngIf="j.equipe" class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full">{{ j.equipe }}</span>
+  
+      <!-- Infos -->
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold text-[var(--Black)] text-sm sm:text-base truncate">
+          {{ j.prenom }} {{ j.nom }}
+        </p>
+        <div class="flex flex-wrap gap-1 mt-1 text-xs">
+          <span *ngIf="j.club" class="px-1 py-0.5 bg-blue-100 text-blue-800 rounded-full truncate">{{ j.club }}</span>
+          <span *ngIf="j.equipe" class="px-1 py-0.5 bg-blue-100 text-blue-800 rounded-full truncate">{{ j.equipe }}</span>
         </div>
       </div>
     </li>
   </ul>
-
-  <!-- 🔹 Aucun joueur trouvé -->
-  <p *ngIf="!loading && joueurs.length === 0" class="text-center text-gray-500 mt-4">
+  
+  <!-- Aucun joueur trouvé -->
+  <p *ngIf="!loading && joueurs.length === 0" class="text-center text-gray-500 mt-2 text-sm sm:text-base">
     Aucun joueur trouvé.
   </p>
-</section>
+
+  <!-- Pagination -->
+  <div class="flex justify-center items-center gap-2 mt-3 w-full flex-wrap">
+    <button
+      class="px-2 py-1 bg-[var(--Rouge)] text-white rounded disabled:opacity-50"
+      (click)="prevPage()"
+      [disabled]="currentPage === 1"
+    >
+      Précédent
+    </button>
+    <span class="text-sm font-semibold">{{ currentPage }} / {{ totalPages }}</span>
+    <button
+      class="px-2 py-1 bg-[var(--Rouge)] text-white rounded disabled:opacity-50"
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+    >
+      Suivant
+    </button>
+  </div>
+
+  <!-- Ligne décorative -->
+  <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-2/3 h-[3px] bg-gradient-to-r from-[var(--Rouge)] via-[var(--Rouge-Foncé)] to-[var(--Rouge)] rounded-full"></div>
+</div>
