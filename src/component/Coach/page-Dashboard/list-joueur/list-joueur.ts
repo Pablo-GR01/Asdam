@@ -20,33 +20,33 @@ export class ListJoueur implements OnInit {
   totalPages = 1;
   paginatedJoueurs: User[] = [];
 
+  // Modal joueur
+  selectedJoueur: User | null = null;
+  showModal = false;
+
   constructor(private userService: UtilisateurService) {}
 
   ngOnInit(): void {
-    // 1️⃣ Récupérer l'utilisateur connecté depuis le localStorage
+    // Récupérer l'utilisateur connecté
     const userLocal = localStorage.getItem('utilisateur');
     if (userLocal) {
       this.utilisateurConnecte = JSON.parse(userLocal) as User;
     }
 
-    // 2️⃣ Récupérer tous les utilisateurs
+    // Récupérer tous les joueurs
     this.userService.getJoueurs().subscribe({
       next: (data: User[]) => {
-
         if (this.utilisateurConnecte) {
-          const equipeCoach = this.utilisateurConnecte.equipe; // ex: 'U23'
-
-          // 3️⃣ Filtrer uniquement les joueurs avec la même équipe
+          const equipeCoach = this.utilisateurConnecte.equipe;
           this.joueurs = data.filter(u =>
             u.role?.toLowerCase() === 'joueur' &&
             u.equipe === equipeCoach
           );
         } else {
-          // Si aucun utilisateur connecté, afficher tous les joueurs
           this.joueurs = data.filter(u => u.role?.toLowerCase() === 'joueur');
         }
 
-        // 4️⃣ Pagination
+        // Pagination
         this.totalPages = Math.ceil(this.joueurs.length / this.pageSize);
         this.setPage(this.currentPage);
 
@@ -75,8 +75,25 @@ export class ListJoueur implements OnInit {
     if (this.currentPage < this.totalPages) this.setPage(this.currentPage + 1);
   }
 
-  // ✅ Fonction trackBy pour améliorer les performances du *ngFor
+  // TrackBy pour *ngFor
   trackById(index: number, item: any): number {
     return item.id;
+  }
+
+  // Modal joueur
+  openPlayerModal(joueur: User) {
+    this.selectedJoueur = joueur;
+    this.showModal = true;
+  }
+
+  closeModal() {
+    this.showModal = false;
+    this.selectedJoueur = null;
+  }
+
+  getInitials(prenom: string, nom: string): string {
+    const p = (prenom || '').trim().charAt(0).toUpperCase();
+    const n = (nom || '').trim().charAt(0).toUpperCase();
+    return p + n;
   }
 }
