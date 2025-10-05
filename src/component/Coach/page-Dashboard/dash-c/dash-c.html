@@ -1,70 +1,21 @@
-<!-- Toast -->
-<div *ngIf="toast" role="alert" aria-live="polite"
-  class="fixed top-4 right-4 z-50 px-4 py-2 rounded-xl shadow-lg text-white text-sm font-medium animate-fade-in-up"
-  [ngClass]="{
-       'bg-green-500': toast.type === 'success',
-       'bg-red-500': toast.type === 'error'
-     }">
-  {{ toast.message }}
-</div>
+<!-- Dashboard principal -->
+<div
+  class="min-h-100 w-full bg-[var(--Blanc)]
+         flex flex-col items-center justify-start
+         gap-8 sm:gap-10 md:gap-12 p-4 sm:p-6 md:p-10
+         transition-all duration-300 ease-out"
+>
 
-<!-- Loader -->
-<div *ngIf="loading" class="flex justify-center items-center h-screen bg-[var(--Black)]">
-  <div class="text-lg font-semibold text-white animate-pulse">Chargement...</div>
-</div>
 
-<div class="mt-5 h-130 flex">
-  <!-- Carré 1 utilisateur (absolute) -->
-  <div *ngIf="!loading && user"
-    class="absolute mt-15 ml-5 w-[350px] h-[350px] bg-[var(--Blanc)] rounded-2xl shadow-2xl border border-[var(--Rouge)]/30 flex flex-col items-center justify-center p-8 transition-transform duration-300 ease-out hover:scale-105 z-20">
-    <!-- Avatar -->
-    <div
-      class="relative w-24 h-24 flex items-center justify-center rounded-full text-[var(--Blanc)] text-4xl font-bold shadow-lg overflow-hidden mb-4">
-      <div
-        class="absolute inset-0 bg-gradient-to-br from-[var(--Rouge)] via-[var(--Rouge-Foncé)] to-[var(--Rouge)] animate-gradient-move">
-      </div>
-      <span class="relative z-10">{{ user.initiale }}</span>
-    </div>
-
-    <!-- Infos utilisateur -->
-    <div class="text-center space-y-2">
-      <h2 class="text-2xl md:text-3xl font-extrabold text-[var(--Black)] drop-shadow-sm">
-        Bonjour, <span class="text-[var(--Rouge)]">{{ user.prenom }}</span>
-        {{ user.nom }}
-      </h2>
-      <p class="text-[var(--Rouge-Foncé)] text-sm md:text-base uppercase tracking-wide font-semibold">
-        {{ user.role || 'Coach' }}
-      </p>
-      <p class="text-[var(--Black)] text-sm md:text-base font-medium">
-        Équipe : <span class="text-[var(--Rouge-Foncé)] font-semibold">{{ user.equipe }}</span>
-      </p>
-    </div>
-
-    <!-- Ligne décorative -->
-    <div
-      class="absolute bottom-8 w-2/3 h-[3px] bg-gradient-to-r from-[var(--Rouge)] via-[var(--Rouge-Foncé)] to-[var(--Rouge)] rounded-full">
-    </div>
-  </div>
-
-  <!-- Carré 2 Accès rapide (absolute) -->
+  <!-- Grille principale -->
   <div
-    class="absolute mt-15 ml-100 w-[350px] h-[350px] bg-[var(--Blanc)] rounded-2xl shadow-2xl border border-[var(--Rouge)]/30 flex flex-col items-center justify-center p-6 transition-transform duration-300 ease-out hover:scale-105 z-10">
-    <h3 class="text-lg font-semibold text-[var(--Black)] text-center -mb-4">Accès rapide</h3>
-    <div class="flex flex-col gap-4 items-center justify-center w-full">
-      <app-creer-match-c></app-creer-match-c>
-      <app-creer-convocations-c></app-creer-convocations-c>
-      <app-creer-post-c></app-creer-post-c>
-    </div>
-
-    <!-- Ligne décorative -->
-    <div
-      class="absolute bottom-4 left-1/2 transform -translate-x-1/2 w-2/3 h-[3px] bg-gradient-to-r from-[var(--Rouge)] via-[var(--Rouge-Foncé)] to-[var(--Rouge)] rounded-full">
-    </div>
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 
+           gap-8 sm:gap-10 lg:gap-12
+           w-full max-w-7xl place-items-center"
+  >
+    <!-- Chaque carte a la même taille -->
+    <app-user-c class="dashboard-card w-full"></app-user-c>
+    <app-acces-rapide-c class="dashboard-card w-full"></app-acces-rapide-c>
+    <app-list-joueur class="dashboard-card w-full"></app-list-joueur>
   </div>
-
-  <!-- Carré 3 Liste Joueur (absolute) -->
-  <div class="absolute ml-190">
-    <app-list-joueur></app-list-joueur>
-  </div>
-
 </div>

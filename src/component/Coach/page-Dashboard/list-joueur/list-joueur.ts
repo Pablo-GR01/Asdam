@@ -74,4 +74,9 @@ export class ListJoueur implements OnInit {
   nextPage() {
     if (this.currentPage < this.totalPages) this.setPage(this.currentPage + 1);
   }
+
+  // ✅ Fonction trackBy pour améliorer les performances du *ngFor
+  trackById(index: number, item: any): number {
+    return item.id;
+  }
 }

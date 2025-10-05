@@ -16,6 +16,7 @@ export interface User {
   photoURL?: string;
   joueurs?: any[];
   categorie?: string; 
+  poste?: string;
 }
 
 @Injectable({ providedIn: 'root' })

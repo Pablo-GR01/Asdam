@@ -5,5 +5,6 @@ export interface User {
     role: string;
     equipe?: string;
     categorie?: string; 
+    poste?: string;
 }
   

@@ -11,6 +11,7 @@ export class UserService {
     initiale: string;
     equipe?: string; // ✅ ajouté
     categorie?: string; 
+    poste?: string;
   } | null = null;
 
   constructor() {
