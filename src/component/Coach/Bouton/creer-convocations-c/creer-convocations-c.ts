@@ -32,13 +32,10 @@ export class CreerConvocationsC implements OnInit {
   showModal = false;
   showComposeModal = false;
   hideMainBtn = false;
-
   loading = false;
   successMsg = '';
   errorMsg = '';
-
   maxJoueurs = 5;
-
   currentUser: User | null = null;
 
   constructor(private convocationService: ConvocationService) {}
@@ -48,59 +45,37 @@ export class CreerConvocationsC implements OnInit {
     this.loadJoueurs();
   }
 
-  // 🔐 Charger utilisateur connecté
   loadCurrentUser(): void {
     const userStr = localStorage.getItem('utilisateur');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
       this.convocation.equipe = this.currentUser?.equipe ?? '';
-      console.log('Utilisateur connecté :', this.currentUser);
     }
   }
 
-  // 🧩 Charger joueurs de la même équipe
   loadJoueurs(): void {
     this.convocationService.getJoueurs().subscribe({
       next: users => {
         if (!this.currentUser) return;
         this.allJoueurs = users
-          .filter(u => u.role === 'joueur' && u.equipe === this.currentUser!.equipe)
+          .filter(u => u.equipe === this.currentUser!.equipe)
           .map(u => ({ ...u, action: undefined }));
       },
-      error: err => console.error('Erreur chargement joueurs :', err)
+      error: err => console.error(err)
     });
   }
 
-  // ⚙️ Modales
-  openModal(): void {
-    this.showModal = true;
-    this.hideMainBtn = true;
-  }
+  openModal(): void { this.showModal = true; this.hideMainBtn = true; }
+  closeModal(): void { this.showModal = false; this.showComposeModal = false; this.hideMainBtn = false; this.composeJoueurs = []; this.allJoueurs.forEach(j => j.action = undefined); }
+  openComposeModal(): void { this.showModal = false; this.showComposeModal = true; }
+  closeComposeModal(): void { this.showComposeModal = false; this.showModal = true; }
 
-  closeModal(): void {
-    this.showModal = false;
-    this.showComposeModal = false;
-    this.hideMainBtn = false;
-    this.composeJoueurs = [];
-    this.allJoueurs.forEach(j => j.action = undefined);
-  }
-
-  openComposeModal(): void {
-    this.showModal = false;
-    this.showComposeModal = true;
-  }
-
-  closeComposeModal(): void {
-    this.showComposeModal = false;
-    this.showModal = true;
-  }
-
-  // 🧠 Gestion joueurs
   ajouterJoueur(user: User & { action?: string }): void {
-    if (this.composeJoueurs.find(u => u._id === user._id)) return;
     if (this.composeJoueurs.length >= this.maxJoueurs) return;
-    user.action = 'ajoute';
-    this.composeJoueurs.push(user);
+    if (!this.composeJoueurs.find(j => j._id === user._id)) {
+      user.action = 'ajoute';
+      this.composeJoueurs.push(user);
+    }
   }
 
   retirerJoueur(user: User & { action?: string }): void {
@@ -108,11 +83,8 @@ export class CreerConvocationsC implements OnInit {
     this.composeJoueurs = this.composeJoueurs.filter(u => u._id !== user._id);
   }
 
-  isJoueurCompose(joueur: User & { action?: string }): boolean {
-    return this.composeJoueurs.some(j => j._id === joueur._id);
-  }
+  isJoueurCompose(user: User): boolean { return this.composeJoueurs.some(j => j._id === user._id); }
 
-  // ✅ Validation finale
   validerCompo(): void {
     this.joueursConvoques = [...this.composeJoueurs];
     this.closeComposeModal();
@@ -133,19 +105,10 @@ export class CreerConvocationsC implements OnInit {
         this.successMsg = 'Convocation créée avec succès !';
         this.loading = false;
         this.closeModal();
-        this.convocation = {
-          match: '',
-          equipe: this.currentUser?.equipe || '',
-          joueurs: [],
-          date: new Date(),
-          lieu: ''
-        };
-        this.composeJoueurs = [];
-        this.joueursConvoques = [];
+        this.resetForm();
         setTimeout(() => this.successMsg = '', 3000);
       },
       error: err => {
-        console.error('Erreur création convocation :', err);
         this.errorMsg = 'Erreur lors de la création.';
         this.loading = false;
         setTimeout(() => this.errorMsg = '', 3000);
@@ -153,7 +116,13 @@ export class CreerConvocationsC implements OnInit {
     });
   }
 
-  // 🔠 Helpers
+  private resetForm(): void {
+    this.convocation = { match: '', equipe: this.currentUser?.equipe || '', joueurs: [], date: new Date(), lieu: '' };
+    this.composeJoueurs = [];
+    this.joueursConvoques = [];
+    this.allJoueurs.forEach(j => j.action = undefined);
+  }
+
   getInitiale(user: User): string {
     return (user.prenom?.charAt(0) + user.nom?.charAt(0)).toUpperCase();
   }
