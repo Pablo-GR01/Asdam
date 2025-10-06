@@ -18,7 +18,10 @@ export interface Convocation {
   date: Date | string;
   lieu: string;
   statut?: 'en attente' | 'confirmé' | 'annulé';
+  
 }
+
+
 
 @Injectable({
   providedIn: 'root'
@@ -49,5 +52,10 @@ export class ConvocationService {
     return this.http.get<User[]>(this.usersUrl).pipe(
       map(users => users.filter(u => u.role === 'joueur'))
     );
+  }
+
+  // ✅ Convocation du joueur connecté seulement
+  getMaConvocation(): Observable<Convocation | null> {
+    return this.http.get<Convocation>(`${this.apiUrl}/moi`);
   }
 }

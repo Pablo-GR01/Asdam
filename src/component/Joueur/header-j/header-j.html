@@ -1,43 +1,56 @@
 <app-icon></app-icon>
 
-<!-- ====== Header modernisé avec UI/UX harmonisé ====== -->
-<header class="sticky top-0 z-50 w-full backdrop-blur-xl bg-[var(--Black)]/40 border-b border-[var(--Rouge)] shadow-lg">
+<!-- ====== Header MODE CLAIR UI/UX ====== -->
+<header class="sticky top-0 z-50 w-full backdrop-blur-xl bg-[var(--Blanc)]/80 border-b border-[var(--Bleu-Clair)]/30 shadow-md">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="flex h-16 items-center justify-between">
-      
+
       <!-- Burger mobile -->
       <button type="button"
-              class="lg:hidden p-3 rounded-xl text-[var(--Blanc)]/80 hover:text-[var(--Blanc)] hover:bg-[var(--Rouge)]/20 transition-all"
-              aria-label="Ouvrir le menu"
-              (click)="toggleMobileMenu()">
+              class="lg:hidden p-3 rounded-xl text-[var(--Black)]/70 hover:text-[var(--Or)] hover:bg-[var(--Bleu-Clair)]/20 transition-all duration-300"
+              aria-label="Ouvrir le menu" (click)="toggleMobileMenu()">
         <i class="fas fa-bars text-xl"></i>
       </button>
 
-      <!-- Nav gauche -->
+      <!-- Nav gauche desktop -->
       <nav class="hidden lg:flex lg:gap-2">
         <div *ngFor="let menu of mobileMenus.slice(0,3)" class="relative flex items-center group">
           <a [routerLink]="menu.link || menu.items[0]?.link"
-             class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Blanc)]/80 
-                    hover:text-[var(--Rouge-Clair)] transition-colors">
-            <i [class]="menu.icon"></i>
+             class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Black)]/80 
+                    hover:text-[var(--Bleu-Foncé)] hover:bg-[var(--Bleu-Clair)]/20 transition-all duration-300">
+            <ng-container *ngIf="menu.initiales; else iconTemplate">
+              <div class="w-8 h-8 rounded-full bg-[var(--Rouge-Clair)] text-white font-bold text-sm flex items-center justify-center">
+                {{ menu.initiales }}
+              </div>
+            </ng-container>
+            <ng-template #iconTemplate>
+              <i [class]="menu.icon"></i>
+            </ng-template>
             <span>{{ menu.title }}</span>
           </a>
-          <button *ngIf="menu.items.length"
-                  (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-2 rounded-xl text-[var(--Blanc)]/60 hover:text-[var(--Rouge-Clair)] transition-colors">
+
+          <button *ngIf="menu.items.length" (click)="toggleDropdown(menu.title,$event)"
+                  class="ml-1 p-2 rounded-xl text-[var(--Black)]/60 hover:text-[var(--Or)] transition-transform duration-300">
             <i class="fas fa-chevron-down transform transition-transform"
                [class.-rotate-180]="activeDropdown===menu.title"></i>
           </button>
 
           <!-- Dropdown -->
           <div *ngIf="activeDropdown===menu.title"
-               class="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-[var(--Black)]/90 backdrop-blur-xl 
-                      shadow-2xl p-3 border border-[var(--Rouge)]/30 animate-fade-in-up z-[1100]">
-            <div class="absolute -top-2 left-6 w-4 h-4 bg-[var(--Black)]/90 transform rotate-45 border-l border-t border-[var(--Rouge)]/30"></div>
+               class="absolute left-0 top-full mt-2 w-64 rounded-2xl bg-[var(--Blanc)]/95 backdrop-blur-xl 
+                      shadow-xl p-3 border border-[var(--Bleu-Clair)]/40 animate-fade-in-up z-[1100]">
+            <div class="absolute -top-2 left-6 w-4 h-4 bg-[var(--Blanc)]/95 transform rotate-45 border-l border-t border-[var(--Bleu-Clair)]/40"></div>
             <a *ngFor="let item of menu.items" [routerLink]="item.link"
-               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Blanc)]/80 
-                      hover:bg-gradient-to-r hover:from-[var(--Rouge)] hover:to-[var(--Bleu)] hover:text-white transition-all">
-              <i [class]="item.icon"></i>
+               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)]/80 
+                      hover:bg-gradient-to-r hover:from-[var(--Bleu-Clair)] hover:to-[var(--Bleu)] hover:text-white transition-all">
+              <ng-container *ngIf="item.initiales; else itemIcon">
+                <div class="w-6 h-6 rounded-full bg-[var(--Rouge-Clair)] text-white font-bold text-xs flex items-center justify-center">
+                  {{ item.initiales }}
+                </div>
+              </ng-container>
+              <ng-template #itemIcon>
+                <i [class]="item.icon"></i>
+              </ng-template>
               <span>{{ item.title }}</span>
             </a>
           </div>
@@ -45,44 +58,58 @@
       </nav>
 
       <!-- Logo -->
-      <a routerLink="/accueilC" class="flex items-center justify-center relative rounded-full">
+      <a routerLink="/accueilC" class="flex items-center justify-center relative">
         <img src="assets/LOGO.png" alt="Accueil"
-             class="h-12 w-12 sm:h-14 sm:w-14 object-contain hover:scale-110 transition-transform duration-300 drop-shadow-lg">
+             class="h-12 w-12 sm:h-14 sm:w-14 object-contain hover:scale-110 transition-transform duration-300 drop-shadow-md">
       </a>
 
-      <!-- Nav droite -->
+      <!-- Nav droite desktop -->
       <nav class="hidden lg:flex lg:gap-2">
         <div *ngFor="let menu of mobileMenus.slice(3,6)" class="relative flex items-center group">
           <a [routerLink]="menu.link || menu.items[0]?.link"
-             class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Blanc)]/80 
-                    hover:text-[var(--Rouge-Clair)] transition-colors relative">
-            <i [class]="menu.icon"></i>
+             class="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-[var(--Black)]/80 
+                    hover:text-[var(--Bleu-Foncé)] hover:bg-[var(--Bleu-Clair)]/20 transition-all duration-300 relative">
+            <ng-container *ngIf="menu.initiales; else iconTemplateRight">
+              <div class="w-8 h-8 rounded-full bg-[var(--Rouge-Clair)] text-white font-bold text-sm flex items-center justify-center">
+                {{ menu.initiales }}
+              </div>
+            </ng-container>
+            <ng-template #iconTemplateRight>
+              <i [class]="menu.icon"></i>
+            </ng-template>
             <span>{{ menu.title }}</span>
 
             <!-- Badge messages -->
             <span *ngIf="menu.title==='Messages' && unreadMessages>0"
                   class="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center 
                          text-xs font-bold text-white bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
-                         rounded-full border-2 border-[var(--Black)]">
+                         rounded-full border-2 border-[var(--Blanc)]">
               {{ unreadMessages }}
             </span>
           </a>
-          <button *ngIf="menu.items.length"
-                  (click)="toggleDropdown(menu.title,$event)"
-                  class="ml-1 p-2 rounded-xl text-[var(--Blanc)]/60 hover:text-[var(--Rouge-Clair)]">
+
+          <button *ngIf="menu.items.length" (click)="toggleDropdown(menu.title,$event)"
+                  class="ml-1 p-2 rounded-xl text-[var(--Black)]/60 hover:text-[var(--Or)] transition-transform duration-300">
             <i class="fas fa-chevron-down transform transition-transform"
                [class.-rotate-180]="activeDropdown===menu.title"></i>
           </button>
 
           <!-- Dropdown -->
           <div *ngIf="activeDropdown===menu.title"
-               class="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-[var(--Black)]/90 backdrop-blur-xl 
-                      shadow-2xl p-3 border border-[var(--Rouge)]/30 animate-fade-in-up z-[1100]">
-            <div class="absolute -top-2 right-6 w-4 h-4 bg-[var(--Black)]/90 transform rotate-45 border-r border-t border-[var(--Rouge)]/30"></div>
+               class="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-[var(--Blanc)]/95 backdrop-blur-xl 
+                      shadow-xl p-3 border border-[var(--Bleu-Clair)]/40 animate-fade-in-up z-[1100]">
+            <div class="absolute -top-2 right-6 w-4 h-4 bg-[var(--Blanc)]/95 transform rotate-45 border-r border-t border-[var(--Bleu-Clair)]/40"></div>
             <a *ngFor="let item of menu.items" [routerLink]="item.link"
-               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Blanc)]/80 
-                      hover:bg-gradient-to-r hover:from-[var(--Rouge)] hover:to-[var(--Bleu)] hover:text-white transition-all">
-              <i [class]="item.icon"></i>
+               class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-[var(--Black)]/80 
+                      hover:bg-gradient-to-r hover:from-[var(--Bleu-Clair)] hover:to-[var(--Bleu)] hover:text-white transition-all">
+              <ng-container *ngIf="item.initiales; else itemIconRight">
+                <div class="w-9 h-9 rounded-full bg-[var(--Rouge-Clair)] text-white font-bold text-lg flex items-center justify-center">
+                  {{ item.initiales }}
+                </div>
+              </ng-container>
+              <ng-template #itemIconRight>
+                <i [class]="item.icon"></i>
+              </ng-template>
               <span>{{ item.title }}</span>
             </a>
           </div>
@@ -90,62 +117,62 @@
       </nav>
 
       <!-- Profil mobile -->
-      <a routerLink="/prorilC"
-         class="lg:hidden ml-auto p-3 rounded-xl text-[var(--Blanc)]/80 hover:text-[var(--Rouge-Clair)] transition-all">
-        <i class="fas fa-user-circle text-xl"></i>
+      <a routerLink="/dashboardC/profileC" class="lg:hidden ml-auto relative group"
+         title="Utilisateur {{ connectedUser?.initiales }}">
+        <div class="w-10 h-10 rounded-full bg-[var(--Rouge-Clair)] text-white font-bold text-lg flex items-center justify-center shadow-md transition-all duration-300 ease-in-out
+                    hover:bg-[var(--Rouge)] hover:scale-110 hover:shadow-lg">
+          {{ connectedUser?.initiales }}
+        </div>
       </a>
+
     </div>
   </div>
 
   <!-- Menu mobile -->
-<div *ngIf="mobileMenuOpen"
-class="fixed inset-0 z-[1000] h-screen bg-[var(--Black)] backdrop-blur-xl flex flex-col animate-fade-in-up">
+  <div *ngIf="mobileMenuOpen"
+       class="fixed inset-0 z-[1000] h-screen bg-[var(--Blanc)]/95 backdrop-blur-md flex flex-col animate-fade-in-up shadow-lg">
 
-<!-- Header du menu -->
-<div class="flex items-center justify-between p-6 border-b border-[var(--Rouge)]/20">
-<h2 class="text-2xl font-bold text-[var(--Blanc)]">Menu</h2>
-<button (click)="closeMobileMenu()" 
-       class="p-3 rounded-xl text-[var(--Blanc)]/60 hover:text-[var(--Rouge-Clair)] transition-all">
- <i class="fas fa-times text-2xl"></i>
-</button>
-</div>
+    <!-- Header du menu -->
+    <div class="flex items-center justify-between p-6 border-b border-[var(--Bleu-Clair)]/30">
+      <h2 class="text-2xl font-bold text-[var(--Black)] tracking-wide">Menu</h2>
+      <button (click)="closeMobileMenu()"
+              class="p-3 rounded-xl text-[var(--Black)]/60 hover:text-[var(--Or)] transition-all">
+        <i class="fas fa-times text-2xl"></i>
+      </button>
+    </div>
 
-<!-- Liens -->
-<nav class="flex-1 flex flex-col gap-2 px-6 py-8 overflow-y-auto">
-<a *ngFor="let menu of mobileMenus"
-  [routerLink]="menu.link || menu.items[0]?.link"
-  class="group flex items-center gap-4 text-xl font-semibold text-[var(--Blanc)]/80 
-         hover:text-[var(--Rouge-Clair)] rounded-2xl px-4 py-4 hover:bg-[var(--Rouge)]/10 transition-all"
-  (click)="closeMobileMenu()">
- <div class="w-12 h-12 bg-gradient-to-br from-[var(--Rouge)]/20 to-[var(--Bleu)]/20 rounded-xl flex items-center justify-center">
-   <i [class]="menu.icon"></i>
- </div>
- <span>{{ menu.title }}</span>
+    <!-- Contenu scrollable avec liens -->
+    <div class="flex-1 flex flex-col overflow-y-auto px-4 sm:px-6 py-6 gap-3">
+      <a *ngFor="let menu of mobileMenus" [routerLink]="menu.link || menu.items[0]?.link"
+         class="group flex items-center gap-4 text-lg sm:text-xl font-medium text-[var(--Black)]/80 
+               hover:text-[var(--Bleu-Foncé)] rounded-2xl px-4 py-3 hover:bg-[var(--Bleu-Clair)]/10 transition-all shadow-sm"
+         (click)="closeMobileMenu()">
 
- <!-- Badge messages mobile -->
- <span *ngIf="menu.title==='Messages' && unreadMessages>0"
-       class="ml-auto bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
-              text-white text-sm font-bold px-3 py-1 rounded-full">
-   {{ unreadMessages }}
- </span>
-</a>
-</nav>
+        <!-- Icon / Initiales menu -->
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg shadow-md group-hover:scale-105 transform transition"
+             [ngClass]="menu.initiales ? 'bg-[var(--Rouge-Clair)]' : 'bg-gradient-to-br from-[var(--Rouge-Clair)] to-[var(--Rouge-Foncé)]'">
+          <span *ngIf="menu.initiales; else iconMobile" class="font-bold text-lg">{{ menu.initiales }}</span>
+          <ng-template #iconMobile>
+            <i [class]="menu.icon"></i>
+          </ng-template>
+        </div>
 
-<!-- Déconnexion -->
-<div class="p-6 border-t border-[var(--Rouge)]/20">
-<button (click)="deconnecter()"
-       class="group w-full flex items-center gap-4 text-xl font-semibold text-[var(--Blanc)]/80 
-              hover:text-[var(--Rouge-Clair)] rounded-2xl px-4 py-4 hover:bg-[var(--Rouge)]/10 transition-all">
- <div class="w-12 h-12 bg-gradient-to-br from-red-500/20 to-red-700/20 rounded-xl flex items-center justify-center">
-   <i class="fas fa-sign-out-alt"></i>
- </div>
- <span>Déconnexion</span>
-</button>
-</div>
-</div>
+        <!-- Titre -->
+        <span class="flex-1">{{ menu.title }}</span>
 
+        <!-- Badge messages mobile -->
+        <span *ngIf="menu.title==='Messages' && unreadMessages>0"
+              class="ml-auto bg-gradient-to-r from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+                     text-white text-xs font-bold px-3 py-1 rounded-full shadow-sm">
+          {{ unreadMessages }}
+        </span>
+      </a>
+    </div>
+
+  </div>
 </header>
 
+<!-- ====== Styles ====== -->
 <style>
   @keyframes fade-in-up {
     0% {
@@ -159,7 +186,7 @@ class="fixed inset-0 z-[1000] h-screen bg-[var(--Black)] backdrop-blur-xl flex f
   }
 
   .animate-fade-in-up {
-    animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: fade-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   /* 🔒 Empêche le scroll en arrière-plan quand le menu mobile est ouvert */

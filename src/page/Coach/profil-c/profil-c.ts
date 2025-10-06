@@ -1,5 +1,5 @@
 import { Component,HostListener } from '@angular/core';
-import { Sections1 } from "../../../component/Joueur/sections1/sections1";
+
 import { HeaderC } from "../../../component/Coach/header-c/header-c";
 import { ProfilUser } from "../../../component/Coach/page-Profil/profil-user/profil-user";
 import { CreerMatchC } from "../../../component/Coach/Bouton/creer-match-c/creer-match-c";
@@ -8,7 +8,7 @@ import { FooterC } from "../../../component/Coach/footer-c/footer-c";
 
 @Component({
   selector: 'app-profil-c',
-  imports: [Sections1, HeaderC, ProfilUser, CreerMatchC, CreerConvocationsC, FooterC],
+  imports: [ HeaderC, ProfilUser, CreerMatchC, CreerConvocationsC, FooterC],
   templateUrl: './profil-c.html',
   styleUrl: './profil-c.css'
 })
