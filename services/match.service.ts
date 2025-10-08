@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-// ✅ Interface complète d'un match
 export interface Match {
   equipeA: string;
   equipeB: string;
-  date: string;       // ISO string pour HTTP
+  date: string;
   lieu: string;
-  categorie: string;  // obligatoire pour MongoDB
+  categorie: string;
   scoreA?: number;
   scoreB?: number;
-  logoA?: string;     // logo équipe A
-  logoB?: string;     // logo équipe B
-  duree?: number;     // durée du match en minutes
+  logoA?: string;
+  logoB?: string;
+  duree?: number;  // durée totale
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,18 +21,20 @@ export class MatchService {
 
   constructor(private http: HttpClient) {}
 
-  // ✅ Créer un match
   creerMatch(match: Match): Observable<Match> {
     return this.http.post<Match>(this.apiUrl, match);
   }
 
-  // ✅ Récupérer tous les matchs
   getAllMatches(): Observable<Match[]> {
     return this.http.get<Match[]>(this.apiUrl);
   }
 
-  // ✅ Récupérer un match par ID (optionnel)
   getMatchById(id: string): Observable<Match> {
     return this.http.get<Match>(`${this.apiUrl}/${id}`);
+  }
+
+  // Mise à jour des scores (optionnel backend)
+  updateScore(id: string, scoreA: number, scoreB: number): Observable<Match> {
+    return this.http.patch<Match>(`${this.apiUrl}/${id}`, { scoreA, scoreB });
   }
 }

@@ -61,7 +61,16 @@ app.use('/messages', messageRoutes);
 // Route POST pour créer un post avec média
 app.post('/api/posts/media', upload.single('media'), postController.createPostWithMedia);
 
-// Démarrage serveur
-app.listen(PORT, () => {
-  console.log(`🚀 Serveur backend démarré sur http://localhost:${PORT}`);
+
+app.get('/', (req, res) => {
+  res.send('✅ Serveur ASDAM opérationnel !');
+});
+
+app.get('/api', (req, res) => {
+  res.json({ message: 'Bienvenue sur l’API ASDAM !' });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Serveur backend démarré sur http://0.0.0.0:${PORT}`);
+  console.log(`🌐 Accessible sur le réseau via : http://192.168.1.48:${PORT}`);
 });

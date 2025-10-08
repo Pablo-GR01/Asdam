@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Match, MatchService } from '../../../../../services/match.service';
+import { interval, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-creer-match-c',
@@ -10,10 +11,9 @@ import { Match, MatchService } from '../../../../../services/match.service';
   templateUrl: './creer-match-c.html',
   styleUrls: ['./creer-match-c.css']
 })
-export class CreerMatchC implements OnInit {
+export class CreerMatchC implements OnInit, OnDestroy {
 
-  // Match avec logos et durée
-  match: Match & { categorie: string; logoA?: string; logoB?: string; duree?: number } = {
+  match: Match & { categorie: string; logoA?: string; logoB?: string; duree?: number; scoreA?: number; scoreB?: number } = {
     equipeA: 'ASDAM',
     equipeB: '',
     date: '',
@@ -21,16 +21,13 @@ export class CreerMatchC implements OnInit {
     categorie: '',
     logoA: 'assets/ASDAM.png',
     logoB: '',
-    duree: 90
+    duree: 90,
+    scoreA: 0,
+    scoreB: 0
   };
 
-  // Catégories
-  categories: string[] = [
-    'U6','U7','U8','U9','U10','U11','U12',
-    'U13','U14','U15','U16','U17','U18','U23','Senior'
-  ];
-
-  // Logos de toutes les équipes
+  categories: string[] = ['U6','U7','U8','U9','U10','U11','U12','U13','U14','U15','U16','U17','U18','U23','Senior'];
+  
   logos: Record<string, string> = {
     'ASDAM': 'assets/ASDAM.png',
     'FCSM': 'assets/FCSM.png',
@@ -38,17 +35,17 @@ export class CreerMatchC implements OnInit {
     'PSG': 'assets/PSG.png',
     'OL': 'assets/OL.png',
     'MHSC': 'assets/MHSC.png'
-    // Ajouter d'autres équipes et logos ici
   };
-
-  // Liste des équipes adverses
   equipesAdverses: string[] = Object.keys(this.logos).filter(club => club !== 'ASDAM');
 
-  // États
   loading = false;
   successMsg = '';
   errorMsg = '';
   showModal = false;
+
+  // Timer
+  matchTime = 0; // en minutes
+  private timerSub?: Subscription;
 
   constructor(private matchService: MatchService) {}
 
@@ -56,11 +53,16 @@ export class CreerMatchC implements OnInit {
     this.updateLogos();
   }
 
-  // Ouvre/ferme la modal
-  openModal(): void { this.showModal = true; }
-  closeModal(): void { this.showModal = false; }
+  ngOnDestroy(): void {
+    this.timerSub?.unsubscribe();
+  }
 
-  // Création du match
+  openModal(): void { this.showModal = true; }
+  closeModal(): void { 
+    this.showModal = false; 
+    this.resetTimer();
+  }
+
   creerMatch(): void {
     if (!this.match.equipeA || !this.match.equipeB || !this.match.date || !this.match.lieu || !this.match.categorie) {
       this.errorMsg = 'Tous les champs sont obligatoires';
@@ -70,34 +72,15 @@ export class CreerMatchC implements OnInit {
     this.loading = true;
     this.successMsg = '';
     this.errorMsg = '';
+    this.updateLogos();
 
-    this.updateLogos(); // Met à jour les logos avant envoi
-
-    const matchToSend = {
-      ...this.match,
-      date: new Date(this.match.date).toISOString(),
-      duree: 90,
-      logoA: this.match.logoA,
-      logoB: this.match.logoB
-    };
+    const matchToSend = { ...this.match, date: new Date(this.match.date).toISOString(), duree: 90 };
 
     this.matchService.creerMatch(matchToSend).subscribe({
       next: () => {
         this.successMsg = 'Match créé avec succès !';
         this.loading = false;
-
-        // Reset formulaire
-        this.match = {
-          equipeA: 'ASDAM',
-          equipeB: '',
-          date: '',
-          lieu: '',
-          categorie: '',
-          logoA: 'assets/ASDAM.png',
-          logoB: '',
-          duree: 90
-        };
-
+        this.resetForm();
         this.closeModal();
       },
       error: (err) => {
@@ -108,9 +91,43 @@ export class CreerMatchC implements OnInit {
     });
   }
 
-  // Met à jour les logos des équipes
   updateLogos(): void {
     this.match.logoA = this.logos[this.match.equipeA] || 'assets/ASDAM.png';
     this.match.logoB = this.match.equipeB ? this.logos[this.match.equipeB] || '' : '';
+  }
+
+  // Timer automatique
+  startTimer(): void {
+    this.timerSub = interval(60000).subscribe(() => {
+      if(this.matchTime < (this.match.duree || 90)) {
+        this.matchTime++;
+      }
+    });
+  }
+
+  resetTimer(): void {
+    this.timerSub?.unsubscribe();
+    this.matchTime = 0;
+  }
+
+  addGoal(team: 'A' | 'B'): void {
+    if(team === 'A') this.match.scoreA!++;
+    else this.match.scoreB!++;
+  }
+
+  private resetForm(): void {
+    this.match = {
+      equipeA: 'ASDAM',
+      equipeB: '',
+      date: '',
+      lieu: '',
+      categorie: '',
+      logoA: 'assets/ASDAM.png',
+      logoB: '',
+      duree: 90,
+      scoreA: 0,
+      scoreB: 0
+    };
+    this.resetTimer();
   }
 }

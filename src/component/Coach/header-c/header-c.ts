@@ -106,7 +106,6 @@ export class HeaderC implements OnInit {
       { title: 'Match', icon: 'fas fa-futbol', link: '/matchC', items: [
         { title: 'Convocations', link: '/matchC/convocationsC', icon: 'fas fa-users' },
         { title: 'Résultats', link: '/matchC/resultatsC', icon: 'fas fa-trophy' },
-        { title: 'Calendrier', link: '/matchC/calendrierC', icon: 'fas fa-calendar-check' }
       ] },
       { title: 'Planning', icon: 'fas fa-calendar-alt', link: '/PlanningC', items: [
         { title: 'Entraînements', link: '/planningC/entrainementsC', icon: 'fas fa-dumbbell' },

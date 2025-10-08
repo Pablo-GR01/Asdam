@@ -17,7 +17,6 @@ export class AbsentC implements OnInit {
   joueurs: User[] = [];
   utilisateurConnecte?: any;
   equipeFiltre = '';
-  isDarkMode = false;
   toast: Toast | null = null;
 
   joursEntrainement: { [equipe: string]: string[] } = {
@@ -32,7 +31,6 @@ export class AbsentC implements OnInit {
   ngOnInit() {
     this.loadUtilisateurConnecte();
     this.loadJoueurs();
-    this.loadDarkMode();
   }
 
   loadUtilisateurConnecte() {
@@ -102,17 +100,45 @@ export class AbsentC implements OnInit {
     return [...new Set(this.joueurs.map(j => j.equipe))];
   }
 
-  peutModifier(joueurId: string): boolean {
+  peutModifier(joueur: User): boolean {
     const role = this.utilisateurConnecte?.role;
-    return ['coach', 'admin', 'superadmin'].includes(role) || joueurId === this.utilisateurConnecte._id;
-  }
+    const isPabloGarcia = this.utilisateurConnecte?.nom === 'Pablo' && this.utilisateurConnecte?.prenom === 'Garcia';
 
- 
+    // Si l'utilisateur est Pablo Garcia, il peut modifier seulement ses propres statuts
+    if (isPabloGarcia) {
+        return this.utilisateurConnecte?.id === joueur.id;
+    }
+
+    // Si c'est un joueur normal, il ne peut modifier que ses propres statuts
+    if (role === 'joueur') {
+        return this.utilisateurConnecte?.id === joueur.id;
+    }
+
+    // Les autres rôles (coach, admin, superadmin) peuvent modifier tout
+    if (['coach', 'admin', 'superadmin'].includes(role)) {
+        return true;
+    }
+
+    // Par défaut, ne rien modifier
+    return false;
+}
+
+
+
   setPresence(joueurId: string, jour: string, present: boolean) {
     if (!this.presenceParJour[joueurId]) this.presenceParJour[joueurId] = {};
     this.presenceParJour[joueurId][jour] = present;
     this.savePresence();
     this.showToast('Présence mise à jour.', 'success');
+  }
+
+  confirmSetPresence(joueurId: string, jour: string, present: boolean) {
+    const joueur = this.joueurs.find(j => j.id === joueurId);
+    if (!joueur || !this.peutModifier(joueur)) {
+      this.showToast("Vous ne pouvez modifier que votre propre présence.", "error");
+      return;
+    }
+    this.setPresence(joueurId, jour, present);
   }
 
   get resumeGlobal() {
@@ -143,50 +169,12 @@ export class AbsentC implements OnInit {
     this.showToast('Export CSV réussi.', 'success');
   }
 
-  toggleDarkMode() {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('darkMode', JSON.stringify(this.isDarkMode));
-    document.documentElement.classList.toggle('dark', this.isDarkMode);
-  }
-
-  loadDarkMode() {
-    const saved = localStorage.getItem('darkMode');
-    this.isDarkMode = saved ? JSON.parse(saved) : false;
-    document.documentElement.classList.toggle('dark', this.isDarkMode);
-  }
-
-  roleBadgeClass(role?: string): string {
-    switch (role) {
-      case 'joueur': return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
-      case 'coach': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100';
-      case 'admin':
-      case 'superadmin': return 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
-    }
-  }
-
-  filtrerParEquipe() {
-    // Déclenche le filtre via getter
-  }
-
   showToast(message: string, type: 'success' | 'error') {
     this.toast = { message, type };
     setTimeout(() => (this.toast = null), 3000);
   }
 
-  confirmSetPresence(joueurId: string, jour: string, present: boolean) {
-    // Si l'utilisateur est un joueur
-    if (this.utilisateurConnecte?.role === 'joueur') {
-      // Il ne peut changer que son propre statut
-      if (joueurId !== this.utilisateurConnecte._id) {
-        this.showToast("Vous ne pouvez modifier que votre propre présence.", "error");
-        return;
-      }
-      const confirmed = confirm(`Confirmer votre présence pour ${jour} ?`);
-      if (!confirmed) return;
-    }
-    // Coach/admin peuvent modifier tout le monde
-    this.setPresence(joueurId, jour, present);
+  filtrerParEquipe() {
+    // Utilisé par ngModel + (change)
   }
-  
 }

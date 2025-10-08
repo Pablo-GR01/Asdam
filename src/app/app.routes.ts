@@ -24,6 +24,10 @@ import { MessageC } from '../page/Coach/message-c/message-c';
 import { AbsentsC } from '../page/Coach/absents-c/absents-c';
 import { ActualiteC } from '../page/Coach/actualite-c/actualite-c';
 import { ParametresC } from '../page/Coach/parametres-c/parametres-c';
+import { ResultatsC } from '../page/Coach/resultats-c/resultats-c';
+import { CommuniquerC } from '../page/Coach/communiquer-c/communiquer-c';
+import { CGUC } from '../page/Coach/cguc/cguc';
+
 
 /* ---- TOUT LE INVITÉ ----*/
 
@@ -52,6 +56,12 @@ export const routes: Routes = [
     { path: 'messagesC', component: MessageC },
     { path: 'absentsC', component: AbsentsC },
     { path: 'actualiteC', component: ActualiteC },
+    { path: 'matchC/resultatsC', component: ResultatsC},
+    { path: 'actualiteC/communiquesC', component: CommuniquerC},
+    { path: 'cguc', component: CGUC},
+
+
+   
 
     // Inviter
 ];
