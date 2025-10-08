@@ -106,7 +106,6 @@ export class HeaderJ implements OnInit {
       { title: 'Match', icon: 'fas fa-futbol', link: '/matchJ', items: [
         { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users' },
         { title: 'Résultats', link: '/matchJ/resultatsJ', icon: 'fas fa-trophy' },
-        { title: 'Calendrier', link: '/matchJ/calendrierJ', icon: 'fas fa-calendar-check' }
       ] },
       { title: 'Planning', icon: 'fas fa-calendar-alt', link: '/PlanningJ', items: [
         { title: 'Entraînements', link: '/planningJ/entrainementsJ', icon: 'fas fa-dumbbell' },

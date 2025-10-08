@@ -36,34 +36,46 @@ async function creerConvocation(req, res) {
     const convocation = new Convocation({ match, date, joueurs, lieu, equipe });
     await convocation.save();
 
+    // URL de confirmation (définie pour éviter l'erreur)
+    const confirmationUrl = process.env.NODE_ENV === 'production'
+      ? 'https://teamasdam.app/confirmation'
+      : 'http://localhost:4200/confirmation';
+
     // Envoyer un email à tous les joueurs
     for (const joueur of joueurs) {
       const user = await User.findById(joueur._id);
       if (user?.email) {
         const subject = `Nouvelle convocation : ${match}`;
-        const appUrl = process.env.NODE_ENV === 'production'
-          ? 'https://teamasdam.app/login'
-          : 'http://localhost:4200/connexion';
 
         const emailHtml = `
-          <div style="font-family: Arial, sans-serif; color: #333;">
-            <p>Bonjour ${user.nom || ''},</p>
-            <p>Vous avez été convoqué pour : <strong>${match}</strong> le ${new Date(date).toLocaleString()}.</p>
-            <p>
-              <a href="${appUrl}" target="_blank"
-                style="display: inline-block;
-                       padding: 12px 24px;
-                       background-color: #ca0303;
-                       color: #ffffff !important;
-                       text-decoration: none;
-                       border-radius: 6px;
-                       font-weight: bold;
-                       font-size: 14px;
-                       text-align: center;">
-                Voir la convocation
+          <div style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #004aad;">Convocation pour le match</h2>
+
+            <p>Bonjour <strong>${user.prenom || ''}</strong>,</p>
+            <p>Tu es convoqué pour le prochain match :</p>
+
+            <div style="background: #fff; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd;">
+              <p><strong>Match :</strong> ${match}</p>
+              <p><strong>Lieu :</strong> ${lieu}</p>
+              <p><strong>Date :</strong> ${new Date(date).toLocaleDateString('fr-FR')}</p>
+              <p><strong>Heure :</strong> ${new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
+
+            <p style="margin-top: 20px;">Merci de confirmer votre présence :</p>
+
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+              <a href="${confirmationUrl}/confirmation?id=${user._id}&status=present"
+                style="background-color: #28a745; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+                ✅ Je serai présent
               </a>
-            </p>
-            <p>Bonne journée,<br/>L'équipe TeamAsdam</p>
+              <a href="${confirmationUrl}/confirmation?id=${user._id}&status=absent"
+                style="background-color: #dc3545; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+                ❌ Je ne serai pas présent
+              </a>
+            </div>
+
+
+            <p style="margin-top: 30px;">Bonne journée,<br/><strong>L'équipe TeamAsdam</strong></p>
           </div>
         `;
 

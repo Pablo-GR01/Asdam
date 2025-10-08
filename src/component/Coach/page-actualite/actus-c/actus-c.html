@@ -1,12 +1,23 @@
-<!-- ✅ Notification Toast -->
-<div *ngIf="notification"
-     class="fixed top-5 left-1/2 -translate-x-1/2 z-50
-            px-6 py-3 rounded-xl shadow-lg text-white font-semibold
-            transition-all duration-300"
-     [ngClass]="notification.type === 'success'
-                ? 'bg-green-500'
-                : 'bg-red-500'">
-  {{ notification.message }}
+<!-- ✅ Notification Toast Amélioré -->
+<div *ngIf="notification" 
+     @slideFade
+     class="fixed top-5 right-5 z-50 px-6 py-4 rounded-2xl shadow-2xl text-white font-semibold 
+            flex items-center gap-3 backdrop-blur-lg border border-white/20
+            transition-all duration-500 ease-out"
+     [ngClass]="{
+       'bg-green-500/90': notification.type === 'success',
+       'bg-red-500/90': notification.type === 'error'
+     }">
+  
+  <!-- Icône dynamique -->
+  <i class="text-xl"
+     [ngClass]="{
+       'fa-solid fa-check-circle': notification.type === 'success',
+       'fa-solid fa-xmark-circle': notification.type === 'error'
+     }"></i>
+
+  <!-- Message -->
+  <span>{{ notification.message }}</span>
 </div>
 
 <!-- ✅ Fond d'écran FIXE -->
@@ -17,7 +28,7 @@
   <div class="absolute inset-0 bg-black/40"></div>
 </div>
 
-<!-- ✅ Contenu principal (scrollable sur toute la page) -->
+<!-- ✅ Contenu principal -->
 <div class="relative z-10 max-w-3xl mx-auto px-4 py-8 space-y-6 min-h-screen">
 
   <!-- Header -->

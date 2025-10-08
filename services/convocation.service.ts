@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, map } from 'rxjs';
+import { AuthService } from '../services/userService/Auth.Service'; 
 
 export interface User {
   _id?: string;
@@ -18,7 +19,7 @@ export interface Convocation {
   date: Date | string;
   lieu: string;
   statut?: 'en attente' | 'confirmé' | 'annulé';
-  
+  mailCoach?: string; // <-- ajout du mail du coach
 }
 
 
@@ -30,17 +31,21 @@ export class ConvocationService {
   private apiUrl = 'http://localhost:3000/api/convocations';
   private usersUrl = 'http://localhost:3000/api/utilisateurs';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient,
+    private authService: AuthService
+  ) {}
 
-  // Créer une convocation
   creerConvocation(convocation: Convocation): Observable<Convocation> {
+    const mailCoach = this.authService.getUser()?.email; // <-- récupère le mail du coach
     const payload = {
       ...convocation,
       joueurs: convocation.joueurs.map(j => ({ _id: j._id, nom: j.nom, prenom: j.prenom })),
-      date: convocation.date instanceof Date ? convocation.date.toISOString() : convocation.date
+      date: convocation.date instanceof Date ? convocation.date.toISOString() : convocation.date,
+      mailCoach // <-- ajout au payload
     };
     return this.http.post<Convocation>(this.apiUrl, payload);
   }
+  
 
   // Récupérer toutes les convocations
   getConvocations(): Observable<Convocation[]> {

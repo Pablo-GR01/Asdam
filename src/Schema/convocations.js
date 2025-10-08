@@ -13,7 +13,8 @@ const ConvocationSchema = new mongoose.Schema({
     }
   ],
   date: { type: Date, required: true },
-  lieu: { type: String, required: true }
+  lieu: { type: String, required: true },
+  mailCoach: { type: String, required: true } // <-- ajout du mail du coach
 }, { timestamps: true });
 
 module.exports = mongoose.model('Convocation', ConvocationSchema);

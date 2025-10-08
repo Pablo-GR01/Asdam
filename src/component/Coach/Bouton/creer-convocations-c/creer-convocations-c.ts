@@ -93,28 +93,38 @@ export class CreerConvocationsC implements OnInit {
   validerConvocation(): void {
     if (this.joueursConvoques.length === 0) {
       this.errorMsg = 'Veuillez sélectionner au moins un joueur.';
-      setTimeout(() => this.errorMsg = '', 3000);
+      setTimeout(() => this.errorMsg = '', 1100);
       return;
     }
-
+  
     this.convocation.joueurs = [...this.joueursConvoques];
+  
+    // ✅ Ajouter le mail du coach avant d'envoyer
+    if (!this.currentUser?.email) {
+      this.errorMsg = 'Impossible de créer la convocation : email du coach manquant.';
+      setTimeout(() => this.errorMsg = '', 1500);
+      return;
+    }
+    this.convocation['mailCoach'] = this.currentUser.email;
+  
     this.loading = true;
-
+  
     this.convocationService.creerConvocation(this.convocation).subscribe({
       next: () => {
         this.successMsg = 'Convocation créée avec succès !';
         this.loading = false;
         this.closeModal();
         this.resetForm();
-        setTimeout(() => this.successMsg = '', 3000);
+        setTimeout(() => this.successMsg = '', 1200);
       },
       error: err => {
         this.errorMsg = 'Erreur lors de la création.';
         this.loading = false;
-        setTimeout(() => this.errorMsg = '', 3000);
+        setTimeout(() => this.errorMsg = '', 1200);
       }
     });
   }
+  
 
   private resetForm(): void {
     this.convocation = { match: '', equipe: this.currentUser?.equipe || '', joueurs: [], date: new Date(), lieu: '' };

@@ -18,6 +18,7 @@ const convocationRoutes = require('./backend/routes/convocations.Routes');
 const postRoutes = require('./backend/routes/post.Routes');
 const joueurRoutes = require('./backend/routes/joueur.routes');
 const messageRoutes = require('./backend/routes/message.Routes');
+const confirmationRoutes = require('./backend/routes/confirmation.Routes');
 
 
 const app = express();
@@ -56,6 +57,8 @@ app.use('/api/posts', postRoutes);
 app.use('/api/joueurs', joueurRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/messages', messageRoutes);
+app.use('/', confirmationRoutes); // ou '/api' selon ta structure
+
 
 
 // Route POST pour créer un post avec média

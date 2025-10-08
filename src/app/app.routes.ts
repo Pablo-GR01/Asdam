@@ -27,6 +27,7 @@ import { ParametresC } from '../page/Coach/parametres-c/parametres-c';
 import { ResultatsC } from '../page/Coach/resultats-c/resultats-c';
 import { CommuniquerC } from '../page/Coach/communiquer-c/communiquer-c';
 import { CGUC } from '../page/Coach/cguc/cguc';
+import { ActualiteJ } from '../page/Joueur/actualite-j/actualite-j';
 
 
 /* ---- TOUT LE INVITÉ ----*/
@@ -44,6 +45,8 @@ export const routes: Routes = [
     { path: 'PlanningJ', component: PlanningJ },
     { path: 'absentsJ', component: AbsentsJ },
     { path: 'matchJ/convocationsJ', component: ConvocationJ }, // ✅ Pas de slash au début
+    { path: 'actualiteJ', component: ActualiteJ},
+    { path: 'messagesJ', component: MessageJ },
     
     // Coach
     { path: 'accueilC', component: AcceuilC },

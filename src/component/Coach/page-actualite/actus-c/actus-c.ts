@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
@@ -26,7 +26,7 @@ interface Post {
   createdAt?: string;
   mediaType?: 'image' | 'video';
   mediaUrl?: string;
-  likedBy?: string[]; // tableau des IDs utilisateurs ayant liké
+  likedBy?: string[];
 }
 
 interface LocalUser { 
@@ -47,7 +47,6 @@ interface LocalUser {
 export class ActusC implements OnInit {
 
   currentUser: LocalUser | null = null;
-
   posts: (Post & { newComment?: string; showMenu?: boolean })[] = [];
   filteredPosts: typeof this.posts = [];
 
@@ -72,17 +71,23 @@ export class ActusC implements OnInit {
 
   searchQuery = '';
 
+  notification: { type: 'success'|'error', message: string } | null = null;
+
   @ViewChild('mediaInput') mediaInput!: ElementRef<HTMLInputElement>;
   @ViewChild('editMediaInput') editMediaInput!: ElementRef<HTMLInputElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private renderer: Renderer2) {}
 
   ngOnInit() {
     const storedUser = localStorage.getItem('utilisateur');
     if (storedUser) this.currentUser = JSON.parse(storedUser);
     this.loadPosts();
   }
+
+  // Bloquer scroll quand une modal est ouverte
+  blockScroll() { this.renderer.setStyle(document.body, 'overflow', 'hidden'); }
+  unblockScroll() { this.renderer.setStyle(document.body, 'overflow', 'auto'); }
 
   // --- Infos utilisateur ---
   get currentInitiales(): string {
@@ -97,8 +102,7 @@ export class ActusC implements OnInit {
 
   canCreatePost(): boolean {
     if (!this.currentUser?.role) return false;
-    const role = this.currentUser.role.toLowerCase();
-    return ['coach','admin','super admin'].includes(role);
+    return ['coach','admin','super admin'].includes(this.currentUser.role.toLowerCase());
   }
 
   // --- Filtrage ---
@@ -107,7 +111,7 @@ export class ActusC implements OnInit {
     this.filteredPosts = this.posts.filter(p => p.content.toLowerCase().includes(query));
   }
 
-  // --- Chargement des posts ---
+  // --- Chargement posts ---
   loadPosts() {
     this.http.get<Post[]>('http://localhost:3000/api/posts').pipe(
       catchError(err => { console.error(err); return throwError(() => err); })
@@ -125,39 +129,67 @@ export class ActusC implements OnInit {
     });
   }
 
-  // --- Modal commentaires ---
+  // --- Modals ---
+  openCreatePostModal() { 
+    if(this.canCreatePost()) { 
+      this.showCreateModal = true; 
+      this.blockScroll(); 
+    }
+  }
+  closeCreatePostModal() { 
+    this.showCreateModal = false; 
+    this.newPostContent = ''; 
+    this.removeMedia(); 
+    this.unblockScroll(); 
+  }
+
+  openEditModal(post: Post) { 
+    this.editingPost = post;
+    this.editingContent = post.content;
+    this.editingMedia = null;
+    this.editingMediaPreview = post.mediaUrl || null;
+    this.showEditModal = true;
+    this.blockScroll();
+  }
+  cancelEdit() {
+    this.showEditModal = false;
+    this.editingPost = null;
+    this.editingMedia = null;
+    this.editingMediaPreview = null;
+    this.editingContent = '';
+    this.editMediaInput.nativeElement.value = '';
+    this.unblockScroll();
+  }
+
   openCommentsModal(post: Post) {
     this.selectedPost = post;
     this.selectedPostComments = post.comments || [];
     this.commentsPage = 1;
     this.totalCommentPages = Math.ceil(this.selectedPostComments.length / this.commentsPerPage);
     this.showCommentsModal = true;
+    this.blockScroll();
   }
-
-  closeCommentsModal() {
-    this.showCommentsModal = false;
-    this.selectedPost = null;
+  closeCommentsModal() { 
+    this.showCommentsModal = false; 
+    this.selectedPost = null; 
     this.selectedPostComments = [];
+    this.unblockScroll();
   }
 
   get paginatedComments() {
     const start = (this.commentsPage - 1) * this.commentsPerPage;
     return this.selectedPostComments.slice(start, start + this.commentsPerPage);
   }
-
   nextCommentsPage() { if(this.commentsPage < this.totalCommentPages) this.commentsPage++; }
   prevCommentsPage() { if(this.commentsPage > 1) this.commentsPage--; }
 
-  // --- Création post ---
-  openCreatePostModal() { if(this.canCreatePost()) this.showCreateModal = true; }
-  closeCreatePostModal() { this.showCreateModal = false; this.newPostContent = ''; this.removeMedia(); }
-
+  // --- Création Post ---
   openMediaSelector() { this.mediaInput.nativeElement.click(); }
   openFilePicker() { this.fileInput.nativeElement.click(); }
 
   onMediaSelected(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0]; 
-    if(!file) return;
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) return;
     this.newPostMedia = file;
 
     if(file.type.startsWith('image/')) {
@@ -169,10 +201,15 @@ export class ActusC implements OnInit {
       const video = document.createElement('video');
       video.src = url;
       video.onloadedmetadata = () => {
-        if(video.duration > 15){ alert("La vidéo doit durer moins de 15 secondes !"); this.removeMedia(); } 
-        else this.newPostMediaPreview = url;
+        if(video.duration > 15) { 
+          alert("La vidéo doit durer moins de 15 secondes !");
+          this.removeMedia();
+        } else this.newPostMediaPreview = url;
       }
-    } else { alert("Type de fichier non supporté !"); this.removeMedia(); }
+    } else { 
+      alert("Type de fichier non supporté !");
+      this.removeMedia();
+    }
   }
 
   removeMedia() {
@@ -183,23 +220,31 @@ export class ActusC implements OnInit {
   }
 
   createPost() {
-    if(!this.canCreatePost() || !this.currentUser){ alert('Action non autorisée !'); return; }
-    if(!this.newPostContent.trim() && !this.newPostMedia) return;
+    if (!this.canCreatePost() || !this.currentUser) { 
+      this.showNotification('error', 'Action non autorisée ❌'); 
+      return; 
+    }
+
+    if (!this.newPostContent.trim() && !this.newPostMedia) return;
 
     this.loading = true;
     const newPost: Partial<Post> = { 
       content: this.newPostContent, 
       user: this.currentFullName, 
       initials: this.currentInitiales, 
-      likes:0, isLiked:false, isBookmarked:false, comments:[], shares:0,
+      likes: 0, 
+      isLiked: false, 
+      isBookmarked: false, 
+      comments: [], 
+      shares: 0,
       likedBy: []
     };
     const url = this.newPostMedia ? 'http://localhost:3000/api/posts/media' : 'http://localhost:3000/api/posts';
 
-    if(!this.newPostMedia) {
-      this.http.post<Post>(url,newPost).subscribe({
-        next: p => this.addPostToList(p),
-        error: err => { console.error(err); this.loading=false; alert('Erreur serveur'); }
+    if (!this.newPostMedia) {
+      this.http.post<Post>(url, newPost).subscribe({
+        next: p => { this.addPostToList(p); this.showNotification('success', 'Publication créée avec succès 🎉'); },
+        error: err => { console.error(err); this.loading = false; this.showNotification('error', 'Erreur lors de la création du post ❌'); }
       });
     } else {
       const formData = new FormData();
@@ -207,19 +252,21 @@ export class ActusC implements OnInit {
       formData.append('user', newPost.user || '');
       formData.append('initials', newPost.initials || '');
       formData.append('media', this.newPostMedia, this.newPostMedia.name);
+
       this.http.post<Post>(url, formData).subscribe({
-        next: p => this.addPostToList(p),
-        error: err => { console.error(err); this.loading=false; alert('Erreur serveur'); }
+        next: p => { this.addPostToList(p); this.showNotification('success', 'Publication créée avec succès 🎉'); },
+        error: err => { console.error(err); this.loading = false; this.showNotification('error', 'Erreur lors de la création du post ❌'); }
       });
     }
   }
 
   private addPostToList(post: Post) {
-    this.posts.unshift({...post, newComment:'', showMenu:false, mediaType:post.media?.endsWith('.mp4')?'video':post.media?'image':undefined, mediaUrl:post.media?this.formatMediaUrl(post.media):undefined, likedBy: post.likedBy ?? [], isLiked: post.likedBy?.includes(this.currentUser?._id || '') ?? false});
+    this.posts.unshift({ ...post, newComment: '', showMenu: false, mediaType: post.media?.endsWith('.mp4')?'video':post.media?'image':undefined, mediaUrl: post.media?this.formatMediaUrl(post.media):undefined, likedBy: post.likedBy ?? [], isLiked: post.likedBy?.includes(this.currentUser?._id || '') ?? false });
     this.newPostContent = '';
     this.removeMedia();
     this.loading = false;
     this.showCreateModal = false;
+    this.unblockScroll();
     this.filterPosts();
   }
 
@@ -229,18 +276,29 @@ export class ActusC implements OnInit {
     const text = post.newComment?.trim(); if(!text) return;
     const comment: Comment = { user: this.currentFullName, initials: this.currentInitiales, text, time: new Date().toISOString() };
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/comment`, comment)
-      .pipe(catchError(err => { console.error(err); alert('Impossible d’ajouter le commentaire.'); return throwError(() => err); }))
-      .subscribe(updated => { post.comments = updated.comments || []; post.newComment=''; });
+      .pipe(catchError(err => { console.error(err); this.showNotification('error','Impossible d’ajouter le commentaire ❌'); return throwError(() => err); }))
+      .subscribe(updated => { post.comments = updated.comments || []; post.newComment=''; this.showNotification('success','Commentaire ajouté ✅'); });
   }
-  
-  // --- Likes globaux ---
+
+  deleteComment(post: Post & { comments: Comment[] }, comment: Comment) {
+    if (!post._id || !comment._id || !this.canDeleteComment()) return;
+    if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) return;
+    this.http.delete<Post>(`http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`).subscribe({
+      next: updatedPost => { post.comments = updatedPost.comments || []; this.showNotification('success','Commentaire supprimé 🗑️'); },
+      error: err => { console.error(err); this.showNotification('error','Erreur suppression commentaire ❌'); }
+    });
+  }
+
+  canDeleteComment(): boolean {
+    const role = this.currentUser?.role?.toLowerCase() ?? '';
+    return ['coach','admin','super admin'].includes(role);
+  }
+
+  // --- Likes ---
   toggleLike(post: Post) {
     if(!post._id || !this.currentUser?._id) return;
     this.http.post<{likes:number, isLiked:boolean}>(`http://localhost:3000/api/posts/${post._id}/like`, { userId: this.currentUser._id }).subscribe({
-      next: u => {
-        post.isLiked = u.isLiked;
-        post.likes = u.likes;
-      },
+      next: u => { post.isLiked = u.isLiked; post.likes = u.likes; },
       error: err => console.error(err)
     });
   }
@@ -249,7 +307,8 @@ export class ActusC implements OnInit {
   bookmarkPost(post: Post) {
     post.isBookmarked = !post.isBookmarked;
     if(!post._id) return;
-    this.http.put<Post>(`http://localhost:3000/api/posts/${post._id}`, { isBookmarked: post.isBookmarked }).subscribe({ error: err => { console.error(err); post.isBookmarked = !post.isBookmarked; }});
+    this.http.put<Post>(`http://localhost:3000/api/posts/${post._id}`, { isBookmarked: post.isBookmarked })
+      .subscribe({ error: err => { console.error(err); post.isBookmarked = !post.isBookmarked; }});
   }
 
   // --- Partage ---
@@ -258,7 +317,7 @@ export class ActusC implements OnInit {
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/share`, {}).subscribe({
       next: u => {
         post.shares = u.shares;
-        navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`).then(() => alert('Lien copié !'));
+        navigator.clipboard.writeText(`${window.location.origin}/posts/${post._id}`).then(() => this.showNotification('success','Lien copié ✅'));
       },
       error: err => console.error(err)
     });
@@ -268,101 +327,30 @@ export class ActusC implements OnInit {
   deletePost(post: Post, index: number) {
     if(!post._id || !confirm('Voulez-vous supprimer ce post ?')) return;
     this.http.delete<void>(`http://localhost:3000/api/posts/${post._id}`).subscribe({
-      next: () => { this.posts.splice(index,1); this.filterPosts(); },
-      error: err => console.error(err)
+      next: () => { this.posts.splice(index,1); this.filterPosts(); this.showNotification('success','Post supprimé 🗑️'); },
+      error: err => { console.error(err); this.showNotification('error','Erreur lors de la suppression ❌'); }
     });
   }
 
   togglePostMenu(i:number) { this.posts[i].showMenu = !this.posts[i].showMenu; }
 
-  // --- Édition post ---
-  openEditModal(post: Post) {
-    this.editingPost = post;
-    this.editingContent = post.content;
-    this.editingMedia = null;
-    this.editingMediaPreview = post.mediaUrl || null;
-    this.showEditModal = true;
-  }
-
-  onEditMediaSelected(e: Event) {
-    const f = (e.target as HTMLInputElement).files?.[0]; if(!f) return;
-    this.editingMedia = f;
-    if(f.type.startsWith('image/')) {
-      const r = new FileReader(); r.onload = () => this.editingMediaPreview = r.result as string; r.readAsDataURL(f);
-    } else if(f.type.startsWith('video/')) {
-      const url = URL.createObjectURL(f);
-      const v = document.createElement('video'); v.src = url;
-      v.onloadedmetadata = () => {
-        if(v.duration>30){ alert("La vidéo doit durer moins de 30 secondes !"); this.removeEditMedia(); }
-        else this.editingMediaPreview = url;
-      }
-    } else { alert("Type de fichier non supporté !"); this.removeEditMedia(); }
-  }
-
-  removeEditMedia() {
-    if(this.editingMediaPreview && this.editingMedia?.type.startsWith('video/')) URL.revokeObjectURL(this.editingMediaPreview);
-    this.editingMedia = null;
-    this.editingMediaPreview = this.editingPost?.mediaUrl || null;
-    this.editMediaInput.nativeElement.value='';
-  }
-
-  saveEdit() {
-    if(!this.editingPost || !this.editingPost._id) return;
-    const content = this.editingContent.trim();
-    if(!content && !this.editingMedia) return;
-    const formData = new FormData();
-    formData.append('content', content);
-    formData.append('initials', this.currentInitiales);
-    if(this.editingMedia) formData.append('media', this.editingMedia, this.editingMedia.name);
-
-    this.http.put<Post>(`http://localhost:3000/api/posts/${this.editingPost._id}`, formData)
-      .subscribe({
-        next: updated => {
-          const idx = this.posts.findIndex(p => p._id === updated._id);
-          if(idx>-1) this.posts[idx] = { ...updated, newComment:'', showMenu:false, mediaType: updated.media?.endsWith('.mp4')?'video':updated.media?'image':undefined, mediaUrl: updated.media?this.formatMediaUrl(updated.media):undefined, likedBy: updated.likedBy ?? [], isLiked: updated.likedBy?.includes(this.currentUser?._id || '') ?? false };
-          this.showEditModal = false;
-          this.editingPost = null;
-          this.filterPosts();
-        },
-        error: err => console.error(err)
-      });
-  }
-
-  cancelEdit() {
-    this.showEditModal = false;
-    this.editingPost = null;
-    this.editingMedia = null;
-    this.editingMediaPreview = null;
-    this.editingContent = '';
-    this.editMediaInput.nativeElement.value = '';
-  }
-
-  deleteComment(post: Post & { comments: Comment[] }, comment: Comment) {
-    if (!post._id || !comment._id || !this.canDeleteComment()) return;
-    if (!confirm('Voulez-vous vraiment supprimer ce commentaire ?')) return;
-    this.http.delete<Post>(`http://localhost:3000/api/posts/${post._id}/comment/${comment._id}`).subscribe({
-      next: updatedPost => { post.comments = updatedPost.comments || []; },
-      error: err => console.error('Erreur lors de la suppression du commentaire :', err)
-    });
-  }
-
-  canDeleteComment(): boolean {
-    const role = this.currentUser?.role?.toLowerCase() ?? '';
-    return ['coach','admin','super admin'].includes(role);
-  }
-
-  // --- Drag & Drop ---
-  onDrop(e: DragEvent) { e.preventDefault(); const f = e.dataTransfer?.files?.[0]; if(f){ const inputEvent = { target:{ files:[f] } } as unknown as Event; this.onMediaSelected(inputEvent); } }
-  onDragOver(e: DragEvent) { e.preventDefault(); }
-
   // --- Helpers ---
   formatMediaUrl(url?: string) { return url?.startsWith('http') ? url : `http://localhost:3000/uploads/${url}`; }
-  
 
-  notification: {type: 'success'|'error', message: string} | null = null;
+  private showNotification(type: 'success'|'error', text: string) {
+    this.notification = {type, message: text};
+    setTimeout(() => this.notification = null, 3000);
+  }
 
-private showNotification(type: 'success'|'error', text: string) {
-  this.notification = {type, message: text};
-  setTimeout(() => this.notification = null, 3000);
-}
+  // Ajoute cette méthode
+  onDrop(event: DragEvent) {
+    event.preventDefault();
+    console.log('Fichier déposé', event);
+    // Ici tu peux gérer le fichier ou les données
+  }
+
+  onDragOver(event: DragEvent) {
+    event.preventDefault();
+    // nécessaire pour permettre le drop
+  }
 }
