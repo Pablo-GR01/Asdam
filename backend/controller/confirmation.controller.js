@@ -1,50 +1,95 @@
-require('dotenv').config();
-const nodemailer = require('nodemailer');
-const User = require('../../src/Schema/user');
-const Convocation = require('../../src/Schema/convocations');
+// controller/confirmation.controller.js
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+dotenv.config();
 
-// Fonction pour envoyer mail
-async function sendMail({ to, subject, plainText, html }) {
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.MAIL_USER,
-      pass: process.env.MAIL_PASS
-    }
-  });
-
-  return transporter.sendMail({ from: `"TeamAsdam" <${process.env.MAIL_USER}>`, to, subject, text: plainText, html });
-}
-
-// Route pour confirmer présence
-async function confirmerPresence(req, res) {
+export const envoyerConfirmation = async (req, res) => {
   try {
-    const { id, status } = req.query; // id du joueur
-    if (!id || !status) return res.status(400).send('Paramètres manquants');
+    // 🔍 Affiche ce qui arrive pour debug
+    console.log("Body reçu :", req.body);
 
-    const user = await User.findById(id);
-    if (!user) return res.status(404).send('Joueur non trouvé');
+    // Récupération des champs depuis le body
+    const { prenom, nom, mailCoach, match, date, lieu, present } = req.body;
 
-    // Exemple : récupérer le coach
-    const coachEmail = process.env.COACH_EMAIL; // Définir dans .env
+    // Vérification des champs obligatoires
+    if (!prenom || !nom || !mailCoach || !match || !date || !lieu) {
+      return res.status(400).json({ message: "Données manquantes ou invalides" });
+    }
 
-    // Contenu du mail au coach
-    const subject = `Réponse à la convocation : ${user.prenom} ${user.nom}`;
-    const html = `
-      <div style="font-family: Arial, sans-serif; color: #333;">
-        <p>Bonjour,</p>
-        <p>Le joueur <strong>${user.prenom} ${user.nom}</strong> a répondu à sa convocation :</p>
-        <p><strong>Status :</strong> ${status === 'present' ? '✅ Présent' : '❌ Absent'}</p>
+    // Création du transporteur nodemailer
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS,
+      },
+    });
+
+    const statut = present ? "présent ✅" : "absent ❌";
+
+    const emailHtml = `
+      <div style="
+        font-family: Arial, sans-serif; 
+        color: #333; 
+        background-color: #f9f9f9; 
+        padding: 20px; 
+        border-radius: 10px;
+      ">
+        <!-- Titre -->
+        <h2 style="
+          color: #004aad; 
+          margin-bottom: 10px;
+        ">
+        Mise à jour de convocation
+        </h2>
+
+        <!-- Introduction -->
+        <p>Bonjour Coach,</p>
+
+        <!-- Informations sur le joueur et le match -->
+        <div style="
+          background-color: #fff; 
+          padding: 15px; 
+          border-radius: 8px; 
+          margin-top: 10px; 
+          border: 1px solid #ddd;
+        ">
+          <p>
+            Le joueur <strong>${prenom} ${nom}</strong> a indiqué qu'il sera 
+            <strong>${statut}</strong> pour le match <strong>${match}</strong> 
+            le <strong>${new Date(date).toLocaleDateString('fr-FR')}</strong> 
+            à <strong>${new Date(date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</strong> 
+            au <strong>${lieu}</strong>.
+          </p>
+
+        </div>
+
+        <!-- Séparateur -->
+        <hr style="margin: 20px 0; border-color: #ccc;"/>
+
+        <!-- Message de note -->
+        <p style="
+          font-size: 12px; 
+          color: #777;
+          margin-top: 10px;
+        ">
+          Ceci est un message automatique – ne pas répondre.
+        </p>
       </div>
     `;
 
-    await sendMail({ to: coachEmail, subject, plainText: `Le joueur ${user.prenom} ${user.nom} a répondu : ${status}`, html });
 
-    res.send(`<h2>Merci ! Votre réponse a été envoyée au coach.</h2>`);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Erreur lors de l’envoi de la réponse');
+    // Envoi du mail
+    await transporter.sendMail({
+      from: `"ASDAM - Convocations" <${process.env.EMAIL_USER}>`,
+      to: mailCoach,
+      subject: `Statut de présence de ${prenom} ${nom} - ${match}`,
+      html: emailHtml,
+    });
+
+    res.status(200).json({ message: "Mail envoyé au coach ✅" });
+  } catch (error) {
+    console.error("Erreur d’envoi :", error);
+    res.status(500).json({ message: "Erreur lors de l’envoi du mail", error: error.message });
   }
-}
-
-module.exports = { confirmerPresence };
+};

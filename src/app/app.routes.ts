@@ -28,6 +28,8 @@ import { ResultatsC } from '../page/Coach/resultats-c/resultats-c';
 import { CommuniquerC } from '../page/Coach/communiquer-c/communiquer-c';
 import { CGUC } from '../page/Coach/cguc/cguc';
 import { ActualiteJ } from '../page/Joueur/actualite-j/actualite-j';
+import { Confirmation } from '../page/confirmation/confirmation';
+import { ConvocationC } from '../page/Coach/convocation-c/convocation-c';
 
 
 /* ---- TOUT LE INVITÉ ----*/
@@ -44,7 +46,7 @@ export const routes: Routes = [
     { path: 'notificationsJ/messagesJ', component: MessageJ },
     { path: 'PlanningJ', component: PlanningJ },
     { path: 'absentsJ', component: AbsentsJ },
-    { path: 'matchJ/convocationsJ', component: ConvocationJ }, // ✅ Pas de slash au début
+    { path: 'matchJ/convocationsJ', component: ConvocationJ },
     { path: 'actualiteJ', component: ActualiteJ},
     { path: 'messagesJ', component: MessageJ },
     
@@ -62,6 +64,7 @@ export const routes: Routes = [
     { path: 'matchC/resultatsC', component: ResultatsC},
     { path: 'actualiteC/communiquesC', component: CommuniquerC},
     { path: 'cguc', component: CGUC},
+    { path: 'matchC/convocationsC', component: ConvocationC },
 
 
    

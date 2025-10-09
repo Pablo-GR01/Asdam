@@ -27,19 +27,21 @@ async function sendMail({ to, subject, plainText, html }) {
 // ===========================
 async function creerConvocation(req, res) {
   try {
-    const { match, date, joueurs, lieu, equipe } = req.body;
+    const { match, date, joueurs, lieu, equipe, mailCoach } = req.body;
 
-    if (!match || !date || !joueurs || !Array.isArray(joueurs)) {
-      return res.status(400).json({ message: 'Champs manquants ou invalides' });
+    // ✅ Validation des champs requis
+    if (!match || !date || !joueurs || !Array.isArray(joueurs) || !mailCoach) {
+      return res.status(400).json({ message: 'Champs manquants ou invalides (mailCoach obligatoire)' });
     }
 
-    const convocation = new Convocation({ match, date, joueurs, lieu, equipe });
+    // ✅ Création de la convocation avec mailCoach
+    const convocation = new Convocation({ match, date, joueurs, lieu, equipe, mailCoach });
     await convocation.save();
 
     // URL de confirmation (définie pour éviter l'erreur)
     const confirmationUrl = process.env.NODE_ENV === 'production'
       ? 'https://teamasdam.app/confirmation'
-      : 'http://localhost:4200/confirmation';
+      : 'http://localhost:4200/connexion';
 
     // Envoyer un email à tous les joueurs
     for (const joueur of joueurs) {
@@ -48,13 +50,25 @@ async function creerConvocation(req, res) {
         const subject = `Nouvelle convocation : ${match}`;
 
         const emailHtml = `
-          <div style="font-family: Arial, sans-serif; color: #333; background: #f9f9f9; padding: 20px; border-radius: 10px;">
+          <div style="
+            font-family: Arial, sans-serif; 
+            color: #333; 
+            background-color: #f9f9f9; 
+            padding: 20px; 
+            border-radius: 10px;
+          ">
             <h2 style="color: #004aad;">Convocation pour le match</h2>
 
             <p>Bonjour <strong>${user.prenom || ''}</strong>,</p>
             <p>Tu es convoqué pour le prochain match :</p>
 
-            <div style="background: #fff; padding: 15px; border-radius: 8px; margin-top: 10px; border: 1px solid #ddd;">
+            <div style="
+              background-color: #fff; 
+              padding: 15px; 
+              border-radius: 8px; 
+              margin-top: 10px; 
+              border: 1px solid #ddd;
+            ">
               <p><strong>Match :</strong> ${match}</p>
               <p><strong>Lieu :</strong> ${lieu}</p>
               <p><strong>Date :</strong> ${new Date(date).toLocaleDateString('fr-FR')}</p>
@@ -64,20 +78,25 @@ async function creerConvocation(req, res) {
             <p style="margin-top: 20px;">Merci de confirmer votre présence :</p>
 
             <div style="display: flex; gap: 10px; margin-top: 10px;">
-              <a href="${confirmationUrl}/confirmation?id=${user._id}&status=present"
-                style="background-color: #28a745; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;">
-                ✅ Je serai présent
-              </a>
-              <a href="${confirmationUrl}/confirmation?id=${user._id}&status=absent"
-                style="background-color: #dc3545; color: white; padding: 10px 15px; border-radius: 6px; text-decoration: none; font-weight: bold;">
-                ❌ Je ne serai pas présent
+              <a href="${confirmationUrl}" style="
+                background-color: #8d0202; 
+                color: white; 
+                padding: 10px 15px; 
+                border-radius: 6px; 
+                text-decoration: none; 
+                font-weight: bold;
+              ">
+               Confirme ta présence
               </a>
             </div>
 
-
-            <p style="margin-top: 30px;">Bonne journée,<br/><strong>L'équipe TeamAsdam</strong></p>
+            <p style="margin-top: 30px;">
+              Bonne journée,<br/>
+              <strong>L'équipe TeamAsdam</strong>
+            </p>
           </div>
         `;
+
 
         try {
           await sendMail({ to: user.email, subject, plainText: match, html: emailHtml });

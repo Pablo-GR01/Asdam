@@ -22,7 +22,7 @@
 
 <!-- 🟥 MODAL 1 : Infos du match -->
 <div *ngIf="showModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-  <div class="w-full max-w-lg bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+  <div class="w-full max-w-5xl bg-white rounded-3xl shadow-2xl flex flex-col overflow-hidden">
 
     <!-- Header -->
     <header class="px-6 py-5 bg-gradient-to-r from-red-700 to-red-500 text-white flex justify-between items-center">
@@ -32,60 +32,61 @@
       </button>
     </header>
 
-    <!-- Corps -->
-    <form class="flex-1 px-6 py-6 space-y-5">
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Match</label>
-        <input [(ngModel)]="convocation.match" name="match" required placeholder="Ex : U13 vs FC Exemple"
-          class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
-      </div>
+    <!-- Corps : grille responsive -->
+    <div class="flex-1 grid grid-cols-1 lg:grid-cols-3">
+      <!-- Formulaire -->
+      <form class="lg:col-span-2 px-6 py-6 space-y-5">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Match</label>
+          <input [(ngModel)]="convocation.match" name="match" required placeholder="Ex : U13 vs FC Exemple"
+            class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Équipe</label>
-        <input [value]="convocation.equipe" readonly
-          class="w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600 cursor-not-allowed" />
-      </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Équipe</label>
+          <input [value]="convocation.equipe" readonly
+            class="w-full rounded-xl border border-gray-300 bg-gray-100 px-4 py-2 text-gray-600 cursor-not-allowed" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Date & heure</label>
-        <input [(ngModel)]="convocation.date" name="date" type="datetime-local" required
-          class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
-      </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Date & heure</label>
+          <input [(ngModel)]="convocation.date" name="date" type="datetime-local" required
+            class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
-        <input [(ngModel)]="convocation.lieu" name="lieu" required placeholder="Ex : Stade municipal"
-          class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
-      </div>
-    </form>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Lieu</label>
+          <input [(ngModel)]="convocation.lieu" name="lieu" required placeholder="Ex : Stade municipal"
+            class="w-full rounded-xl border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition" />
+        </div>
+      </form>
+
+      <!-- Liste des convoqués – devient un side-panel sticky -->
+      <aside *ngIf="joueursConvoques.length" class="lg:border-l lg:bg-gray-50/70 bg-white px-6 py-6 flex flex-col">
+        <h3 class="font-semibold text-gray-800 mb-3">Joueurs convoqués</h3>
+
+        <ul class="space-y-2 overflow-auto flex-1 max-h-96 pr-2">
+          <li *ngFor="let joueur of joueursConvoques; index as i" class="flex items-center gap-3">
+            <span class="font-bold text-red-600">{{ i + 1 }}.</span>
+            <span class="text-gray-800">{{ joueur.prenom }} {{ joueur.nom }}</span>
+          </li>
+        </ul>
+
+        <button (click)="validerConvocation()"
+          class="mt-4 px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:scale-105 transition self-end">
+          Valider la convocation
+        </button>
+      </aside>
+    </div>
 
     <!-- Actions -->
     <footer class="px-6 py-4 border-t bg-gray-50 flex justify-end">
-      <button
-        type="button"
-        (click)="openComposeModal()"
+      <button type="button" (click)="openComposeModal()"
         [disabled]="!convocation.match || !convocation.equipe || !convocation.date || !convocation.lieu"
         class="flex items-center gap-2 px-5 py-2 rounded-xl bg-red-600 text-white font-semibold hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed transition">
         Sélectionner les joueurs <i class="fa-solid fa-users-line"></i>
       </button>
     </footer>
-
-    <!-- Liste joueurs convoqués -->
-    <div *ngIf="joueursConvoques.length > 0" class="px-6 py-4 border-t bg-gray-50">
-      <h3 class="font-semibold text-gray-800 mb-3">Joueurs convoqués :</h3>
-      <ul class="space-y-2">
-        <li *ngFor="let joueur of joueursConvoques; index as i" class="flex items-center gap-3">
-          <span class="font-bold text-red-600">{{ i + 1 }}.</span>
-          <span class="text-gray-800">{{ joueur.prenom }} {{ joueur.nom }}</span>
-        </li>
-      </ul>
-      <div class="flex justify-end mt-4">
-        <button (click)="validerConvocation()"
-          class="px-5 py-2 rounded-xl bg-green-600 text-white font-semibold hover:scale-105 transition">
-          Valider la convocation
-        </button>
-      </div>
-    </div>
   </div>
 </div>
 

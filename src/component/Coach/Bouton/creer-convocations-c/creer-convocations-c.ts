@@ -22,7 +22,8 @@ export class CreerConvocationsC implements OnInit {
     equipe: '',
     joueurs: [],
     date: new Date(),
-    lieu: ''
+    lieu: '',
+    mailCoach: '' // ✅ toujours défini
   };
 
   allJoueurs: (User & { action?: string })[] = [];
@@ -49,9 +50,20 @@ export class CreerConvocationsC implements OnInit {
     const userStr = localStorage.getItem('utilisateur');
     if (userStr) {
       this.currentUser = JSON.parse(userStr);
+  
+      // Remplir l'équipe automatiquement
       this.convocation.equipe = this.currentUser?.equipe ?? '';
+  
+      // ✅ Définir mailCoach avec l'email de l'utilisateur connecté
+      if (this.currentUser?.email) {
+        this.convocation.mailCoach = this.currentUser.email;
+      } else {
+        console.warn('Email du coach manquant dans localStorage !');
+        this.convocation.mailCoach = ''; // fallback pour éviter undefined
+      }
     }
   }
+  
 
   loadJoueurs(): void {
     this.convocationService.getJoueurs().subscribe({
@@ -65,10 +77,28 @@ export class CreerConvocationsC implements OnInit {
     });
   }
 
-  openModal(): void { this.showModal = true; this.hideMainBtn = true; }
-  closeModal(): void { this.showModal = false; this.showComposeModal = false; this.hideMainBtn = false; this.composeJoueurs = []; this.allJoueurs.forEach(j => j.action = undefined); }
-  openComposeModal(): void { this.showModal = false; this.showComposeModal = true; }
-  closeComposeModal(): void { this.showComposeModal = false; this.showModal = true; }
+  openModal(): void { 
+    this.showModal = true; 
+    this.hideMainBtn = true; 
+  }
+  
+  closeModal(): void { 
+    this.showModal = false; 
+    this.showComposeModal = false; 
+    this.hideMainBtn = false; 
+    this.composeJoueurs = []; 
+    this.allJoueurs.forEach(j => j.action = undefined); 
+  }
+  
+  openComposeModal(): void { 
+    this.showModal = false; 
+    this.showComposeModal = true; 
+  }
+  
+  closeComposeModal(): void { 
+    this.showComposeModal = false; 
+    this.showModal = true; 
+  }
 
   ajouterJoueur(user: User & { action?: string }): void {
     if (this.composeJoueurs.length >= this.maxJoueurs) return;
@@ -83,7 +113,9 @@ export class CreerConvocationsC implements OnInit {
     this.composeJoueurs = this.composeJoueurs.filter(u => u._id !== user._id);
   }
 
-  isJoueurCompose(user: User): boolean { return this.composeJoueurs.some(j => j._id === user._id); }
+  isJoueurCompose(user: User): boolean { 
+    return this.composeJoueurs.some(j => j._id === user._id); 
+  }
 
   validerCompo(): void {
     this.joueursConvoques = [...this.composeJoueurs];
@@ -99,13 +131,12 @@ export class CreerConvocationsC implements OnInit {
   
     this.convocation.joueurs = [...this.joueursConvoques];
   
-    // ✅ Ajouter le mail du coach avant d'envoyer
-    if (!this.currentUser?.email) {
+    // ✅ Vérification que mailCoach est bien défini
+    if (!this.convocation.mailCoach) {
       this.errorMsg = 'Impossible de créer la convocation : email du coach manquant.';
       setTimeout(() => this.errorMsg = '', 1500);
       return;
     }
-    this.convocation['mailCoach'] = this.currentUser.email;
   
     this.loading = true;
   
@@ -119,6 +150,7 @@ export class CreerConvocationsC implements OnInit {
       },
       error: err => {
         this.errorMsg = 'Erreur lors de la création.';
+        console.error(err);
         this.loading = false;
         setTimeout(() => this.errorMsg = '', 1200);
       }
@@ -127,11 +159,19 @@ export class CreerConvocationsC implements OnInit {
   
 
   private resetForm(): void {
-    this.convocation = { match: '', equipe: this.currentUser?.equipe || '', joueurs: [], date: new Date(), lieu: '' };
+    this.convocation = { 
+      match: '', 
+      equipe: this.currentUser?.equipe || '', 
+      joueurs: [], 
+      date: new Date(), 
+      lieu: '', 
+      mailCoach: this.currentUser?.email || '' // conserve l'email
+    };
     this.composeJoueurs = [];
     this.joueursConvoques = [];
     this.allJoueurs.forEach(j => j.action = undefined);
   }
+  
 
   getInitiale(user: User): string {
     return (user.prenom?.charAt(0) + user.nom?.charAt(0)).toUpperCase();

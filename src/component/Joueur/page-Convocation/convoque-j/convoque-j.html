@@ -1,38 +1,29 @@
-<!-- ==========  CONVOCATIONS – UI « PRO » CENTRÉ  ========== -->
-<section class="relative isolate flex min-h-screen items-center justify-center bg-white text-gray-900 overflow-hidden"
-         aria-labelledby="convoc-title">
+<!-- ==========  CONVOCATIONS – UI 2025 « TAILWIND ONLY »  ========== -->
+<section class="relative isolate flex min-h-screen items-center justify-center bg-gray-50 text-gray-900 overflow-hidden"
+  aria-labelledby="convoc-title">
 
   <div class="w-full max-w-6xl px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
 
     <!-- =====  EN-TÊTE  ===== -->
-    <header *ngIf="!loading && userInConvocations.length"
-            class="mx-auto max-w-3xl text-center mb-12 lg:mb-16">
-
+    <header *ngIf="!loading && userInConvocations.length" class="mx-auto max-w-3xl text-center mb-12 lg:mb-16">
       <p class="text-xs sm:text-sm uppercase tracking-[0.3em] text-gray-500 mb-2">
         Convocation officielle
       </p>
-
       <h1 id="convoc-title"
-          class="font-extrabold text-3xl sm:text-4xl md:text-5xl lg:text-6xl
-                 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-gray-800 to-gray-600
-                 drop-shadow-sm leading-tight mb-4">
+        class="text-4xl sm:text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-gray-900 via-gray-800 to-rose-600 bg-clip-text text-transparent drop-shadow-sm mb-4">
         Liste des joueurs
       </h1>
-
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-2
-                  text-gray-700 text-base sm:text-lg md:text-xl">
+      <div
+        class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-gray-700 text-base sm:text-lg md:text-xl">
         <span class="font-medium">{{ userInConvocations[0].date | date:'fullDate':'':'fr' }}</span>
-        <span class="hidden sm:inline text-gray-400">•</span>
+        <span aria-hidden="true" class="text-gray-400">•</span>
         <span class="font-medium">à {{ userInConvocations[0].date | date:'shortTime':'':'fr' }}</span>
-        <span class="hidden sm:inline text-gray-400">•</span>
+        <span aria-hidden="true" class="text-gray-400">•</span>
         <span class="font-medium">au {{ userInConvocations[0].lieu }}</span>
       </div>
-
-      <p class="mt-4 text-lg sm:text-xl md:text-2xl font-bold text-rose-600 tracking-wide">
+      <p class="mt-4 text-xl sm:text-2xl font-bold text-rose-600 tracking-wide">
         {{ userInConvocations[0].match }}
       </p>
-
-      <div class="mt-6 mx-auto w-24 h-1 bg-gradient-to-r from-rose-600 via-pink-500 to-rose-400 rounded-full"></div>
     </header>
 
     <!-- =====  LOADER  ===== -->
@@ -42,38 +33,55 @@
     </div>
 
     <!-- =====  GRILLE DES CONVOCATIONS  ===== -->
-    <div *ngIf="!loading && userInConvocations.length"
-         class="flex justify-center w-full">
-      <ul role="list"
-          class="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4
-                 w-full max-w-5xl">
-        <li *ngFor="let c of userInConvocations; index as i"
-            class="group relative bg-gray-50 rounded-2xl p-4 sm:p-5 border border-gray-200
-                   hover:border-rose-600 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-600/10
-                   transition-all duration-300 ease-out">
+    <div *ngIf="!loading && userInConvocations.length" class="flex justify-center w-full">
+      <ul role="list" class="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 w-full max-w-5xl">
+        <li *ngFor="let c of userInConvocations; index as i" class="group relative bg-white/70 backdrop-blur-md rounded-2xl p-5 border border-gray-200
+                 hover:border-rose-500 hover:-translate-y-1 hover:shadow-xl hover:shadow-rose-500/10
+                 transition-all duration-300 ease-out">
+          <span
+            class="absolute top-3 right-3 h-2 w-2 rounded-full bg-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"></span>
 
-          <span class="absolute top-3 right-3 h-2 w-2 rounded-full bg-rose-500
-                       opacity-0 group-hover:opacity-100 transition-opacity"></span>
-
-          <ul role="list" class="mt-4 space-y-2">
-            <li *ngFor="let joueur of c.joueurs; index as j"
-                role="listitem"
-                class="flex items-center gap-3 px-2 sm:px-3 py-2 rounded-md transition"
-                [ngClass]="{'bg-amber-100 font-semibold ring-2 ring-amber-300':
-                             userConnecte &&
-                             joueur.nom === userConnecte.nom &&
-                             joueur.prenom === userConnecte.prenom}">
+          <ul role="list" class="mt-4 space-y-3">
+            <li *ngFor="let joueur of c.joueurs; index as j" role="listitem"
+              class="flex items-center gap-3 px-3 py-2 rounded-lg transition" [ngClass]="{
+                'bg-amber-100 font-semibold ring-2 ring-amber-300': userConnecte && joueur.nom === userConnecte.nom && joueur.prenom === userConnecte.prenom,
+                'bg-green-100': joueur.etatPresence === 'present',
+                'bg-red-100': joueur.etatPresence === 'absent'
+              }">
               <span class="w-6 text-center font-semibold text-gray-500 text-sm sm:text-base">{{ j + 1 }}</span>
 
-              <div class="w-9 h-9 flex items-center justify-center rounded-full
-                          bg-rose-600 text-white font-bold text-xs sm:text-sm shadow"
-                   aria-hidden="true">
+              <div
+                class="w-9 h-9 flex items-center justify-center rounded-full bg-gradient-to-br from-rose-600 to-rose-500 text-white font-bold text-xs sm:text-sm shadow"
+                aria-hidden="true">
                 {{ (joueur.prenom?.charAt(0) || '') + (joueur.nom?.charAt(0) || '') | uppercase }}
               </div>
 
               <span class="text-gray-900 text-sm sm:text-base leading-tight">
                 {{ joueur.prenom }} {{ joueur.nom }}
               </span>
+
+              <!-- Boutons présence pour le joueur connecté -->
+              <div *ngIf="userConnecte && joueur.nom === userConnecte.nom && joueur.prenom === userConnecte.prenom"
+                class="ml-auto flex gap-2">
+                <!-- Bouton Présent -->
+                <button (click)="updatePresence(c, userConnecte, true)" [ngClass]="{
+    'bg-green-500 hover:bg-green-600 ring-2 ring-green-400': joueur.etatPresence !== 'present',
+    'bg-green-700': joueur.etatPresence === 'present'
+  }" class="px-3 py-1 rounded-md text-white text-xs sm:text-sm focus:outline-none transition"
+                  aria-label="Je serai présent">
+                  ✅ Présent
+                </button>
+
+                <!-- Bouton Absent -->
+                <button (click)="updatePresence(c, userConnecte, false)" [ngClass]="{
+    'bg-red-500 hover:bg-red-600 ring-2 ring-red-400': joueur.etatPresence !== 'absent',
+    'bg-red-700': joueur.etatPresence === 'absent'
+  }" class="px-3 py-1 rounded-md text-white text-xs sm:text-sm focus:outline-none transition"
+                  aria-label="Je ne serai pas là">
+                  ❌ Absent
+                </button>
+              </div>
+
             </li>
           </ul>
         </li>
@@ -81,14 +89,12 @@
     </div>
 
     <!-- =====  ÉTAT VIDE  ===== -->
-    <div *ngIf="!loading && !userInConvocations.length"
-         class="text-center py-24 px-4 sm:px-0" role="status">
+    <div *ngIf="!loading && !userInConvocations.length" class="text-center py-24 px-4 sm:px-0" role="status">
       <p class="text-gray-400 text-base sm:text-lg">Aucune convocation pour le moment.</p>
     </div>
 
     <!-- =====  MESSAGE D’ERREUR  ===== -->
-    <div *ngIf="error"
-         class="text-center py-24 px-4 sm:px-0 text-rose-600" role="alert">
+    <div *ngIf="error" class="text-center py-24 px-4 sm:px-0 text-rose-600" role="alert">
       <p class="text-base sm:text-lg">{{ error }}</p>
     </div>
   </div>
