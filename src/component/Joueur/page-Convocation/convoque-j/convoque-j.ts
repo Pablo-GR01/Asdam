@@ -12,12 +12,13 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 })
 export class ConvoqueJ implements OnInit {
 
-  convocations: Convocation[] = [];           // Toutes les convocations
-  userInConvocations: Convocation[] = [];     // Convocations filtrées pour l'utilisateur
-  loading: boolean = false;
-  error: string = '';
-  userConnecte: User | null = null;           // Utilisateur connecté
-  backendUrl = 'http://localhost:3000';       // <-- Met ici l'URL de ton backend
+  convocations: Convocation[] = [];
+  userInConvocations: Convocation[] = [];
+  loading = false;
+  error = '';
+  userConnecte: User | null = null;
+  backendUrl = 'http://localhost:3000';
+  notificationMessage = '';
 
   constructor(
     private convocationService: ConvocationService,
@@ -25,7 +26,6 @@ export class ConvoqueJ implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('--- ngOnInit ---');
     this.recupererUtilisateur();
     this.chargerConvocations();
   }
@@ -35,23 +35,18 @@ export class ConvoqueJ implements OnInit {
     if (userJson) {
       try {
         this.userConnecte = JSON.parse(userJson) as User;
-        console.log('Utilisateur connecté :', this.userConnecte);
       } catch (e) {
         console.error('Erreur parsing utilisateur depuis localStorage', e);
         this.userConnecte = null;
       }
-    } else {
-      console.warn('Pas d\'utilisateur trouvé dans localStorage');
     }
   }
 
   private chargerConvocations(): void {
     this.loading = true;
-    console.log('Chargement des convocations...');
     this.convocationService.getConvocations().subscribe({
       next: (data: Convocation[]) => {
         this.convocations = data;
-        console.log('Toutes les convocations :', this.convocations);
 
         if (this.userConnecte) {
           if (this.userConnecte.role === 'coach') {
@@ -63,12 +58,9 @@ export class ConvoqueJ implements OnInit {
               conv.joueurs.some(j => j.nom === this.userConnecte!.nom && j.prenom === this.userConnecte!.prenom)
             );
           }
-        } else {
-          this.userInConvocations = [];
         }
 
         this.loading = false;
-        console.log('Convocations filtrées pour l’utilisateur :', this.userInConvocations);
       },
       error: (err) => {
         console.error('Erreur lors de la récupération des convocations', err);
@@ -78,77 +70,100 @@ export class ConvoqueJ implements OnInit {
     });
   }
 
-  isUserInConvocation(conv: Convocation): boolean {
+  // Vérifie si l'utilisateur a déjà cliqué pour une convocation donnée
+  hasAlreadyClickedForDate(dateConvocation: string | Date): boolean {
     if (!this.userConnecte) return false;
 
-    if (this.userConnecte.role === 'coach') {
-      return conv.equipe === this.userConnecte.equipe;
-    }
+    // Convertir en chaîne si c'est une Date
+    const dateStr = typeof dateConvocation === 'string'
+      ? dateConvocation
+      : dateConvocation.toISOString().split('T')[0]; // format "YYYY-MM-DD"
 
-    return conv.joueurs.some(j => j.nom === this.userConnecte!.nom && j.prenom === this.userConnecte!.prenom);
+    const presenceKey = `presence_${this.userConnecte.nom}_${this.userConnecte.prenom}_${dateStr}`;
+    return localStorage.getItem(presenceKey) === 'true';
   }
 
-  getJoueursStr(conv: Convocation): string {
-    return conv.joueurs?.map(j => `${j.prenom} ${j.nom}`).join(', ') || '';
-  }
-
-  getInitiales(conv: Convocation): string {
-    const joueur = conv.joueurs[0];
-    if (!joueur) return '';
-    return ((joueur.prenom?.charAt(0) || '') + (joueur.nom?.charAt(0) || '')).toUpperCase();
-  }
-
-  updatePresence(conv: Convocation, joueur: User, present: boolean) {
-    console.log('--- updatePresence appelé ---');
-    console.log('Convocation :', conv);
-    console.log('Joueur :', joueur);
-    console.log('Présent :', present);
-
-    if (!conv._id || !joueur._id) {
-      console.warn('ID manquant, sortie');
+  updatePresence(conv: Convocation, present: boolean): void {
+    if (!this.userConnecte?._id) return;
+  
+    // Convertir la date de convocation en string (YYYY-MM-DD)
+    const dateConv = typeof conv.date === 'string'
+      ? conv.date
+      : conv.date.toISOString().split('T')[0];
+  
+    // Clé unique : nom + prénom + date
+    const presenceKey = `presence_${this.userConnecte.nom}_${this.userConnecte.prenom}_${dateConv}`;
+  
+    // Si déjà répondu, on bloque le clic
+    if (localStorage.getItem(presenceKey) === 'true') {
+      this.notificationMessage = "Vous avez déjà répondu pour cette convocation.";
+      setTimeout(() => (this.notificationMessage = ''), 3000);
       return;
     }
-
-    // 1️⃣ Mise à jour de la présence dans la DB
-    this.convocationService.updatePresence(conv._id, joueur._id, present).subscribe({
-      next: (res) => {
-        console.log('Mise à jour DB réussie', res);
-
-        const targetIndex = conv.joueurs.findIndex(j => j._id === joueur._id);
-        if (targetIndex !== -1) {
-          const updatedJoueur: User = {
-            ...conv.joueurs[targetIndex],
-            etatPresence: present ? 'present' : 'absent'
-          };
-          conv.joueurs = [
-            ...conv.joueurs.slice(0, targetIndex),
-            updatedJoueur,
-            ...conv.joueurs.slice(targetIndex + 1)
-          ];
-          console.log('Joueur mis à jour localement :', updatedJoueur);
-        }
-
-        // 2️⃣ Envoi du mail au coach
-        if (conv.mailCoach) {
-          console.log('Envoi du mail au coach à :', conv.mailCoach);
-          this.http.post(`${this.backendUrl}/api/confirmation`, {
-            prenom: joueur.prenom,
-            nom: joueur.nom,
-            mailCoach: conv.mailCoach,
-            match: conv.match,
-            date: conv.date,
-            lieu: conv.lieu,
-            present: present
-          }).subscribe({
-            next: (mailRes) => console.log('Mail envoyé au coach ✅', mailRes),
-            error: (err) => console.error('Erreur envoi mail au coach', err)
-          });
-        } else {
-          console.warn('Pas d\'email coach dans la convocation');
-        }
-      },
-      error: (err) => console.error('Erreur mise à jour présence', err)
+  
+    // ✅ Mise à jour locale immédiate
+    this.userConnecte.etatPresence = present ? 'present' : 'absent';
+    this.userConnecte.hasClicked = true;
+  
+    // Enregistrer l'état pour cette convocation spécifique
+    if (!this.userConnecte.hasClickedConv) this.userConnecte.hasClickedConv = {};
+    this.userConnecte.hasClickedConv[conv._id!] = true;
+  
+    // Sauvegarde dans le localStorage (par date)
+    localStorage.setItem(presenceKey, 'true');
+  
+    // ✅ Mise à jour du joueur dans la convocation
+    conv.joueurs = conv.joueurs.map(j =>
+      j._id === this.userConnecte!._id
+        ? { ...j, etatPresence: this.userConnecte!.etatPresence, hasClicked: true }
+        : j
+    );
+  
+    // ✅ Mise à jour backend
+    this.convocationService.updatePresence(conv._id!, this.userConnecte._id, present).subscribe({
+      next: res => console.log('Mise à jour DB réussie ✅', res),
+      error: err => console.error('Erreur mise à jour DB ❌', err)
     });
+  
+    // ✅ Envoi d'un mail au coach
+    if (conv.mailCoach) {
+      this.http.post(`${this.backendUrl}/api/confirmation`, {
+        prenom: this.userConnecte.prenom,
+        nom: this.userConnecte.nom,
+        mailCoach: conv.mailCoach,
+        match: conv.match,
+        date: conv.date,
+        lieu: conv.lieu,
+        present
+      }).subscribe({
+        next: () => console.log('Mail envoyé au coach ✅'),
+        error: err => console.error('Erreur envoi mail :', err)
+      });
+    }
+  
+    // ✅ Notification visuelle
+    this.notificationMessage = present
+      ? "Vous avez confirmé votre présence ✅"
+      : "Vous avez indiqué votre absence ❌";
+  
+    setTimeout(() => (this.notificationMessage = ''), 3000);
   }
+  
 
+  // Détermine si les boutons doivent être actifs
+  canClick(conv: Convocation): boolean {
+    if (!this.userConnecte) return false;
+  
+    const dateConv = typeof conv.date === 'string'
+      ? conv.date
+      : conv.date.toISOString().split('T')[0];
+  
+    const presenceKey = `presence_${this.userConnecte.nom}_${this.userConnecte.prenom}_${dateConv}`;
+    return localStorage.getItem(presenceKey) !== 'true';
+  }
+  
+
+  getInitiales(joueur: any): string {
+    return ((joueur.prenom?.charAt(0) || '') + (joueur.nom?.charAt(0) || '')).toUpperCase();
+  }
 }

@@ -11,6 +11,8 @@ export interface User {
   equipe?: string;
   role?: string;
   etatPresence?: 'present' | 'absent';
+  hasClicked?: boolean;
+  hasClickedConv?: { [convId: string]: boolean };
 }
 
 export interface Convocation {
@@ -23,6 +25,7 @@ export interface Convocation {
   statut?: 'en attente' | 'confirmé' | 'annulé';
   mailCoach?: string;
   coachEmail?: string; 
+  retryLoading?: boolean;
 }
 
 @Injectable({
