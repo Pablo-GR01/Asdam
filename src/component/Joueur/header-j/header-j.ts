@@ -1,14 +1,11 @@
-// src/app/component/Coach/header-c/header-c.ts
-import { Component, HostListener, OnInit } from '@angular/core';
+import { Component, HostListener, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
-import { ProfileService } from '../../../../services/userService/Profil.Service';
 import { Icon } from '../../icon/icon';
 import { EnteteC } from '../../Coach/page-Accueil/entete-c/entete-c';
 import { MessageService } from '../../../../services/message.service';
-import { UtilisateurService } from '../../../../services/userService/utilisateur.service';
+import { ProfileService } from '../../../../services/userService/Profil.Service';
 
-// On autorise les initiales dans MenuItem
 interface MenuItem {
   title: string;
   link: string;
@@ -31,18 +28,20 @@ interface MobileMenu {
   templateUrl: './header-j.html',
   styleUrls: ['./header-j.css']
 })
-export class HeaderJ implements OnInit {
+export class HeaderJ implements OnInit, AfterViewInit {
   private _mobileMenuOpen = false;
   activeDropdown: string | null = null;
   isDarkMode = false;
   unreadMessages = 0;
   connectedUser: any = null;
-
   mobileMenus: MobileMenu[] = [];
+
+  private scrollPosition = 0;
+
+  @ViewChild('mobileMenu') mobileMenuRef!: ElementRef<HTMLDivElement>;
 
   constructor(
     private router: Router,
-    private userService: UtilisateurService,
     private messageService: MessageService,
     private userProfileService: ProfileService
   ) {
@@ -58,11 +57,17 @@ export class HeaderJ implements OnInit {
     this.loadConnectedUser();
   }
 
+  ngAfterViewInit(): void {
+    if (this.mobileMenuRef) {
+      this.addScrollLock(this.mobileMenuRef.nativeElement);
+    }
+  }
+
   private loadConnectedUser(): void {
     const utilisateurStorage = localStorage.getItem('utilisateur');
     let initiales = '';
+
     if (!utilisateurStorage) {
-      console.warn('Aucun utilisateur trouvé en localStorage.');
       this.buildMobileMenus(initiales);
       return;
     }
@@ -72,53 +77,47 @@ export class HeaderJ implements OnInit {
     this.connectedUser = utilisateur;
     initiales = utilisateur.initiales;
 
-    const userId = utilisateur._id || utilisateur.id;
-    if (!userId) {
-      console.warn('⚠ Aucun ID trouvé pour l’utilisateur.');
-      this.buildMobileMenus(initiales);
-      return;
+    if (utilisateur._id || utilisateur.id) {
+      const userId = utilisateur._id || utilisateur.id;
+      this.messageService.getUnreadCount(userId);
     }
 
-    // Récupération utilisateur depuis l’API
-    this.userService.getUserById(userId).subscribe({
-      next: user => {
-        this.connectedUser = user || utilisateur;
-        this.connectedUser.initiales = this.getInitiales(this.connectedUser.nom, this.connectedUser.prenom);
-        initiales = this.connectedUser.initiales;
-        this.messageService.getUnreadCount(userId);
-        this.buildMobileMenus(initiales);
-      },
-      error: err => {
-        console.warn(`Impossible de charger l’utilisateur ${userId}`, err);
-        this.connectedUser = utilisateur;
-        this.messageService.getUnreadCount(userId);
-        this.buildMobileMenus(initiales);
-      }
-    });
+    this.buildMobileMenus(initiales);
   }
 
   private buildMobileMenus(initiales: string): void {
     this.mobileMenus = [
-      { title: 'Actualité', icon: 'fas fa-newspaper', link: '/actualiteJ', items: [
-        { title: 'Communiqués', link: '/actualiteJ/communiquesJ', icon: 'fas fa-bullhorn' },
-        { title: 'Archives', link: '/actualiteJ/archivesJ', icon: 'fas fa-archive' }
-      ] },
-      { title: 'Match', icon: 'fas fa-futbol', link: '/matchJ', items: [
-        { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users' },
-        { title: 'Résultats', link: '/matchJ/resultatsJ', icon: 'fas fa-trophy' },
-      ] },
-      { title: 'Planning', icon: 'fas fa-calendar-alt', link: '/PlanningJ', items: [
-        { title: 'Entraînements', link: '/planningJ/entrainementsJ', icon: 'fas fa-dumbbell' },
-        { title: 'Événements', link: '/planningJ/evenementsJ', icon: 'fas fa-star' },
-        { title: 'Stages', link: '/planningJ/stagesJ', icon: 'fas fa-graduation-cap' }
-      ] },
+      {
+        title: 'Actualité',
+        icon: 'fas fa-newspaper',
+        link: '/actualiteJ',
+        items: [
+          { title: 'Communiqués', link: '/actualiteJ/communiquesJ', icon: 'fas fa-bullhorn' },
+          { title: 'Archives', link: '/actualiteJ/archivesJ', icon: 'fas fa-archive' }
+        ]
+      },
+      {
+        title: 'Match',
+        icon: 'fas fa-futbol',
+        link: '/matchJ',
+        items: [
+          { title: 'Convocations', link: '/matchJ/convocationsJ', icon: 'fas fa-users' },
+          { title: 'Résultats', link: '/matchJ/resultatsJ', icon: 'fas fa-trophy' }
+        ]
+      },
+      { title: 'Planning', icon: 'fas fa-calendar-alt', link: '/PlanningJ', items: [] },
       { title: 'Messages', icon: 'fas fa-envelope', link: '/messagesJ', items: [] },
       { title: 'Absents', icon: 'fas fa-user-slash', link: '/absentsJ', items: [] },
-      { title: 'Dashboard', icon: 'fas fa-tachometer-alt', link: '/dashboardJ', items: [
-        { title: 'Mon Profil', link: '/dashboardJ/profileJ', initiales: initiales },
-        { title: 'Paramètres', link: '/dashboardJ/settingsJ', icon: 'fas fa-cog' },
-        { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
-      ] },
+      {
+        title: 'Dashboard',
+        icon: 'fas fa-tachometer-alt',
+        link: '/dashboardJ',
+        items: [
+          { title: 'Mon Profil', link: '/dashboardJ/profileJ', initiales },
+          { title: 'Paramètres', link: '/dashboardJ/settingsJ', icon: 'fas fa-cog' },
+          { title: 'Déconnexion', link: '/connexion', icon: 'fas fa-sign-out-alt' }
+        ]
+      },
       { title: 'Déconnexion', icon: 'fas fa-sign-out-alt', link: '/connexion', items: [] }
     ];
   }
@@ -129,7 +128,24 @@ export class HeaderJ implements OnInit {
 
   set mobileMenuOpen(value: boolean) {
     this._mobileMenuOpen = value;
-    document.body.style.overflow = value ? 'hidden' : '';
+
+    if (value) {
+      this.scrollPosition = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this.scrollPosition}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.width = '100%';
+      document.body.classList.add('menu-open');
+    } else {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.width = '';
+      document.body.classList.remove('menu-open');
+      window.scrollTo(0, this.scrollPosition);
+    }
   }
 
   toggleMobileMenu(): void {
@@ -179,5 +195,36 @@ export class HeaderJ implements OnInit {
     const n = nom?.charAt(0) || '';
     const p = prenom?.charAt(0) || '';
     return (p + n).toUpperCase();
+  }
+
+  /*** Bloque le rebond du scroll sur mobile / desktop ***/
+  private addScrollLock(menuEl: HTMLElement) {
+    let startY = 0;
+
+    menuEl.addEventListener('touchstart', (e: TouchEvent) => {
+      startY = e.touches[0].clientY;
+    }, { passive: false });
+
+    menuEl.addEventListener('touchmove', (e: TouchEvent) => {
+      const scrollTop = menuEl.scrollTop;
+      const scrollHeight = menuEl.scrollHeight;
+      const offsetHeight = menuEl.offsetHeight;
+      const direction = e.touches[0].clientY - startY;
+
+      if ((scrollTop === 0 && direction > 0) || (scrollTop + offsetHeight >= scrollHeight && direction < 0)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    menuEl.addEventListener('wheel', (e: WheelEvent) => {
+      const scrollTop = menuEl.scrollTop;
+      const scrollHeight = menuEl.scrollHeight;
+      const offsetHeight = menuEl.offsetHeight;
+      const delta = e.deltaY;
+
+      if ((scrollTop === 0 && delta < 0) || (scrollTop + offsetHeight >= scrollHeight && delta > 0)) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 }

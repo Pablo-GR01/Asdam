@@ -11,6 +11,7 @@ interface Feature {
 interface Stat {
   label: string;
   value: number | string;
+  icon: string;
 }
 
 @Component({
@@ -52,11 +53,12 @@ export class Sections2 implements OnInit {
 
   // Stats du club
   stats: Stat[] = [
-    { label: 'Membres', value: 120 },
-    { label: 'Matchs joués', value: 45 },
-    { label: 'Événements', value: 32 },
-    { label: 'Titres gagnés', value: 10 }
+    { label: 'Membres', value: 450, icon: 'fa-solid fa-users' },
+    { label: 'Année de création', value: 1995, icon: 'fa-solid fa-calendar' },
+    { label: 'Équipes actives', value: 12, icon: 'fa-solid fa-people-group' },
+    { label: 'Catégories (U6,U7,U8..)', value: 8, icon: 'fa-solid fa-layer-group' },
   ];
+
 
   currentUser: any = null;
 

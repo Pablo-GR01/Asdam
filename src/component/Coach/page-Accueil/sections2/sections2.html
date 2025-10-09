@@ -60,11 +60,27 @@
 
   <!-- Stats Club -->
   <div class="mt-20 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center px-4 md:px-0">
-    <div *ngFor="let stat of stats" class="p-6 rounded-2xl bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)] hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-      <p class="text-4xl md:text-3xl font-extrabold text-white">{{ stat.value }}</p>
-      <p class="mt-2 text-sm md:text-base text-white/90">{{ stat.label }}</p>
+    <div *ngFor="let stat of stats"
+         class="p-6 rounded-2xl bg-gradient-to-br from-[var(--Rouge)] to-[var(--Rouge-Foncé)] 
+                hover:from-[var(--Bleu)] hover:to-[var(--Bleu-Foncé)] 
+                shadow-lg hover:shadow-xl transform hover:scale-105 
+                transition-all duration-300 flex flex-col items-center justify-center">
+      
+      <!-- Icône -->
+      <i [class]="stat.icon + ' text-4xl md:text-5xl text-white mb-3 drop-shadow-lg'"></i>
+      
+      <!-- Valeur -->
+      <p class="text-3xl md:text-2xl font-extrabold text-white">
+        {{ stat.value }}
+      </p>
+      
+      <!-- Label -->
+      <p class="mt-2 text-sm md:text-base text-white/90">
+        {{ stat.label }}
+      </p>
     </div>
   </div>
+  
 </section>
 
 <!-- MODAL -->

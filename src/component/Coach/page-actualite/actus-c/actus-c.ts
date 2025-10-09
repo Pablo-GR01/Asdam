@@ -27,6 +27,9 @@ interface Post {
   mediaType?: 'image' | 'video';
   mediaUrl?: string;
   likedBy?: string[];
+  showAllComments?: boolean;
+  newComment?: string;
+  showMenu?: boolean;
 }
 
 interface LocalUser { 
@@ -70,8 +73,10 @@ export class ActusC implements OnInit {
   totalCommentPages = 1;
 
   searchQuery = '';
-
   notification: { type: 'success'|'error', message: string } | null = null;
+
+  animatingLike: string | null = null;
+  showNotif = false;
 
   @ViewChild('mediaInput') mediaInput!: ElementRef<HTMLInputElement>;
   @ViewChild('editMediaInput') editMediaInput!: ElementRef<HTMLInputElement>;
@@ -85,7 +90,7 @@ export class ActusC implements OnInit {
     this.loadPosts();
   }
 
-  // Bloquer scroll quand une modal est ouverte
+  // --- Scroll ---
   blockScroll() { this.renderer.setStyle(document.body, 'overflow', 'hidden'); }
   unblockScroll() { this.renderer.setStyle(document.body, 'overflow', 'auto'); }
 
@@ -169,6 +174,11 @@ export class ActusC implements OnInit {
     this.showCommentsModal = true;
     this.blockScroll();
   }
+
+  toggleComments(post: any): void {
+    post.showAllComments = !post.showAllComments;
+  }
+  
   closeCommentsModal() { 
     this.showCommentsModal = false; 
     this.selectedPost = null; 
@@ -224,10 +234,10 @@ export class ActusC implements OnInit {
       this.showNotification('error', 'Action non autorisée ❌'); 
       return; 
     }
-
     if (!this.newPostContent.trim() && !this.newPostMedia) return;
 
     this.loading = true;
+
     const newPost: Partial<Post> = { 
       content: this.newPostContent, 
       user: this.currentFullName, 
@@ -239,11 +249,33 @@ export class ActusC implements OnInit {
       shares: 0,
       likedBy: []
     };
+
     const url = this.newPostMedia ? 'http://localhost:3000/api/posts/media' : 'http://localhost:3000/api/posts';
+
+    const handleSuccess = (p: Post) => {
+      const formattedPost: Post & { newComment?: string; showMenu?: boolean } = {
+        ...p,
+        newComment: '',
+        showMenu: false,
+        mediaType: p.media?.endsWith('.mp4') ? 'video' : p.media ? 'image' : undefined,
+        mediaUrl: p.media ? this.formatMediaUrl(p.media) : undefined,
+        likedBy: p.likedBy ?? [],
+        isLiked: p.likedBy?.includes(this.currentUser?._id || '') ?? false
+      };
+      // ⚡ Ajout instantané
+      this.posts.unshift(formattedPost);
+      this.filterPosts();
+      this.newPostContent = '';
+      this.removeMedia();
+      this.showCreateModal = false;
+      this.loading = false;
+      this.unblockScroll();
+      this.showNotification('success', 'Publication créée avec succès 🎉');
+    };
 
     if (!this.newPostMedia) {
       this.http.post<Post>(url, newPost).subscribe({
-        next: p => { this.addPostToList(p); this.showNotification('success', 'Publication créée avec succès 🎉'); },
+        next: handleSuccess,
         error: err => { console.error(err); this.loading = false; this.showNotification('error', 'Erreur lors de la création du post ❌'); }
       });
     } else {
@@ -254,20 +286,10 @@ export class ActusC implements OnInit {
       formData.append('media', this.newPostMedia, this.newPostMedia.name);
 
       this.http.post<Post>(url, formData).subscribe({
-        next: p => { this.addPostToList(p); this.showNotification('success', 'Publication créée avec succès 🎉'); },
+        next: handleSuccess,
         error: err => { console.error(err); this.loading = false; this.showNotification('error', 'Erreur lors de la création du post ❌'); }
       });
     }
-  }
-
-  private addPostToList(post: Post) {
-    this.posts.unshift({ ...post, newComment: '', showMenu: false, mediaType: post.media?.endsWith('.mp4')?'video':post.media?'image':undefined, mediaUrl: post.media?this.formatMediaUrl(post.media):undefined, likedBy: post.likedBy ?? [], isLiked: post.likedBy?.includes(this.currentUser?._id || '') ?? false });
-    this.newPostContent = '';
-    this.removeMedia();
-    this.loading = false;
-    this.showCreateModal = false;
-    this.unblockScroll();
-    this.filterPosts();
   }
 
   // --- Commentaires ---
@@ -294,16 +316,19 @@ export class ActusC implements OnInit {
     return ['coach','admin','super admin'].includes(role);
   }
 
-  // --- Likes ---
-  toggleLike(post: Post) {
-    if(!post._id || !this.currentUser?._id) return;
-    this.http.post<{likes:number, isLiked:boolean}>(`http://localhost:3000/api/posts/${post._id}/like`, { userId: this.currentUser._id }).subscribe({
-      next: u => { post.isLiked = u.isLiked; post.likes = u.likes; },
-      error: err => console.error(err)
+  toggleLike(post: Post): void {
+    if (!post._id || !this.currentUser?._id) return;
+    this.animatingLike = post._id;
+    this.http.post<{ likes: number; isLiked: boolean }>(
+      `http://localhost:3000/api/posts/${post._id}/like`,
+      { userId: this.currentUser._id }
+    ).subscribe({
+      next: (res) => { post.isLiked = res.isLiked; post.likes = res.likes; },
+      error: (err) => console.error('Erreur lors du like :', err),
+      complete: () => setTimeout(() => this.animatingLike = null, 1000)
     });
   }
 
-  // --- Bookmarks ---
   bookmarkPost(post: Post) {
     post.isBookmarked = !post.isBookmarked;
     if(!post._id) return;
@@ -311,7 +336,6 @@ export class ActusC implements OnInit {
       .subscribe({ error: err => { console.error(err); post.isBookmarked = !post.isBookmarked; }});
   }
 
-  // --- Partage ---
   sharePost(post: Post) {
     if(!post._id) return;
     this.http.post<Post>(`http://localhost:3000/api/posts/${post._id}/share`, {}).subscribe({
@@ -323,7 +347,6 @@ export class ActusC implements OnInit {
     });
   }
 
-  // --- Suppression post ---
   deletePost(post: Post, index: number) {
     if(!post._id || !confirm('Voulez-vous supprimer ce post ?')) return;
     this.http.delete<void>(`http://localhost:3000/api/posts/${post._id}`).subscribe({
@@ -334,7 +357,6 @@ export class ActusC implements OnInit {
 
   togglePostMenu(i:number) { this.posts[i].showMenu = !this.posts[i].showMenu; }
 
-  // --- Helpers ---
   formatMediaUrl(url?: string) { return url?.startsWith('http') ? url : `http://localhost:3000/uploads/${url}`; }
 
   private showNotification(type: 'success'|'error', text: string) {
@@ -342,15 +364,12 @@ export class ActusC implements OnInit {
     setTimeout(() => this.notification = null, 3000);
   }
 
-  // Ajoute cette méthode
   onDrop(event: DragEvent) {
     event.preventDefault();
     console.log('Fichier déposé', event);
-    // Ici tu peux gérer le fichier ou les données
   }
 
   onDragOver(event: DragEvent) {
     event.preventDefault();
-    // nécessaire pour permettre le drop
   }
 }
