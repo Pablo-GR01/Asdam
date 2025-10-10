@@ -16,17 +16,15 @@ export class FooterJ {
   currentYear: number = new Date().getFullYear();
 
   navLinks = [
-    { path: '/accueilJ', label: 'Accueil' },
-    { path: '/actualiteJ', label: 'Actualités' },
-    { path: '/absentJ', label: 'Absents' },
+    { path: '/actualiteJ/communiquesJ', label: 'Communiqués' },
+    { path: '/matchJ/convocationsJ', label: 'Convocation' },
+    { path: '/matchJ/resultatsJ', label: 'Résultats' },
     { path: '/messagJ', label: 'Message' }
   ];
 
   ressources = [
-    { path: '/planningJ', label: 'Planning' },
-    { path: '/dashboardJ', label: 'Convocations' },
-    { path: '/dashboardJ', label: 'Liste Joueurs' },
-    { path: '/matchJ', label: 'Match' }
+    { path: '/dashboardJ/profileJ', label: 'Profil' },
+    { path: '/dashboardJ/settingsJ', label: 'Paramètres' },
   ];
 
   socialIcons = [

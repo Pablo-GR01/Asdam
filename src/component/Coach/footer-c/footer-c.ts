@@ -16,18 +16,17 @@ export class FooterC {
   currentYear: number = new Date().getFullYear();
 
   navLinks = [
-    { path: '/accueilC', label: 'Accueil' },
-    { path: '/actualiteC', label: 'Actualités' },
-    { path: '/absentC', label: 'Absents' },
-    { path: '/message', label: 'Message' }
+    { path: '/actualiteC/communiquesC', label: 'Communiqués' },
+    { path: '/matchC/convocationsC', label: 'Convocation' },
+    { path: '/matchC/resultatsC', label: 'Résultats' },
+    { path: '/messagC', label: 'Message' }
   ];
 
   ressources = [
-    { path: '/planningC', label: 'Planning' },
-    { path: '/dashboardC', label: 'Convocations' },
-    { path: '/dashboardC', label: 'Liste Joueurs' },
-    { path: '/matchC', label: 'Match' }
+    { path: '/dashboardC/profileC', label: 'Profil' },
+    { path: '/dashboardC/settingsC', label: 'Paramètres' },
   ];
+
 
   socialIcons = [
     { name: 'Facebook', url: 'https://facebook.com', icon: faFacebookF },

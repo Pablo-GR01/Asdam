@@ -28,8 +28,13 @@ import { ResultatsC } from '../page/Coach/resultats-c/resultats-c';
 import { CommuniquerC } from '../page/Coach/communiquer-c/communiquer-c';
 import { CGUC } from '../page/Coach/cguc/cguc';
 import { ActualiteJ } from '../page/Joueur/actualite-j/actualite-j';
-import { Confirmation } from '../page/confirmation/confirmation';
 import { ConvocationC } from '../page/Coach/convocation-c/convocation-c';
+import { ComnuniquerJ } from '../page/Joueur/comnuniquer-j/comnuniquer-j';
+import { MatchJ } from '../page/Joueur/match-j/match-j';
+import { ResultatsJ } from '../page/Joueur/resultats-j/resultats-j';
+import { ProfilJ } from '../page/Joueur/profil-j/profil-j';
+import { DashboardJ } from '../page/Joueur/dashboard-j/dashboard-j';
+import { ParametreJ } from '../page/Joueur/parametre-j/parametre-j';
 
 
 /* ---- TOUT LE INVITÉ ----*/
@@ -39,23 +44,28 @@ export const routes: Routes = [
     { path: '', component: Connexion },
     { path: 'connexion', component: Connexion },
     { path: 'inscription', component: Inscription },
+    { path: 'cguc', component: CGUC},
 
-    // Joueur
+    // ============ Joueur ============== //
     { path: 'accueilJ', component: AcceuilJ },
-    { path: 'notificationsJ', component: NotifJ },
-    { path: 'notificationsJ/messagesJ', component: MessageJ },
     { path: 'PlanningJ', component: PlanningJ },
-    { path: 'absentsJ', component: AbsentsJ },
-    { path: 'matchJ/convocationsJ', component: ConvocationJ },
-    { path: 'actualiteJ', component: ActualiteJ},
+    { path: 'dashboardJ', component: DashboardJ}, // PAGE A FAIRE 
+    { path: 'matchJ', component: MatchJ },
+    { path: 'dashboardJ/profileJ', component: ProfilJ},
+    { path: 'dashboardJ/settingsJ', component: ParametreJ }, // PAGE A FAIRE 
     { path: 'messagesJ', component: MessageJ },
+    { path: 'absentsJ', component: AbsentsJ },
+    { path: 'actualiteJ', component: ActualiteJ},
+    { path: 'matchJ/resultatsJ', component: ResultatsJ},
+    { path: 'actualiteJ/communiquesJ', component: ComnuniquerJ},
+    { path: 'matchJ/convocationsJ', component: ConvocationJ },
+
     
-    // Coach
+    // ============ Coach ============== //
     { path: 'accueilC', component: AcceuilC },
     { path: 'PlanningC', component: PlanningC },
     { path: 'dashboardC', component: DashboardC },
     { path: 'matchC', component: MatchC },
-    { path: 'notificationsC', component: NotifC },
     { path: 'dashboardC/profileC', component: ProfilC },
     { path: 'dashboardC/settingsC', component: ParametresC },
     { path: 'messagesC', component: MessageC },
@@ -63,11 +73,9 @@ export const routes: Routes = [
     { path: 'actualiteC', component: ActualiteC },
     { path: 'matchC/resultatsC', component: ResultatsC},
     { path: 'actualiteC/communiquesC', component: CommuniquerC},
-    { path: 'cguc', component: CGUC},
-    { path: 'matchC/convocationsC', component: ConvocationC },
+    { path: 'matchC/convocationsC', component: ConvocationC},
+    
 
+    // ============ Inviter ============== //
 
-   
-
-    // Inviter
 ];

@@ -25,7 +25,7 @@ const postRoutes = require('./backend/routes/post.Routes');
 const joueurRoutes = require('./backend/routes/joueur.routes');
 const messageRoutes = require('./backend/routes/message.Routes');
 const confirmationRoutes = require('./backend/routes/confirmation.Routes'); // ✅ vérifie que le fichier existe bien
-
+const communiqueRoutes = require('./backend/routes/communiquer.Routes');
 // ==============================
 // ⚙️ Configuration de l'application
 // ==============================
@@ -53,6 +53,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadDir));
 
+
 // ==============================
 // 🌍 Connexion MongoDB
 // ==============================
@@ -73,6 +74,7 @@ app.use('/api/posts', postRoutes);
 app.use('/api/joueurs', joueurRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/confirmation', confirmationRoutes);
+app.use("/api/communiques", communiqueRoutes);
 
 
 // ==============================
